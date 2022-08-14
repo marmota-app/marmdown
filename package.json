@@ -1,0 +1,11 @@
+{
+  "name": "marmdown",
+  "version": "0.0.1",
+  "description": "Marmota stateful markdown parser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0"
+}
