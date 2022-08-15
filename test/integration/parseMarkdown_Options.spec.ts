@@ -190,7 +190,7 @@ describe('parseMarkdown: Options with curly braces', () => {
 		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
 		const options = inlineCode.options
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-		expect(options).toBeFalsy()
+		expect(options).toEqual({})
 		expect(inlineCode.content).toHaveLength(1)
 		expect(inlineCode.content[0]).toHaveProperty('type', 'Text')
 		expect(inlineCode.content[0]).toHaveProperty('content', '{ javascript')

@@ -12,7 +12,7 @@ export type Content = Empty |
 
 export type Empty = { type: 'Empty', }
 
-const ALL_LEVELS = [ 1, 2, 3, 4, ] as const;
+export const ALL_LEVELS = [ 1, 2, 3, 4, ] as const;
 export type Level = (typeof ALL_LEVELS)[number];
 
 export type Heading = {

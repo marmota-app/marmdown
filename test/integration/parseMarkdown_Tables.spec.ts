@@ -127,8 +127,8 @@ describe('parseMarkdown: Tables', () => {
 
 		const boldContent = table.headings[0].content[0]
 		expect(boldContent).toHaveProperty('content')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('content', 'bold')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('content', 'abc')
 
 		expect(table.headings[1].content).toHaveLength(2)
 		expect(table.headings[1].content[0]).toHaveProperty('type', 'Text')
@@ -150,8 +150,8 @@ describe('parseMarkdown: Tables', () => {
 
 		const boldContent = table.rows[0].columns[0].content[0]
 		expect(boldContent).toHaveProperty('content')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('content', '1,1')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('content', '1,1')
 	})
 
 	it.skip('starts a new table after an empty line', () => {

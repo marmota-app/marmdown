@@ -265,8 +265,8 @@ describe('parseMarkdown', () => {
 				expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Bold')
 				const boldContent1 = (result.content[0] as Paragraph).content[1]
 				expect(boldContent1).toHaveProperty('content')
-				expect((boldContent1 as BoldTextContent).content).toHaveProperty('type', 'Text')
-				expect((boldContent1 as BoldTextContent).content).toHaveProperty('content', 'bold text')
+				expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+				expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('content', 'bold text')
 	
 				expect((result.content[0] as Paragraph).content[2]).toHaveProperty('type', 'Text')
 				expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', ' text')
@@ -303,8 +303,8 @@ describe('parseMarkdown', () => {
 				expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Bold')
 				const boldContent1 = (result.content[0] as Paragraph).content[1]
 				expect(boldContent1).toHaveProperty('content')
-				expect((boldContent1 as BoldTextContent).content).toHaveProperty('type', 'Text')
-				expect((boldContent1 as BoldTextContent).content).toHaveProperty('content', bold.replace(/\*\*/g, ''))
+				expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+				expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('content', bold.replace(/\*\*/g, ''))
 			})
 		})
 
@@ -318,8 +318,8 @@ describe('parseMarkdown', () => {
 
 			const boldContent1 = (result.content[0] as Paragraph).content[0]
 			expect(boldContent1).toHaveProperty('content')
-			expect((boldContent1 as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((boldContent1 as BoldTextContent).content).toHaveProperty('content', 'bold 1')
+			expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((boldContent1 as BoldTextContent).content[0]).toHaveProperty('content', 'bold 1')
 
 			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Text')
 			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('content', ' other text ')
@@ -327,8 +327,8 @@ describe('parseMarkdown', () => {
 			expect((result.content[0] as Paragraph).content[2]).toHaveProperty('type', 'Bold')
 			const boldContent2 = (result.content[0] as Paragraph).content[2]
 			expect(boldContent2).toHaveProperty('content')
-			expect((boldContent2 as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((boldContent2 as BoldTextContent).content).toHaveProperty('content', 'bold 2')
+			expect((boldContent2 as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((boldContent2 as BoldTextContent).content[0]).toHaveProperty('content', 'bold 2')
 		})
 	})
 
@@ -349,8 +349,8 @@ describe('parseMarkdown', () => {
 				expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Italic')
 				const italicContent = (result.content[0] as Paragraph).content[1]
 				expect(italicContent).toHaveProperty('content')
-				expect((italicContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-				expect((italicContent as BoldTextContent).content).toHaveProperty('italic text')
+				expect((italicContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+				expect((italicContent as BoldTextContent).content[0]).toHaveProperty('content', 'italic text')
 
 				expect((result.content[0] as Paragraph).content[2]).toHaveProperty('type', 'Text')
 				expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', ' text')
@@ -388,8 +388,8 @@ describe('parseMarkdown', () => {
 
 				const italicContent = (result.content[0] as Paragraph).content[1]
 				expect(italicContent).toHaveProperty('content')
-				expect((italicContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-				expect((italicContent as BoldTextContent).content).toHaveProperty('content', italic.replace(/\*/g, ''))
+				expect((italicContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+				expect((italicContent as BoldTextContent).content[0]).toHaveProperty('content', italic.replace(/\*/g, ''))
 			})
 		})
 
@@ -403,8 +403,8 @@ describe('parseMarkdown', () => {
 
 			const italicContent = (result.content[0] as Paragraph).content[0]
 			expect(italicContent).toHaveProperty('content')
-			expect((italicContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((italicContent as BoldTextContent).content).toHaveProperty('content', 'italic 1')
+			expect((italicContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((italicContent as BoldTextContent).content[0]).toHaveProperty('content', 'italic 1')
 
 			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Text')
 			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('content', ' other text ')
@@ -413,8 +413,8 @@ describe('parseMarkdown', () => {
 
 			const italicContent2 = (result.content[0] as Paragraph).content[2]
 			expect(italicContent2).toHaveProperty('content')
-			expect((italicContent2 as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((italicContent2 as BoldTextContent).content).toHaveProperty('content', 'italic 2')
+			expect((italicContent2 as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((italicContent2 as BoldTextContent).content[0]).toHaveProperty('content', 'italic 2')
 		})
 	})
 
@@ -433,8 +433,8 @@ describe('parseMarkdown', () => {
 
 		const stContent = (result.content[0] as Paragraph).content[1]
 		expect(stContent).toHaveProperty('content')
-		expect((stContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-		expect((stContent as BoldTextContent).content).toHaveProperty('content', 'strike-through text')
+		expect((stContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+		expect((stContent as BoldTextContent).content[0]).toHaveProperty('content', 'strike-through text')
 
 		expect((result.content[0] as Paragraph).content[2]).toHaveProperty('type', 'Text')
 		expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', ' text')
@@ -460,16 +460,16 @@ describe('parseMarkdown', () => {
 
 		const boldContent = strikeThroughContent[1]
 		expect(boldContent).toHaveProperty('content')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-		expect((boldContent as BoldTextContent).content).toHaveProperty('content', 'bold')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+		expect((boldContent as BoldTextContent).content[0]).toHaveProperty('content', 'bold')
 
 		expect(strikeThroughContent[2]).toHaveProperty('type', 'Italic')
 		expect((strikeThroughContent[2] as ItalicTextContent).content[0]).toHaveProperty('type', 'Bold')
 
 		const boldItalicContent = (strikeThroughContent[2] as ItalicTextContent).content[0]
 		expect(boldItalicContent).toHaveProperty('content')
-		expect((boldItalicContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-		expect((boldItalicContent as BoldTextContent).content).toHaveProperty('content', 'bold-italic')
+		expect((boldItalicContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+		expect((boldItalicContent as BoldTextContent).content[0]).toHaveProperty('content', 'bold-italic')
 	})
 
 	it.skip('parses two spaces at the end of the line as NewLine', () => {
@@ -535,8 +535,8 @@ describe('parseMarkdown', () => {
 
 			const boldContent = (result.content[0] as Paragraph).content[3]
 			expect(boldContent).toHaveProperty('content')
-			expect((boldContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((boldContent as BoldTextContent).content).toHaveProperty('content', 'bold text')
+			expect((boldContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((boldContent as BoldTextContent).content[0]).toHaveProperty('content', 'bold text')
 		})
 		it.skip('parses bold and inline code correctly', () => {
 			const markdown = 'text **bold text** text `code (preformatted)`'
@@ -553,8 +553,8 @@ describe('parseMarkdown', () => {
 
 			const boldContent = (result.content[0] as Paragraph).content[1]
 			expect(boldContent).toHaveProperty('content')
-			expect((boldContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((boldContent as BoldTextContent).content).toHaveProperty('content', 'bold text')
+			expect((boldContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((boldContent as BoldTextContent).content[0]).toHaveProperty('content', 'bold text')
 
 			expect((result.content[0] as Paragraph).content[2]).toHaveProperty('type', 'Text')
 			expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', ' text ')

@@ -1,6 +1,5 @@
-import { ContentChange } from "./ContentChange"
-import { MarkdownDocument } from "./MarkdownDocument"
-import { ContentOptions } from "./MarkdownOptions"
+import { ContentChange } from "./ContentChange";
+import { MarkdownDocument } from "./MarkdownDocument";
 
 export function parseMarkdown(markdown: string, changes: ContentChange[] = []): MarkdownDocument {
 	return new MarkdownDocument()

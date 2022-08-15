@@ -102,8 +102,8 @@ describe('parseMarkdown: parse lists', () => {
 
 			const firstContent = (list.items[0].content[0] as Paragraph).content[1]
 			expect(firstContent).toHaveProperty('content')
-			expect((firstContent as BoldTextContent).content).toHaveProperty('type', 'Text')
-			expect((firstContent as BoldTextContent).content).toHaveProperty('content', 'bold')
+			expect((firstContent as BoldTextContent).content[0]).toHaveProperty('type', 'Text')
+			expect((firstContent as BoldTextContent).content[0]).toHaveProperty('content', 'bold')
 	
 			expect((list.items[0].content[0] as Paragraph).content[2]).toHaveProperty('type', 'Text')
 			expect((list.items[0].content[0] as Paragraph).content[2]).toHaveProperty('content', ' text')
