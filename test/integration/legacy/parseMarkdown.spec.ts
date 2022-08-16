@@ -2,7 +2,7 @@ import { Block, BoldTextContent, InlineCodeTextContent, ItalicTextContent, Parag
 import { parseMarkdown, } from '$markdown/parseMarkdown'
 
 describe('parseMarkdown', () => {
-	it.skip('always creates a resulting document', () => {
+	it('always creates a resulting document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)
@@ -11,7 +11,7 @@ describe('parseMarkdown', () => {
 		expect(result).not.toBeNull()
 	})
 
-	it.skip('empty markdown creates empty document', () => {
+	it('empty markdown creates empty document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)

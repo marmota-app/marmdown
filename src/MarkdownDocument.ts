@@ -124,9 +124,9 @@ export type HorizontalRule = {
 export type DefaultContent = {
 	hasChanged: boolean,
 }
-export class MarkdownDocument {
-	readonly options: ContentOptions = {}
-	readonly content: (Content & DefaultContent)[] = []
+export interface MarkdownDocument {
+	readonly options: ContentOptions
+	readonly content: (Content & DefaultContent)[]
 }
 
 export interface ParseResult {

@@ -4,7 +4,10 @@ import { ContentOptions } from "./MarkdownOptions"
 import { postprocessHeadingOptions, postprocessHorizontalRuleOptions } from "./optionsPostprocessors"
 
 export function parseMarkdown(markdown: string, changes: ContentChange[] = []): MarkdownDocument {
-	const document = new MarkdownDocument
+	const document: MarkdownDocument = {
+		content: [],
+		options: {},
+	}
 
 	if(markdown.length > 0) {
 		const lines = markdown.replaceAll('\r', '').split('\n')
