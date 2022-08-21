@@ -1,5 +1,13 @@
+export interface Option {
+	key: string,
+	value: string,
+}
 export type ContentOptions = {
 	[key: string]: string,
+}
+export interface Options {
+	options: Option[],
+	asMap: ContentOptions,
 }
 
 export function serializeOptions(options: ContentOptions): string {

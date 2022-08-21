@@ -1,6 +1,6 @@
 import { Content, DefaultContent } from "$markdown/MarkdownDocument";
 
-export interface ParserResult<T> {
+export interface ParserResult<T = (Content & DefaultContent)> {
 	startIndex: number,
 	length: number,
 	content: T,
