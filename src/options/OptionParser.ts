@@ -23,18 +23,19 @@ export class OptionParser implements TextParser<Option> {
 		const incrementIndex = (l: number) => i+=l
 
 		const identMatcher = /[^ \n\r\t}=;]+/
+		const valueMatcher = /[^\n\r}=;]+/
 		const ident = find(text, identMatcher, start+i, length-i, incrementIndex)
 		if(ident) {
 			const equals = find(text, '=', start+i, length-i, incrementIndex)
 			if(equals) {
-				const value = find(text, identMatcher, start+i, length-i, incrementIndex)
+				const value = find(text, valueMatcher, start+i, length-i, incrementIndex)
 				if(value) {
 					return {
 						startIndex: start,
 						length: i,
 						content: {
 							key: ident.foundText,
-							value: value.foundText,
+							value: value.foundText.trim(),
 						},
 					}
 				}

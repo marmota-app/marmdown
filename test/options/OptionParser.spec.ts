@@ -51,6 +51,16 @@ describe('OptionParser', () => {
 		expect(result).toBeNull()
 	})
 
+	it('parses an option value that contains spaces', () => {
+		const option = 'foo = some longer\ttext   \t'
+
+		const result = optionParser.parse(option, 0, option.length)
+
+		expect(result?.content).toEqual({ key: 'foo', value: 'some longer\ttext', })
+		expect(result).toHaveProperty('startIndex', 0)
+		expect(result).toHaveProperty('length', option.length)
+	})
+
 	describe('special cases ending the idents', () => {
 		[
 			['\n', 'newline',],
