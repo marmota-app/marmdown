@@ -6,28 +6,17 @@ describe('OptionsParser', () => {
 	function parse(text: string) {
 		return optionsParser.parse(text, 0, text.length)
 	}
-	it.skip('parses empty options when document contains empty options block', () => {
+
+	it('parses empty options when document contains empty options block', () => {
 		const result = parse('{}')
 
 		expect(result).not.toBeNull()
 		expect(result?.startIndex).toEqual(0)
 		expect(result?.length).toEqual(2)
-		expect(result?.content).toEqual({})
+		expect(result?.content.asMap).toEqual({})
 	})
-
-	/*
-	it('parses empty options with whitespace', () => {
-		const options = '{  \t  }'
-		const result = parse(options)
-
-		expect(result).not.toBeNull()
-		expect(result?.startIndex).toEqual(0)
-		expect(result?.length).toEqual(options.length)
-		expect(result?.content).toEqual({})
-	})
-
-	it('does not parse options block when there is no starting {', () => {
-		const result = parse('} ')
+	it('does not parse options when the closing curly bracket is missing', () => {
+		const result = parse('{')
 
 		expect(result).toBeNull()
 	})
@@ -37,7 +26,7 @@ describe('OptionsParser', () => {
 
 		const result = parse(options)
 
-		expect(result?.content).toHaveProperty('foo', 'bar')
+		expect(result?.content.asMap).toHaveProperty('foo', 'bar')
 		expect(result?.length).toEqual(options.length)
 	})
 
@@ -46,8 +35,32 @@ describe('OptionsParser', () => {
 
 		const result = parse(options)
 
-		expect(result?.content).toHaveProperty('default', 'the-value')
+		expect(result?.content.asMap).toHaveProperty('default', 'the-value')
 		expect(result?.length).toEqual(options.length)
 	})
-	*/
+
+	it('parses named option after default option', () => {
+		const options = '{ the-value; k1 = v1 }'
+
+		const result = parse(options)
+
+		expect(result?.content.asMap).toHaveProperty('k1', 'v1')
+		expect(result?.content.options.length).toEqual(2)
+	})
+	it('parses named option after named option', () => {
+		const options = '{ k1 = v1; k2 = v2 }'
+
+		const result = parse(options)
+
+		expect(result?.content.asMap).toHaveProperty('k2', 'v2')
+		expect(result?.content.options.length).toEqual(2)
+	})
+
+	it('stops parsing when there is a default option after a named option', () => {
+		const options = '{ k1 = v1; illegal-value }'
+
+		const result = parse(options)
+
+		expect(result).toBeNull()
+	})
 })
