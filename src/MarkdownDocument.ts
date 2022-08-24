@@ -1,4 +1,4 @@
-import { ContentOptions } from "./MarkdownOptions";
+import { ContentOptions, Options } from "./MarkdownOptions";
 
 export type Content = Empty |
 	Heading |
@@ -132,4 +132,8 @@ export interface MarkdownDocument {
 export interface ParseResult {
 	readonly options: ContentOptions,
 	content: (Content & DefaultContent)[],
+}
+
+export interface AdvancedConent {
+	readonly allOptions: Options,
 }

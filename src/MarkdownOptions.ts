@@ -6,8 +6,13 @@ export type ContentOptions = {
 	[key: string]: string,
 }
 export interface Options {
-	options: Option[],
-	asMap: ContentOptions,
+	readonly options: Option[],
+	readonly asMap: ContentOptions,
+}
+
+export const DEFAULT_OPTIONS: Options = {
+	options: [],
+	asMap: {},
 }
 
 export function serializeOptions(options: ContentOptions): string {

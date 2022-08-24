@@ -45,7 +45,7 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(options).toHaveProperty('default', 'defaultoption')
 	})
 
-	it.skip('supports options on headings', () => {
+	it('supports options on headings', () => {
 		const markdown = '#{ defaultoption }\n'
 
 		const result = parseMarkdown(markdown)
@@ -112,6 +112,25 @@ describe('parseMarkdown: Options with curly braces', () => {
 		const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
 		expect(options).toHaveProperty('default', 'defaultoption')
 	})
+
+	const lowercaseLinks = [
+		'https://youtu.be/x_0EH-mLyRM', 'https://vimeo.com/123123123', 'https://www.youtube.com/watch?v=x_0EH-mLyRM',
+		'./file.mp4', './file.mov', './file.avi','./file.wmv', './file.webm',
+	]
+	const uppercaseLinks = lowercaseLinks.map(l => l.toUpperCase())
+	const videoLinks = [ ...lowercaseLinks, ...uppercaseLinks, ]
+	videoLinks.forEach(link => it.skip(`has "video" type option when link is ${link}`, () => {
+		const markdown = `![text](${link})`
+
+		const result = parseMarkdown(markdown)
+	
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'Paragraph')
+		expect((result.content[0] as Paragraph).content[0]).toHaveProperty('options')
+	
+		const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
+		expect(options).toHaveProperty('type', 'video')
+	}))
 
 	it.skip('supports options on asides', () => {
 		const markdown = '^{defaultoption} Aside content'

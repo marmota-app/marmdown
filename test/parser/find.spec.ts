@@ -73,4 +73,13 @@ describe('find', () => {
 
 		expect(resultLength).toEqual(-1)
 	})
+
+	describe('special cases', () => {
+		it('finds single "#"', () => {
+			const result = find('#', '#', 0, 1)
+	
+			expect(result).toHaveProperty('foundText', '#')
+			expect(result).toHaveProperty('length', 1)
+		})
+	})
 })

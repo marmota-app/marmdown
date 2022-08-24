@@ -1,4 +1,4 @@
-import { Content, DefaultContent } from "$markdown/MarkdownDocument";
+import { AdvancedConent, Content, DefaultContent } from "$markdown/MarkdownDocument";
 
 export interface ParserResult<T = (Content & DefaultContent)> {
 	startIndex: number,
@@ -6,6 +6,6 @@ export interface ParserResult<T = (Content & DefaultContent)> {
 	content: T,
 }
 
-export interface TextParser<T = (Content & DefaultContent)> {
+export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
 	parse(text: string, start: number, length: number): ParserResult<T> | null,
 }

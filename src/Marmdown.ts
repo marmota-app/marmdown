@@ -1,8 +1,9 @@
-import { HeadingParser } from "./heading/HeadingParser";
-import { Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
-import { ContentOptions } from "./MarkdownOptions";
+import { HeadingParser } from "./toplevel/HeadingParser";
+import { AdvancedConent, Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
+import { Options } from "./MarkdownOptions";
 import { OptionsParser } from "./options/OptionsParser";
 import { TextParser } from "./parser/TextParser";
+import { find } from "./parser/find";
 
 const documentParsers: TextParser[] = [
 	new HeadingParser(),
@@ -11,7 +12,7 @@ const documentParsers: TextParser[] = [
 export class Marmdown {
 	private _document: MarkdownDocument
 
-	constructor(initialText: string, private optionsParser: TextParser<ContentOptions> = new OptionsParser(), private subparsers: TextParser[] = documentParsers) {
+	constructor(initialText: string, private optionsParser: TextParser<Options> = new OptionsParser(), private subparsers: TextParser[] = documentParsers) {
 		this._document = this.parseFullDocument(initialText)
 	}
 
@@ -37,6 +38,10 @@ export class Marmdown {
 			let noResultParsed = true
 
 			for(let i=0; i<this.subparsers.length; i++) {
+				find(text, /[\r\n]+/, startIndex, length, l => {
+					startIndex += l
+					length -= l
+				})
 				const currentResult = this.subparsers[i].parse(text, startIndex, length)
 	
 				if(currentResult) {
