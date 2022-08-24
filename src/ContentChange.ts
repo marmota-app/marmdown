@@ -4,7 +4,7 @@ export type ContentChange = {
 		readonly startColumn: number,
 		readonly endLineNumber: number,
 		readonly endColumn: number,
-	},
+	} | undefined,
 	readonly rangeOffset: number,
 	readonly rangeLength: number,
 	readonly text: string,

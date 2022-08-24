@@ -137,3 +137,11 @@ export interface ParseResult {
 export interface AdvancedConent {
 	readonly allOptions: Options,
 }
+
+export interface Updatable {
+	text: string,
+	previous: Updatable | undefined,
+	parent: Updatable | undefined,
+	start: number,
+	length: number,
+}
