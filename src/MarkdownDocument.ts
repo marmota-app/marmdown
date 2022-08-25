@@ -1,4 +1,5 @@
 import { ContentOptions, Options } from "./MarkdownOptions";
+import { TextParser } from "./parser/TextParser";
 
 export type Content = Empty |
 	Heading |
@@ -138,10 +139,11 @@ export interface AdvancedConent {
 	readonly allOptions: Options,
 }
 
-export interface Updatable {
+export interface Updatable<T> {
 	text: string,
-	previous: Updatable | undefined,
-	parent: Updatable | undefined,
+	previous: Updatable<unknown> | undefined,
+	parent: Updatable<unknown> | undefined,
 	start: number,
 	length: number,
+	parsedWith: TextParser<T>,
 }

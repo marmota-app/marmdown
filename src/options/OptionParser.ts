@@ -39,6 +39,7 @@ export class OptionParser implements TextParser<Option> {
 							ident.foundText,
 							value.foundText.trim(),
 							start, i,
+							this,
 						),
 					}
 				}
@@ -51,6 +52,7 @@ export class OptionParser implements TextParser<Option> {
 						'default',
 						ident.foundText,
 						start, i,
+						this,
 					),
 				}
 			}

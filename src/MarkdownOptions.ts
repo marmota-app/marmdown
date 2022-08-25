@@ -1,6 +1,8 @@
 import { AdvancedConent, Updatable } from "./MarkdownDocument"
+import { TextParser } from "./parser/TextParser"
+import { UpdatableElement } from "./UpdatableElement"
 
-export interface Option extends Updatable {
+export interface Option extends Updatable<Option> {
 	key: string,
 	value: string,
 }
@@ -17,34 +19,17 @@ export const DEFAULT_OPTIONS: Options = {
 	asMap: {},
 }
 
-export class UpdatableOption implements Option {
-	private _parent: Updatable | undefined
-	private _previous: Updatable | undefined
-
+export class UpdatableOption extends UpdatableElement<Option> implements Option {
 	constructor(
 		public text: string,
 		private _key: string, private _value: string,
-		private _start: number, private _length: number,
-	) {}
+		_start: number, _length: number, parsedWith: TextParser<Option>,
+	) {
+		super(_start, _length, parsedWith)
+	}
 
 	get key() { return this._key }
 	get value() { return this._value}
-	get previous() { return this._previous }
-	set previous(_previous: Updatable | undefined) { this._previous = _previous }
-	get parent() { return this._parent }
-	set parent(_parent: Updatable | undefined) { this._parent = _parent }
-	get length() { return this._length }
-
-	get start() {
-		if(this._previous) {
-			return this._previous.start + this._previous.length
-		}
-		if(this._parent) {
-			return this._parent.start + this._parent.length
-		}
-		return this._start
-	}
-	set start(_start: number) { this._start = _start }
 }
 
 export function serializeOptions(options: ContentOptions): string {
