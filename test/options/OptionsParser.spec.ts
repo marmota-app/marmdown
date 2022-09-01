@@ -1,4 +1,5 @@
 import { ContentChange } from "$markdown/ContentChange"
+import { Option, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { OptionsParser } from "$markdown/options/OptionsParser"
 
 describe('OptionsParser', () => {
@@ -128,11 +129,14 @@ describe('OptionsParser', () => {
 			expect(result?.content.asMap).toHaveProperty('default', 'defaultvalue')
 		})
 
+		const baseOptions = () => parse('{ defaultValue; foo=bar; }')?.content
+		const existingOptions =() => new UpdatableOptions(baseOptions()!.parts as (string | Option)[], 7, baseOptions()!.parsedWith)
 		const textTestData: [string, ContentChange, string][] = [
 			['{}', { rangeOffset: 1, rangeLength: 0, text: ' content ', range: undefined }, '{ content }'],
 			['{ default }', { rangeOffset: '{ de'.length, rangeLength: 3, text: '', range: undefined }, '{ delt }'],
 			['{     default; }', { rangeOffset: 3, rangeLength: 0, text: 'foo =', range: undefined }, '{  foo =   default; }'],
 			['{foo=bar}', { rangeOffset: '{foo='.length, rangeLength: 0, text: 'i', range: undefined }, '{foo=ibar}'],
+			['{default;   foo=bar;}', { rangeOffset: '{default; '.length, rangeLength: 0, text: 'a=b;', range: undefined }, '{default; a=b;  foo=bar;}'],
 		]
 		textTestData.forEach(([options, change, newText]) => it(`updates text to ${newText} after parsing change ${JSON.stringify(change)} in ${options}`, () => {
 			const parsed = parse(options)
@@ -141,11 +145,26 @@ describe('OptionsParser', () => {
 
 			expect(result?.content.text).toEqual(newText)
 		}))
-	
-		// **TODO**
-		// * indexes
-		// * inner parser returned 0
-		// * change not inside an inner parser
-		// * just bail out if too complicated
+
+		const indexTestData: [ContentChange, {startIndex: number, length: number}][] = [
+			[{ rangeOffset: '{ default'.length+7, rangeLength: 'Value'.length, text: '', range: undefined }, { startIndex: 7, length: existingOptions().length-'Value'.length}],
+			[{ rangeOffset: '{ defaultValue; foo='.length+7, rangeLength: 0, text: 'i', range: undefined }, { startIndex: 7, length: existingOptions().length+'i'.length}],
+		]
+		indexTestData.forEach(([change, indexData]) => it(`Updates index data to ${JSON.stringify(indexData)} after change ${JSON.stringify(change)}`, () => {
+			const result = existingOptions()!.parsedWith.parsePartial(existingOptions(), change)
+
+			expect(result).toEqual(expect.objectContaining(indexData))
+		}))
+
+		const outOfBoundsTestdata: ContentChange[] = [
+			{ rangeOffset: 6, rangeLength: 'Value'.length, text: '', range: undefined },
+			{ rangeOffset: existingOptions().length+7+5, rangeLength: 'Value'.length, text: '', range: undefined },
+			{ rangeOffset: existingOptions().length+7-5, rangeLength: 'long text'.length, text: '', range: undefined },
+		]
+		outOfBoundsTestdata.forEach(change => it(`Does not parse out-of-bounds change ${JSON.stringify(change)}`, () => {
+			const result = existingOptions()!.parsedWith.parsePartial(existingOptions(), change)
+
+			expect(result).toBeNull()
+		}))
 	})
 })

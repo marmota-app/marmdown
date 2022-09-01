@@ -34,7 +34,7 @@ export class OptionsParser implements TextParser<Options> {
 				return {
 					startIndex: start,
 					length: i,
-					content: new UpdatableOptions(foundParts, foundOptionsStartIndex, i, this),
+					content: new UpdatableOptions(foundParts, foundOptionsStartIndex, this),
 				}	
 			}
 		}
@@ -43,14 +43,14 @@ export class OptionsParser implements TextParser<Options> {
 	}
 
 	parsePartial(existing: Options, change: ContentChange): ParserResult<Options> | null {
-		const optionStart = existing.start
+		const optionsStart = existing.start
 
 		const changeStart = change.rangeOffset
 		const changeEnd = change.rangeOffset + change.rangeLength
-		//const rangeStartsWithingExistingBounds = changeStart >= optionStart && changeStart <= optionStart+existing.length
-		//const rangeEndsWithinExistingBounds = changeEnd >= optionStart && changeEnd <= optionStart+existing.length
+		const rangeStartsWithingExistingBounds = changeStart >= optionsStart && changeStart <= optionsStart+existing.length
+		const rangeEndsWithinExistingBounds = changeEnd >= optionsStart && changeEnd <= optionsStart+existing.length
 
-		//if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
+		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
 			for(let i=0; i<existing.parts.length; i++) {
 				const affected = existing.parts[i]
 				if(affected && (affected as Updatable<any>).text != null) {
@@ -59,17 +59,17 @@ export class OptionsParser implements TextParser<Options> {
 					if(result) {
 						existing.parts[i] = result.content
 						return {
-							startIndex: 0,//TODO
-							length: 0,//TODO
-							content: existing, //FIXME must also change existing.options before returning! Or: dynamically create options!
+							startIndex: optionsStart,
+							length: existing.length,
+							content: existing,
 						}
 					}
 				}
 			}
 	
 			//FIXME: Duplicated from OptionParser!
-			const beforeChange = existing.text.substring(0, changeStart - optionStart)
-			const afterChange = existing.text.substring(changeEnd - optionStart)
+			const beforeChange = existing.text.substring(0, changeStart - optionsStart)
+			const afterChange = existing.text.substring(changeEnd - optionsStart)
 
 			const newText = beforeChange + change.text + afterChange
 
@@ -78,17 +78,17 @@ export class OptionsParser implements TextParser<Options> {
 
 			if(newResult && newResultWasFullyParsed(newResult)) {
 				const newContent = newResult.content
-				//newContent.start = optionStart
-				//newContent.previous = existing.previous
-				//newContent.parent = existing.parent
+				newContent.start = optionsStart
+				newContent.previous = existing.previous
+				newContent.parent = existing.parent
 				return {
-					length: 0,//newResult.length,
-					startIndex: 0,//optionStart,
+					startIndex: optionsStart,
+					length: newContent.length,
 					content: newContent,
 				}
 			}
 
-		//}
+		}
 
 		return null
 	}

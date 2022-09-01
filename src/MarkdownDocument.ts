@@ -148,6 +148,6 @@ export interface Updatable<T> {
 	parsedWith: TextParser<T>,
 }
 
-export interface UpdatableContainer<T> extends Updatable<T> {
-	parts: (string | Updatable<unknown>)[],
+export interface UpdatableContainer<T, P> extends Updatable<T> {
+	parts: P[],
 }

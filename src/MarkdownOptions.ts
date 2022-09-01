@@ -9,7 +9,7 @@ export interface Option extends Updatable<Option> {
 export type ContentOptions = {
 	[key: string]: string,
 }
-export interface Options extends UpdatableContainer<Options>{
+export interface Options extends UpdatableContainer<Options, string | Option>{
 	readonly options: Option[],
 	readonly asMap: ContentOptions,
 }
@@ -27,28 +27,10 @@ export class UpdatableOption extends UpdatableElement<Option> implements Option 
 	get value() { return this._value}
 }
 
-export class UpdatableOptions extends UpdatableContainerElement<Options> implements Options {
-	constructor(
-		private _parts: (string | Option)[],
-		_start: number, _length: number, parsedWith: TextParser<Options>,
-	) {
-		super(_start, _length, parsedWith)
-	}
+export class UpdatableOptions extends UpdatableContainerElement<Options, string | Option> implements Options {
 
-	get parts() {
-		return this._parts
-	}
 	get options() {
-		return this._parts.filter(v => (typeof v)==='object') as Option[]
-	}
-
-	get text() {
-		return this._parts.reduce((r: string, p) => {
-			if((p as Updatable<unknown>).text != null) {
-				return r+(p as Updatable<unknown>).text
-			}
-			return r+(p as string)
-		}, '')
+		return this.parts.filter(v => (typeof v)==='object') as Option[]
 	}
 
 	get asMap() {
