@@ -140,7 +140,7 @@ export interface AdvancedConent {
 }
 
 export interface Updatable<T> {
-	text: string,
+	asText: string,
 	previous: Updatable<unknown> | undefined,
 	parent: Updatable<unknown> | undefined,
 	start: number,

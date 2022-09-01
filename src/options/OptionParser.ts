@@ -70,8 +70,8 @@ export class OptionParser implements TextParser<Option> {
 		const rangeEndsWithinExistingBounds = changeEnd >= optionStart && changeEnd <= optionStart+existingOption.length
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			const beforeChange = existingOption.text.substring(0, changeStart - optionStart)
-			const afterChange = existingOption.text.substring(changeEnd - optionStart)
+			const beforeChange = existingOption.asText.substring(0, changeStart - optionStart)
+			const afterChange = existingOption.asText.substring(changeEnd - optionStart)
 
 			const newText = beforeChange + change.text + afterChange
 			const newResult = this.parse(newText, 0, newText.length)

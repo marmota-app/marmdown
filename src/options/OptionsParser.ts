@@ -53,7 +53,7 @@ export class OptionsParser implements TextParser<Options> {
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
 			for(let i=0; i<existing.parts.length; i++) {
 				const affected = existing.parts[i]
-				if(affected && (affected as Updatable<any>).text != null) {
+				if(affected && (affected as Updatable<any>).asText != null) {
 					const affectedOption = (affected as Updatable<any>)
 					const result = affectedOption.parsedWith.parsePartial(affectedOption, change)
 					if(result) {
@@ -68,8 +68,8 @@ export class OptionsParser implements TextParser<Options> {
 			}
 	
 			//FIXME: Duplicated from OptionParser!
-			const beforeChange = existing.text.substring(0, changeStart - optionsStart)
-			const afterChange = existing.text.substring(changeEnd - optionsStart)
+			const beforeChange = existing.asText.substring(0, changeStart - optionsStart)
+			const afterChange = existing.asText.substring(changeEnd - optionsStart)
 
 			const newText = beforeChange + change.text + afterChange
 

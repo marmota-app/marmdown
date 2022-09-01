@@ -70,7 +70,7 @@ describe('OptionsParser', () => {
 	textTestData.forEach(options => it(`generates text ${options} after parsing ${options}`, () => {
 		const result = parse(options)
 
-		expect(result?.content.text).toEqual(options)
+		expect(result?.content.asText).toEqual(options)
 	}))
 
 	describe('partial parsing options', () => {
@@ -143,7 +143,7 @@ describe('OptionsParser', () => {
 	
 			const result = parsed?.content!.parsedWith.parsePartial(parsed.content!, change)
 
-			expect(result?.content.text).toEqual(newText)
+			expect(result?.content.asText).toEqual(newText)
 		}))
 
 		const indexTestData: [ContentChange, {startIndex: number, length: number}][] = [

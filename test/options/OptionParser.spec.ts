@@ -14,7 +14,7 @@ describe('OptionParser', () => {
 		expect(result).toHaveProperty('length', option.length)
 		expect(result?.content).toHaveProperty('key', 'foo')
 		expect(result?.content).toHaveProperty('value', 'bar')
-		expect(result?.content).toHaveProperty('text', 'foo = bar')
+		expect(result?.content).toHaveProperty('asText', 'foo = bar')
 	})
 
 	it('returns null when option could not be parsed', () => {
@@ -34,7 +34,7 @@ describe('OptionParser', () => {
 		expect(result).toHaveProperty('length', option.length-11)
 		expect(result?.content).toHaveProperty('key', 'bar')
 		expect(result?.content).toHaveProperty('value', 'foo')
-		expect(result?.content).toHaveProperty('text', 'bar = foo')
+		expect(result?.content).toHaveProperty('asText', 'bar = foo')
 	})
 
 	it('parses default option when allowed', () => {
@@ -47,7 +47,7 @@ describe('OptionParser', () => {
 		expect(result).toHaveProperty('length', option.length)
 		expect(result?.content).toHaveProperty('key', 'default')
 		expect(result?.content).toHaveProperty('value', 'bar')
-		expect(result?.content).toHaveProperty('text', 'bar')
+		expect(result?.content).toHaveProperty('asText', 'bar')
 	})
 
 	it('does not parse default option when not allowed', () => {
@@ -105,8 +105,8 @@ describe('OptionParser', () => {
 		interface ExpectedResult { text: string, key: string, value: string, length: number, }
 
 		const existingOption = new UpdatableOption('foo = bar', 'foo', 'bar', 5, 'foo = bar'.length, optionParser,)
-		existingOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
-		existingOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingOption.parent = { asText: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingOption.previous = { asText: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
 		//Start of the option is 12, because of "previous"!
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
@@ -130,7 +130,7 @@ describe('OptionParser', () => {
 			if(d[1] === null) {
 				expect(result).toBeNull()
 			} else {
-				expect(result?.content).toHaveProperty('text', d[1].text)
+				expect(result?.content).toHaveProperty('asText', d[1].text)
 				expect(result?.content).toHaveProperty('key', d[1].key)
 				expect(result?.content).toHaveProperty('value', d[1].value)
 				expect(result?.content).toHaveProperty('length', d[1].length)
@@ -141,8 +141,8 @@ describe('OptionParser', () => {
 		}))
 
 		const existingDefaultOption = new UpdatableOption('bar', 'default', 'bar', 12, 'bar'.length, optionParser, )
-		existingDefaultOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
-		existingDefaultOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingDefaultOption.parent = { asText: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingDefaultOption.previous = { asText: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
 		//Start of the option is 12, because of "previous"!
 		const defaultOptionData: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
@@ -164,7 +164,7 @@ describe('OptionParser', () => {
 			if(d[1] === null) {
 				expect(result).toBeNull()
 			} else {
-				expect(result?.content).toHaveProperty('text', d[1].text)
+				expect(result?.content).toHaveProperty('asText', d[1].text)
 				expect(result?.content).toHaveProperty('key', d[1].key)
 				expect(result?.content).toHaveProperty('value', d[1].value)
 				expect(result?.content).toHaveProperty('length', d[1].length)

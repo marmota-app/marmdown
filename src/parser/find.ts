@@ -44,3 +44,13 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 	}
 	return result
 }
+
+export function skipSpaces(text: string, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}) {
+	const whitespaceMatcher = /[ \t]+/y
+	whitespaceMatcher.lastIndex = startIndex
+	const foundWhitespace = whitespaceMatcher.exec(text)
+
+	if(foundWhitespace) {
+		whenFound(foundWhitespace[0].length, foundWhitespace[0])
+	}
+}

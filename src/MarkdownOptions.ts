@@ -16,7 +16,7 @@ export interface Options extends UpdatableContainer<Options, string | Option>{
 
 export class UpdatableOption extends UpdatableElement<Option> implements Option {
 	constructor(
-		public text: string,
+		public asText: string,
 		private _key: string, private _value: string,
 		_start: number, _length: number, parsedWith: TextParser<Option>,
 	) {

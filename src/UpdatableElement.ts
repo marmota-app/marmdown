@@ -38,15 +38,15 @@ export class UpdatableContainerElement<T, P> extends UpdatableElement<T> impleme
 	get parts() {
 		return this._parts
 	}
-	get text() {
+	get asText() {
 		return this._parts.reduce((r: string, p) => {
-			if((p as unknown as Updatable<unknown>).text != null) {
-				return r+(p as unknown as Updatable<unknown>).text
+			if((p as unknown as Updatable<unknown>).asText != null) {
+				return r+(p as unknown as Updatable<unknown>).asText
 			}
 			return r+(p as unknown as string)
 		}, '')
 	}
 	get length() {
-		return this.text.length
+		return this.asText.length
 	}
 }
