@@ -1,5 +1,6 @@
+import { ContentChange } from "$markdown/ContentChange";
 import { AdvancedConent, DefaultContent, Heading } from "$markdown/MarkdownDocument";
-import { DEFAULT_OPTIONS, Options } from "$markdown/MarkdownOptions";
+import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find } from "$markdown/parser/find";
 import { ParserResult, TextParser } from "$markdown/parser/TextParser";
@@ -20,7 +21,7 @@ export class HeadingParser implements TextParser<Heading> {
 
 		for(var h=0; h<headingIdentifiers.length; h++) {
 			if(find(text, headingIdentifiers[h].text, start+i, length-i, incrementIndex)) {
-				let options: Options = DEFAULT_OPTIONS
+				let options: Options = new UpdatableOptions([], -1, -1, this.optionsParser)
 				const optionsResult = this.optionsParser.parse(text, start+i, length-i)
 				if(optionsResult) {
 					i += optionsResult.length
@@ -45,4 +46,9 @@ export class HeadingParser implements TextParser<Heading> {
 
 		return null
 	}
+
+	parsePartial(existing: Heading, change: ContentChange): ParserResult<Heading> | null {
+		return null
+	}
+
 }

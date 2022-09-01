@@ -1,9 +1,10 @@
 export interface FindResult {
 	foundText: string,
+	completeText: string,
 	length: number,
 }
 
-export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, whenFound: (length: number) => unknown = ()=>{}): FindResult | null {
+export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}): FindResult | null {
 	let result = null
 
 	const whitespaceMatcher = /[ \t]+/y
@@ -20,6 +21,7 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 		if(text.indexOf(toFind, startIndex) === startIndex) {
 			result = {
 				foundText: toFind,
+				completeText: (foundWhitespace?.[0] ?? '') + toFind,
 				length: whitespaceLength + toFind.length,
 			}
 		}
@@ -31,13 +33,14 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 		if(findResult) {
 			result = {
 				foundText: findResult[0],
+				completeText: (foundWhitespace?.[0] ?? '') + findResult[0],
 				length: whitespaceLength + findResult[0].length,
 			}
 		}
 	}
 
-	if(result)  {
-		whenFound(result.length)
+	if(result) {
+		whenFound(result.length, result.completeText)
 	}
 	return result
 }

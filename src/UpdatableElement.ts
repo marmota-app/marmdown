@@ -1,4 +1,4 @@
-import { Updatable } from "./MarkdownDocument";
+import { Updatable, UpdatableContainer } from "./MarkdownDocument";
 import { TextParser } from "./parser/TextParser";
 
 export class UpdatableElement<T> implements Partial<Updatable<T>> {
@@ -25,4 +25,7 @@ export class UpdatableElement<T> implements Partial<Updatable<T>> {
 		return this._start
 	}
 	set start(_start: number) { this._start = _start }
+}
+
+export class UpdatableContainerElement<T> extends UpdatableElement<T> implements Partial<UpdatableContainer<T>> {
 }

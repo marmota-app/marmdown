@@ -1,6 +1,6 @@
-import { AdvancedConent, Updatable } from "./MarkdownDocument"
+import { AdvancedConent, Updatable, UpdatableContainer } from "./MarkdownDocument"
 import { TextParser } from "./parser/TextParser"
-import { UpdatableElement } from "./UpdatableElement"
+import { UpdatableContainerElement, UpdatableElement } from "./UpdatableElement"
 
 export interface Option extends Updatable<Option> {
 	key: string,
@@ -9,14 +9,9 @@ export interface Option extends Updatable<Option> {
 export type ContentOptions = {
 	[key: string]: string,
 }
-export interface Options {
+export interface Options extends UpdatableContainer<Options>{
 	readonly options: Option[],
 	readonly asMap: ContentOptions,
-}
-
-export const DEFAULT_OPTIONS: Options = {
-	options: [],
-	asMap: {},
 }
 
 export class UpdatableOption extends UpdatableElement<Option> implements Option {
@@ -30,6 +25,37 @@ export class UpdatableOption extends UpdatableElement<Option> implements Option 
 
 	get key() { return this._key }
 	get value() { return this._value}
+}
+
+export class UpdatableOptions extends UpdatableContainerElement<Options> implements Options {
+	constructor(
+		private _parts: (string | Option)[],
+		_start: number, _length: number, parsedWith: TextParser<Options>,
+	) {
+		super(_start, _length, parsedWith)
+	}
+
+	get parts() {
+		return this._parts
+	}
+	get options() {
+		return this._parts.filter(v => (typeof v)==='object') as Option[]
+	}
+
+	get text() {
+		return this._parts.reduce((r: string, p) => {
+			if((p as Updatable<unknown>).text != null) {
+				return r+(p as Updatable<unknown>).text
+			}
+			return r+(p as string)
+		}, '')
+	}
+
+	get asMap() {
+		return this.options.reduce((p, c) => {
+			return { ...p, [c.key]: c.value}
+		}, {} as ContentOptions)
+	}
 }
 
 export function serializeOptions(options: ContentOptions): string {

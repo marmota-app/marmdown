@@ -104,15 +104,16 @@ describe('OptionParser', () => {
 	describe('partially parsing changes', () => {
 		interface ExpectedResult { text: string, key: string, value: string, length: number, }
 
-		const existingOption = new UpdatableOption('foo = bar', 'foo', 'bar', 5, 'foo = bar'.length)
-		existingOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, }
-		existingOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, }
+		const existingOption = new UpdatableOption('foo = bar', 'foo', 'bar', 5, 'foo = bar'.length, optionParser,)
+		existingOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
 		//Start of the option is 12, because of "previous"!
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 50, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 12, rangeLength: 0, text: 'i', range: undefined }, { text: 'ifoo = bar', key: 'ifoo', value: 'bar', length: 'ifoo = bar'.length}],
 			[{ rangeOffset: 18, rangeLength: 0, text: 'i', range: undefined }, { text: 'foo = ibar', key: 'foo', value: 'ibar', length: 'foo = ibar'.length}],
+			[{ rangeOffset: 21, rangeLength: 0, text: 'i', range: undefined }, { text: 'foo = bari', key: 'foo', value: 'bari', length: 'foo = bari'.length}],
 			[{ rangeOffset: 12, rangeLength: 2, text: '', range: undefined }, { text: 'o = bar', key: 'o', value: 'bar', length: 'o = bar'.length}],
 			[{ rangeOffset: 12, rangeLength: 3, text: 'baz', range: undefined }, { text: 'baz = bar', key: 'baz', value: 'bar', length: 'baz = bar'.length}],
 			[{ rangeOffset: 14, rangeLength: 0, text: ';', range: undefined }, null],
@@ -139,14 +140,15 @@ describe('OptionParser', () => {
 			}
 		}))
 
-		const existingDefaultOption = new UpdatableOption('bar', 'default', 'bar', 12, 'bar'.length)
-		existingDefaultOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, }
-		existingDefaultOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, }
+		const existingDefaultOption = new UpdatableOption('bar', 'default', 'bar', 12, 'bar'.length, optionParser, )
+		existingDefaultOption.parent = { text: '', start: 3, length: 4, parent: undefined, previous: undefined, parsedWith: optionParser, }
+		existingDefaultOption.previous = { text: '', start: 6, length: 6, parent: undefined, previous: undefined, parsedWith: optionParser, }
 		//Start of the option is 12, because of "previous"!
 		const defaultOptionData: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 50, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 12, rangeLength: 0, text: 'i', range: undefined }, { text: 'ibar', key: 'default', value: 'ibar', length: 'ibar'.length}],
+			[{ rangeOffset: 15, rangeLength: 0, text: 'i', range: undefined }, { text: 'bari', key: 'default', value: 'bari', length: 'bari'.length}],
 			[{ rangeOffset: 12, rangeLength: 2, text: '', range: undefined }, { text: 'r', key: 'default', value: 'r', length: 'r'.length}],
 			[{ rangeOffset: 12, rangeLength: 3, text: 'baz', range: undefined }, { text: 'baz', key: 'default', value: 'baz', length: 'baz'.length}],
 			[{ rangeOffset: 14, rangeLength: 0, text: ';', range: undefined }, null],

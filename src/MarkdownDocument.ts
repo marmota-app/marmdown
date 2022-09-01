@@ -147,3 +147,7 @@ export interface Updatable<T> {
 	length: number,
 	parsedWith: TextParser<T>,
 }
+
+export interface UpdatableContainer<T> extends Updatable<T> {
+	parts: (string | Updatable<unknown>)[],
+}
