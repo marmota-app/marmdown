@@ -1,4 +1,7 @@
-import { HeadingParser } from "$markdown/toplevel/HeadingParser"
+import { ContentChange } from "$markdown/ContentChange"
+import { Level } from "$markdown/MarkdownDocument"
+import { ContentOptions, Options } from "$markdown/MarkdownOptions"
+import { HeadingParser, UpdatableHeading } from "$markdown/toplevel/HeadingParser"
 
 describe('HeadingParser', () => {
 	const headingParser = new HeadingParser()
@@ -35,6 +38,44 @@ describe('HeadingParser', () => {
 		const result = headingParser.parse(markdown, 0, markdown.length)
 
 		expect(result?.content.options).toHaveProperty('foo', 'bar')
+	})
+
+	describe('partial parsing of headings', () => {
+		interface ExpectedResult { level: Level, heading: string, options: ContentOptions, completeText: string }
+
+		const markdown = '      \n#{ option } The Heading'
+		const existingHeading = () => {
+			return headingParser.parse(markdown, 7, markdown.length)?.content
+		}
+
+		const data: [ ContentChange, ExpectedResult | null, ][] = [
+			[ { rangeOffset: 4, rangeLength: 0, text: 'ignore', range: undefined }, null ],
+			[ { rangeOffset: 4, rangeLength: 10, text: 'ignore', range: undefined }, null ],
+			[ { rangeOffset: 100, rangeLength: 0, text: 'ignore', range: undefined }, null ],
+			[ { rangeOffset: 9, rangeLength: 100, text: 'ignore', range: undefined }, null ],
+			[ { rangeOffset: 7, rangeLength: 0, text: '#', range: undefined }, { level: 2, heading: 'The Heading', options: { default: 'option' }, completeText: '##{ option } The Heading', } ],
+			[ { rangeOffset: 7, rangeLength: 1, text: '###', range: undefined }, { level: 3, heading: 'The Heading', options: { default: 'option' }, completeText: '###{ option } The Heading', } ],
+			[ { rangeOffset: 7+'#{ '.length, rangeLength: 0, text: '_', range: undefined }, { level: 1, heading: 'The Heading', options: { default: '_option' }, completeText: '#{ _option } The Heading', } ],
+			[ { rangeOffset: 7+'#{ option } '.length, rangeLength: 0, text: 'Wow, ', range: undefined }, { level: 1, heading: 'Wow, The Heading', options: { default: 'option' }, completeText: '#{ option } Wow, The Heading', } ],
+			[ { rangeOffset: 7+'#{ option } The '.length, rangeLength: 'Heading'.length, text: 'Überschrift', range: undefined }, { level: 1, heading: 'The Überschrift', options: { default: 'option' }, completeText: '#{ option } The Überschrift', } ],
+			[ { rangeOffset: 7+'#{ option } The Heading'.length, rangeLength: 0, text: 's', range: undefined }, { level: 1, heading: 'The Headings', options: { default: 'option' }, completeText: '#{ option } The Headings', } ],
+		]
+		data.forEach(td => it(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
+			const existing = existingHeading()!
+			const result = existing.parsedWith.parsePartial(existing, td[0])
+
+			if(td[1]) {
+				expect(result?.startIndex).toEqual(existing.start)
+				expect(result?.length).toEqual(td[1].completeText.length)
+
+				expect(result?.content).toHaveProperty('text', td[1].heading)
+				expect(result?.content).toHaveProperty('asText', td[1].completeText)
+				expect(result?.content).toHaveProperty('level', td[1].level)
+				expect(result?.content).toHaveProperty('options', td[1].options)
+			} else {
+				expect(result).toBeNull()
+			}
+		}))
 	})
 
 })

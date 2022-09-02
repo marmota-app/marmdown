@@ -3,7 +3,7 @@ import { AdvancedConent, DefaultContent, Heading, Level as HeadingLevel } from "
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find, skipSpaces } from "$markdown/parser/find";
-import { ParserResult, TextParser } from "$markdown/parser/TextParser";
+import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser";
 import { UpdatableContainerElement } from "$markdown/UpdatableElement";
 
 const headingIdentifiers = [ 
@@ -16,7 +16,7 @@ const headingIdentifiers = [
 export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 }
 
-export class UpdatableHeading extends UpdatableContainerElement<MdHeading, string | Options> implements MdHeading {
+export class UpdatableHeading extends UpdatableContainerElement<UpdatableHeading, string | Options> implements MdHeading {
 	type = 'Heading' as const
 
 	constructor(public readonly level: HeadingLevel, public readonly allOptions: Options, _parts: (string | Options)[], _start: number, parsedWith: HeadingParser) {
@@ -28,8 +28,10 @@ export class UpdatableHeading extends UpdatableContainerElement<MdHeading, strin
 	get text() { return this.parts[this.parts.length-1] as string }
 }
 
-export class HeadingParser implements TextParser<MdHeading> {
-	constructor(private optionsParser: OptionsParser = new OptionsParser()) {}
+export class HeadingParser extends ContainerTextParser<UpdatableHeading, string | Options> implements TextParser<UpdatableHeading> {
+	constructor(private optionsParser: OptionsParser = new OptionsParser()) {
+		super()
+	}
 
 	parse(text: string, start: number, length: number): ParserResult<UpdatableHeading> | null {
 		let i = 0
@@ -61,9 +63,4 @@ export class HeadingParser implements TextParser<MdHeading> {
 
 		return null
 	}
-
-	parsePartial(existing: Heading, change: ContentChange): ParserResult<MdHeading> | null {
-		return null
-	}
-
 }

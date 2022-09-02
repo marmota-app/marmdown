@@ -27,7 +27,7 @@ export class UpdatableElement<T> implements Partial<Updatable<T>> {
 	set start(_start: number) { this._start = _start }
 }
 
-export class UpdatableContainerElement<T, P> extends UpdatableElement<T> implements Partial<UpdatableContainer<T, P>> {
+export class UpdatableContainerElement<T, P> extends UpdatableElement<T> implements UpdatableContainer<T, P> {
 	constructor(
 		private _parts: P[],
 		_start: number, parsedWith: TextParser<T>,
