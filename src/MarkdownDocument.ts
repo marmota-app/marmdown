@@ -151,3 +151,5 @@ export interface Updatable<T> {
 export interface UpdatableContainer<T, P> extends Updatable<T> {
 	parts: P[],
 }
+
+export type ToUpdatable<T> = T extends any? Updatable<T> & T : never

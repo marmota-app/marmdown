@@ -1,13 +1,15 @@
 import { Updatable, UpdatableContainer } from "./MarkdownDocument";
 import { TextParser } from "./parser/TextParser";
 
-export class UpdatableElement<T> implements Partial<Updatable<T>> {
+export abstract class UpdatableElement<T> implements Updatable<T> {
 	private _parent: Updatable<unknown> | undefined
 	private _previous: Updatable<unknown> | undefined
 
 	constructor(
 		private _start: number, private _length: number, public readonly parsedWith: TextParser<T>,
 	) {}
+
+	abstract get asText(): string
 
 	get previous() { return this._previous }
 	set previous(_previous: Updatable<unknown> | undefined) { this._previous = _previous }

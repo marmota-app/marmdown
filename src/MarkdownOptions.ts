@@ -1,6 +1,9 @@
 import { AdvancedConent, Updatable, UpdatableContainer } from "./MarkdownDocument"
+import { OptionsParser } from "./options/OptionsParser"
 import { TextParser } from "./parser/TextParser"
 import { UpdatableContainerElement, UpdatableElement } from "./UpdatableElement"
+
+const DEFAULT_OPTIONS_PARSER = new OptionsParser()
 
 export interface Option extends Updatable<Option> {
 	key: string,
@@ -28,6 +31,9 @@ export class UpdatableOption extends UpdatableElement<Option> implements Option 
 }
 
 export class UpdatableOptions extends UpdatableContainerElement<Options, string | Option> implements Options {
+	constructor(_parts: (string | Option)[], _start: number, parsedWith: OptionsParser = DEFAULT_OPTIONS_PARSER) {
+		super(_parts, _start, parsedWith)
+	}
 
 	get options() {
 		return this.parts.filter(v => (typeof v)==='object') as Option[]

@@ -4,9 +4,11 @@ import { Options } from "./MarkdownOptions";
 import { OptionsParser } from "./options/OptionsParser";
 import { TextParser } from "./parser/TextParser";
 import { find } from "./parser/find";
+import { ParagraphParser } from "./toplevel/ParagraphParser";
 
 const documentParsers: TextParser[] = [
 	new HeadingParser(),
+	new ParagraphParser(),
 ]
 
 export class Marmdown {
@@ -38,10 +40,12 @@ export class Marmdown {
 			let noResultParsed = true
 
 			for(let i=0; i<this.subparsers.length; i++) {
-				find(text, /[\r\n]+/, startIndex, length, l => {
+				if(find(text, /[\r\n]+/, startIndex, length, l => {
+					noResultParsed = false
 					startIndex += l
 					length -= l
-				})
+				})) { break }
+				
 				const currentResult = this.subparsers[i].parse(text, startIndex, length)
 	
 				if(currentResult) {

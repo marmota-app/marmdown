@@ -17,7 +17,7 @@ export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 }
 
 export class UpdatableHeading extends UpdatableContainerElement<UpdatableHeading, string | Options> implements MdHeading {
-	type = 'Heading' as const
+	readonly type = 'Heading' as const
 
 	constructor(public readonly level: HeadingLevel, public readonly allOptions: Options, _parts: (string | Options)[], _start: number, parsedWith: HeadingParser) {
 		super(_parts, _start, parsedWith)

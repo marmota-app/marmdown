@@ -73,7 +73,7 @@ describe('parseMarkdown', () => {
 	})
 
 	describe('parse paragraph', () => {
-		it.skip('create paragraph when line starts with normal text', () => {
+		it('create paragraph when line starts with normal text', () => {
 			const markdown = 'lorem ipsum'
 
 			const result = parseMarkdown(markdown)
@@ -85,7 +85,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[0] as Paragraph).content[0]).toHaveProperty('content', 'lorem ipsum')
 		})
 
-		it.skip('create paragraph when multiple line starts with normal text', () => {
+		it('create paragraph when multiple line starts with normal text', () => {
 			const markdown = 'lorem\nipsum'
 
 			const result = parseMarkdown(markdown)

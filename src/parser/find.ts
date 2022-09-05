@@ -45,6 +45,14 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 	return result
 }
 
+export function findOne(text: string, toFind: (string | RegExp)[], startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}): FindResult | null {
+	for(var i=0; i<toFind.length; i++) {
+		const result = find(text, toFind[i], startIndex, maxLength, whenFound)
+		if(result) { return result }
+	}
+	return null
+}
+
 export function skipSpaces(text: string, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}) {
 	const whitespaceMatcher = /[ \t]+/y
 	whitespaceMatcher.lastIndex = startIndex
