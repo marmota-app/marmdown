@@ -21,7 +21,7 @@ import { TextParser } from "./parser/TextParser";
 import { find } from "./parser/find";
 import { ParagraphParser } from "./toplevel/ParagraphParser";
 
-const documentParsers: TextParser[] = [
+export const documentParsers: () => TextParser[] = () => [
 	new HeadingParser(),
 	new ParagraphParser(),
 ]
@@ -29,7 +29,7 @@ const documentParsers: TextParser[] = [
 export class Marmdown {
 	private _document: MarkdownDocument
 
-	constructor(initialText: string, private optionsParser: TextParser<Options> = new OptionsParser(), private subparsers: TextParser[] = documentParsers) {
+	constructor(initialText: string, private optionsParser: TextParser<Options> = new OptionsParser(), private subparsers: TextParser[] = documentParsers()) {
 		this._document = this.parseFullDocument(initialText)
 	}
 

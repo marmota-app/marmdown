@@ -42,6 +42,8 @@ export class UpdatableParagraph extends UpdatableContainerElement<UpdatableParag
 	get content() { return this.parts.map(p => p.content).flat() }
 }
 
+const emptyLineDelimiters = [ /([^\n]*)(\n[ \t]*\n)/, /([^\n]*)(\r\n[ \t]*\r\n)/, /([^\n]*)(\n[ \t]*\r\n)/, /([^\n]*)(\r\n[ \t]*\n)/ ]
+
 export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, UpdatableLineContent> implements TextParser<UpdatableParagraph> {
 	constructor(
 		private optionsParser: OptionsParser = new OptionsParser(),
@@ -50,17 +52,50 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		super()
 	}
 
+	couldParse(text: string, start: number, length: number): boolean {
+		return false
+	}
+
 	parse(text: string, start: number, length: number): ParserResult<UpdatableParagraph> | null {
 		let i = 0
 		const parts: UpdatableLineContent[] = []
 		let options: Options = new UpdatableOptions([], -1, this.optionsParser)
 
-		while((i+start) < length) {
-			const line = this.lineParser.parse(text, i+start, length-i)
-			if(line) {
-				i += line.length
-				parts.push(line.content)
+		type EmptyLine = { index: number, delimiter: string }
+		const findEmptyLine: (r: RegExp)=>EmptyLine | null = d => {
+			const searchRegex = new RegExp(d, 'y')
+			searchRegex.lastIndex = start
+			const findResult = searchRegex.exec(text)
+	 
+			if(findResult) {
+				return { index: start+findResult[1].length, delimiter: findResult[2], }
 			}
+			return null
+		}
+		const filterEmptyLine = (c: EmptyLine | null) => c != null && c.index >= 0 && c.index < start+length
+
+		const nextEmptyLine: EmptyLine | null = emptyLineDelimiters
+			.map(findEmptyLine)
+			.filter(filterEmptyLine)
+			.reduce((p: EmptyLine | null, c: EmptyLine | null) => {
+				if(p) {
+					if(c) {
+						return c.index < p.index? p : c
+					}
+					return p
+				}
+				return c
+			}, null)
+
+		const parseLength = nextEmptyLine? nextEmptyLine.index-start : length
+
+		while((i) < parseLength) {
+			const line = this.lineParser.parse(text, i+start, parseLength-i)
+
+			if(!line) break
+
+			i += line.length
+			parts.push(line.content)
 		}
 
 		return {

@@ -57,4 +57,33 @@ describe('ParagraphParser', () => {
 		expect(result?.content.content[2]).toHaveProperty('type', 'Text')
 		expect(result?.content.content[2]).toHaveProperty('content', 'ipsum')
 	}))
+
+	it('parses paragraph only until paragraph end denoted by "\\n\\n"', () => {
+		const result = parse(`lorem\n\nipsum`)
+
+		expect(result?.length).toEqual('lorem'.length)
+		expect(result?.content).toHaveProperty('content')
+		expect(result?.content.content).toHaveLength(1)
+		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+	})
+	it('parses second paragraph', () => {
+		const result = parse(`lorem\n\nipsum`, 'lorem\n\n'.length)
+
+		expect(result?.length).toEqual('ipsum'.length)
+		expect(result?.content).toHaveProperty('content')
+		expect(result?.content.content).toHaveLength(1)
+		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content.content[0]).toHaveProperty('content', 'ipsum')
+	})
+	it('parses paragraph only until paragraph end denoted by heading', () => {
+		const result = parse(`lorem\n# ipsum`)
+
+		expect(result?.content).toHaveProperty('content')
+		expect(result?.content.content).toHaveLength(2)
+		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+
+		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
+	})
 })

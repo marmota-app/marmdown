@@ -39,4 +39,13 @@ describe('LineContentParser', () => {
 		expect(result?.content.parts[0]).toHaveProperty('content', 'lorem')
 		expect(result?.content.parts[1]).toHaveProperty('type', 'Newline')
 	}))
+
+	const noLineStartData = [
+		'# ', '#{', '## ', '##{', '### ', '###{', '#### ', '####{',
+	]
+	noLineStartData.forEach(td => it(`does not parse line that starts with toplevel element "${td}"`, () => {
+		const result = parse(`${td}lorem ipsum`)
+
+		expect(result).toBeNull()
+	}))
 })

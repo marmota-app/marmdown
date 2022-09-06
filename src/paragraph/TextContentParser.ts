@@ -13,9 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { AdvancedConent, DefaultContent, TextContent } from "$markdown/MarkdownDocument"
-import { Options, UpdatableOptions } from "$markdown/MarkdownOptions"
-import { OptionsParser } from "$markdown/options/OptionsParser"
+import {  DefaultContent, TextContent } from "$markdown/MarkdownDocument"
 import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 

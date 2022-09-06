@@ -113,7 +113,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', 'ipsum')
 		})
 
-		it.skip('create new paragraph for every empty line', () => {
+		it('create new paragraph for every empty line', () => {
 			const markdown = 'lorem\n\nipsum'
 
 			const result = parseMarkdown(markdown)
@@ -127,7 +127,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[1] as Paragraph).content[0]).toHaveProperty('content', 'ipsum')
 		})
 
-		it.skip('create new paragraph for every empty line that contains only whitespaces', () => {
+		it('create new paragraph for every empty line that contains only whitespaces', () => {
 			const markdown = 'lorem\n    \t\nipsum'
 
 			const result = parseMarkdown(markdown)

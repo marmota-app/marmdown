@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import { documentParsers } from "$markdown/Marmdown"
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
 import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
@@ -40,9 +41,17 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		let i = 0
 		const incrementIndex = (l: number) => i+=l
 
+		const couldBeParsedInToplevel = documentParsers()
+			.map(dp => dp.couldParse(text, start, length))
+			.some(cp => cp)
+
+		if(couldBeParsedInToplevel) {
+			return null
+		}
+
 		const newLineIndex = NEW_LINE_CHARS
 			.map(c => text.indexOf(c, i+start))
-			.filter(i => i>=0)
+			.filter(i => i>=0 && i < start+length)
 			.reduce((p: number | null, c)=>p? Math.min(p,c) : c, null)
 
 		const textContent = newLineIndex? 

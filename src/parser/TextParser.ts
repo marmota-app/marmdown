@@ -24,11 +24,16 @@ export interface ParserResult<T = (Content & DefaultContent)> {
 
 export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
 	parse(text: string, start: number, length: number): ParserResult<T> | null,
+	couldParse(text: string, start: number, length: number): boolean,
 	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null,
 }
 
 export abstract class LeafTextParser<T extends Updatable<T>> implements TextParser<T> {
 	abstract parse(text: string, start: number, length: number): ParserResult<T> | null
+
+	couldParse(text: string, start: number, length: number): boolean {
+		return this.parse(text, start, length) != null
+	}
 
 	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null {
 		const optionStart = existing.start
