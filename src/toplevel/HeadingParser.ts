@@ -22,10 +22,12 @@ import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/
 import { UpdatableContainerElement } from "$markdown/UpdatableElement";
 
 const headingIdentifiers = [ 
-	{ text: '####', level: 4},
-	{ text: '###',  level: 3},
-	{ text: '##',   level: 2},
-	{ text: '#',    level: 1},
+	{ text: '######', level: 6},
+	{ text: '#####',  level: 5},
+	{ text: '####',   level: 4},
+	{ text: '###',    level: 3},
+	{ text: '##',     level: 2},
+	{ text: '#',      level: 1},
 ] as const
 
 export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
@@ -61,7 +63,10 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 					i += optionsResult.length
 					options = optionsResult.content
 					parts.push(options)
+				} else if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t' && text.charAt(start+i)!='{' && text.charAt(start+i)!='\n' && text.charAt(start+i)!='\r') {
+					return null
 				}
+				
 				skipSpaces(text, start+i, length-i, incrementIndex)
 				const headingText = find(text, /[^\r\n]+/, start+i, length-i, incrementIndex)
 				if(headingText == null) {

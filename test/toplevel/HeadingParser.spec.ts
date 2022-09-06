@@ -21,7 +21,7 @@ import { HeadingParser, UpdatableHeading } from "$markdown/toplevel/HeadingParse
 describe('HeadingParser', () => {
 	const headingParser = new HeadingParser()
 
-	const headingIdentifiers: string[] = [ '#', '##', '###', '####', ]
+	const headingIdentifiers: string[] = [ '#', '##', '###', '####', '#####', '######', ]
 	headingIdentifiers.forEach((h: string) => {
 		it(`heading level ${h.length} creates Headline`, () => {
 			const markdown = h + ' Foobar\n'
@@ -35,7 +35,7 @@ describe('HeadingParser', () => {
 			expect(result?.length).toEqual(markdown.length - '\n'.length)
 		})
 
-		it(`creates empty heading fro single ${h}`, () => {
+		it(`creates empty heading for single ${h}`, () => {
 			const markdown = h
 
 			const result = headingParser.parse(markdown, 0, markdown.length)
@@ -45,6 +45,29 @@ describe('HeadingParser', () => {
 			expect(result?.content).toHaveProperty('text', '')
 			expect(result?.length).toEqual(markdown.length)
 		})
+	})
+
+	const illegalHeadingStarts = [ '####### foobar', '#foobar']
+	illegalHeadingStarts.forEach(is => it(`does not parse a heading for an illegal heading start "${is}"`, () => {
+		const result = headingParser.parse(is, 0, is.length)
+
+		expect(result).toBeNull()
+	}))
+
+	it(`does not parse a heading for an legal heading start "#"`, () => {
+		const result = headingParser.parse('#', 0, '#'.length)
+
+		expect(result).not.toBeNull()
+	})
+	it(`does not parse a heading for an legal heading start "#\r"`, () => {
+		const result = headingParser.parse('#', 0, '#'.length)
+
+		expect(result).not.toBeNull()
+	})
+	it(`does not parse a heading for an legal heading start "#\n"`, () => {
+		const result = headingParser.parse('#', 0, '#'.length)
+
+		expect(result).not.toBeNull()
 	})
 
 	it('parses heading options', () => {
