@@ -29,10 +29,9 @@ export class UpdatableLineContent extends UpdatableContainerElement<UpdatableLin
 	get content() { return this.parts }
 }
 
-const NEW_LINE_CHARS = [ '\r', '\n', '\r\n' ]
-
+export const NEW_LINE_CHARS = [ '\r', '\n', '\r\n' ]
 export class LineContentParser extends ContainerTextParser<UpdatableLineContent, UpdatableParagraphContent> implements TextParser<UpdatableLineContent> {
-	constructor(private textParser = new TextContentParser, private newlineParser = new NewlineContentParser()) {
+	constructor(private textParser = new TextContentParser(), private newlineParser = new NewlineContentParser()) {
 		super()
 	}
 

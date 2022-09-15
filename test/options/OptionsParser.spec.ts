@@ -102,6 +102,20 @@ describe('OptionsParser', () => {
 			expect(result?.content.asMap).toHaveProperty('keychanged', 'value1')
 		})
 
+		it('does not update option when start is -1 updates existing option, partially', () => {
+			const change: ContentChange = {
+				rangeOffset: 0, rangeLength: 1, text: 'changed', range: undefined,
+			}
+			const options = parse('{ default;   key1   = value1; }')!.content
+			options.start = -1
+			expect(options).not.toBeNull()
+
+			const result = options!.parsedWith.parsePartial(options!, change)
+
+			expect(result).toBeNull()
+		})
+
+
 		it('updates existing default option, partially', () => {
 			const change: ContentChange = {
 				rangeOffset: '{ '.length, rangeLength: 0, text: 'value', range: undefined,

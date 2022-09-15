@@ -20,9 +20,11 @@ import { OptionsParser } from "./options/OptionsParser";
 import { TextParser } from "./parser/TextParser";
 import { find } from "./parser/find";
 import { ParagraphParser } from "./toplevel/ParagraphParser";
+import { FencedCodeBlockParser } from "./toplevel/FencedCodeBlockParser";
 
 export const documentParsers: () => TextParser[] = () => [
 	new HeadingParser(),
+	new FencedCodeBlockParser(),
 	new ParagraphParser(),
 ]
 

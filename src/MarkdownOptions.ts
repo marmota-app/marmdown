@@ -14,11 +14,13 @@
    limitations under the License.
 */
 import { AdvancedConent, Updatable, UpdatableContainer } from "./MarkdownDocument"
+import { OptionParser } from "./options/OptionParser"
 import { OptionsParser } from "./options/OptionsParser"
 import { TextParser } from "./parser/TextParser"
 import { UpdatableContainerElement, UpdatableElement } from "./UpdatableElement"
 
 const DEFAULT_OPTIONS_PARSER = new OptionsParser()
+const DEFAULT_OPTION_PARSER = new OptionParser()
 
 export interface Option extends Updatable<Option> {
 	key: string,
@@ -36,7 +38,7 @@ export class UpdatableOption extends UpdatableElement<Option> implements Option 
 	constructor(
 		public asText: string,
 		private _key: string, private _value: string,
-		_start: number, _length: number, parsedWith: TextParser<Option>,
+		_start: number, _length: number, parsedWith: TextParser<Option> = DEFAULT_OPTION_PARSER,
 	) {
 		super(_start, _length, parsedWith)
 	}

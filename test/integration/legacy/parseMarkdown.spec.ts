@@ -142,7 +142,7 @@ describe('parseMarkdown', () => {
 		})
 	})
 
-	it.skip('parses a multiline code block that starts and ends with triple-backquote', () => {
+	it('parses a multiline code block that starts and ends with triple-backquote', () => {
 		const markdown = '```\nlorem ipsum\ndolor sit amet\n```'
 
 		const result = parseMarkdown(markdown)
@@ -151,13 +151,14 @@ describe('parseMarkdown', () => {
 		expect(result.content[0]).toHaveProperty('type', 'Preformatted')
 
 		const preformattedContent = (result.content[0] as Preformatted).content
-		expect(preformattedContent).toHaveLength(3)
+		expect(preformattedContent).toHaveLength(4)
 		expect(preformattedContent[0]).toHaveProperty('content', 'lorem ipsum')
 		expect(preformattedContent[1]).toHaveProperty('type', 'Newline')
 		expect(preformattedContent[2]).toHaveProperty('content', 'dolor sit amet')
+		expect(preformattedContent[3]).toHaveProperty('type', 'Newline')
 	})
 
-	it.skip('parses github-style highlighted code blocks into the default option', () => {
+	it('parses github-style highlighted code blocks into the default option', () => {
 		const markdown = '```javascript\nlorem ipsum\n```'
 
 		const result = parseMarkdown(markdown)

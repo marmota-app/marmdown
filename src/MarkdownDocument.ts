@@ -124,7 +124,7 @@ export type Block = {
 	content: (Content & DefaultContent)[],
 }
 
-type PreformattedContent = TextContent | Newline | Arrow
+export type PreformattedContent = TextContent | Newline | Arrow
 export type Preformatted = {
 	type: 'Preformatted',
 	content: PreformattedContent[],

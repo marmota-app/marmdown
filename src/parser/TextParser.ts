@@ -69,12 +69,15 @@ export abstract class LeafTextParser<T extends Updatable<T>> implements TextPars
 
 export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P> extends LeafTextParser<T> {
 	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null {
-		const optionsStart = existing.start
+		const existingStart = existing.start
+		if(existingStart < 0) {
+			return null
+		}
 
 		const changeStart = change.rangeOffset
 		const changeEnd = change.rangeOffset + change.rangeLength
-		const rangeStartsWithingExistingBounds = changeStart >= optionsStart && changeStart <= optionsStart+existing.length
-		const rangeEndsWithinExistingBounds = changeEnd >= optionsStart && changeEnd <= optionsStart+existing.length
+		const rangeStartsWithingExistingBounds = changeStart >= existingStart && changeStart <= existingStart+existing.length
+		const rangeEndsWithinExistingBounds = changeEnd >= existingStart && changeEnd <= existingStart+existing.length
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
 			for(let i=0; i<existing.parts.length; i++) {
@@ -85,7 +88,7 @@ export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P>
 					if(result) {
 						existing.parts[i] = result.content
 						return {
-							startIndex: optionsStart,
+							startIndex: existingStart,
 							length: existing.length,
 							content: existing,
 						}
