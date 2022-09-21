@@ -58,6 +58,8 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 		while(i < length) {
 			if(find(text, new RegExp(`${fence.foundText}[^\\r\\n]*(\\n|\\r\\n|$)`), start+i, length-i, textFound)) {
 				break;
+			} else if(find(text, /((#+)[ \t\r\n])|((--)-+)|((__)_+)|((\*\*)\*+)/, start+i, length-i)) {
+				break;
 			}
 			const newLineIndex = NEW_LINE_CHARS
 				.map(c => text.indexOf(c, i+start))

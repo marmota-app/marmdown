@@ -126,6 +126,28 @@ describe('FencedCodeBlockParser', () => {
 
 		expect(textsInCodeBlock).toEqual(td[3])
 	}))
+	const additionalEndTestData: [string, string, string, string[]][] = [
+		//In MfM, thematic breaks and headlines end fenced code blocks. Otherwise,
+		//starting a fenced code block would (temporarily) change the document
+		//structure too much.
+		[ '```', '---', 'ended by thematic break', ['ended by thematic break']],
+		[ '```', '___', 'ended by thematic break', ['ended by thematic break']],
+		[ '```', '***', 'ended by thematic break', ['ended by thematic break']],
+		[ '```', '# ', 'ended by headline', ['ended by headline']],
+		[ '```', '##', 'ended by headline', ['ended by headline']],
+		[ '```', '##a', 'not ended, no headline', ['not ended, no headline', '##a', 'after closing']],
+	]
+	additionalEndTestData.forEach(td => it(`parses code block from ${td[0]} to ${td[1]} as ${JSON.stringify(td[3])}`, () => {
+		const md = `before code block\n${td[0]}\n${td[2]}\n${td[1]}\nafter closing`
+
+		const result = parser.parse(md, 'before code block\n'.length, md.length-'before code block\n'.length)
+
+		const textsInCodeBlock = result?.content.content
+			.filter(c => c.type==='Text')
+			.map(c => (c as TextContent).content)
+
+		expect(textsInCodeBlock).toEqual(td[3])
+	}))
 
 	const lengthTestData: [string, number, number][] = [
 		['```\ncontent\n```',                    0,                 '```\ncontent\n```'.length],
