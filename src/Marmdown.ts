@@ -65,11 +65,12 @@ export class Marmdown {
 			let noResultParsed = true
 
 			for(let i=0; i<this.subparsers.length; i++) {
-				if(find(text, /[\r\n]+/, startIndex, length, l => {
+				const whenFound = (l: number) => {
 					noResultParsed = false
 					startIndex += l
 					length -= l
-				})) { break }
+				}
+				if(find(text, /[\r\n]+/, startIndex, length, { whenFound })) { break }
 				
 				const currentResult = this.subparsers[i].parse(text, startIndex, length)
 	

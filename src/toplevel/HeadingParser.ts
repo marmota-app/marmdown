@@ -53,10 +53,10 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 	parse(text: string, start: number, length: number): ParserResult<UpdatableHeading> | null {
 		let i = 0
 		const parts: (string | Options)[] = []
-		const incrementIndex = (l: number, t: string) => { i+=l; parts.push(t) }
+		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
 
 		for(var h=0; h<headingIdentifiers.length; h++) {
-			if(find(text, headingIdentifiers[h].text, start+i, length-i, incrementIndex)) {
+			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
 				let options: Options = new UpdatableOptions([], -1, this.optionsParser)
 				const optionsResult = this.optionsParser.parse(text, start+i, length-i)
 				if(optionsResult) {
@@ -67,8 +67,8 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 					return null
 				}
 				
-				skipSpaces(text, start+i, length-i, incrementIndex)
-				const headingText = find(text, /[^\r\n]+/, start+i, length-i, incrementIndex)
+				skipSpaces(text, start+i, length-i, { whenFound })
+				const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
 				if(headingText == null) {
 					parts.push('')
 				}

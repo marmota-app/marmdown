@@ -38,15 +38,15 @@ export class OptionParser extends LeafTextParser<Option> implements TextParser<O
 
 	parse(text: string, start: number, length: number): ParserResult<Option> | null {
 		let i = 0
-		const incrementIndex = (l: number) => i+=l
+		const whenFound = (l: number) => i+=l
 
 		const identMatcher = /[^ \n\r\t}=;]+/
 		const valueMatcher = /[^\n\r}=;]+/
-		const ident = find(text, identMatcher, start+i, length-i, incrementIndex)
+		const ident = find(text, identMatcher, start+i, length-i, { whenFound })
 		if(ident) {
-			const equals = find(text, '=', start+i, length-i, incrementIndex)
+			const equals = find(text, '=', start+i, length-i, { whenFound })
 			if(equals) {
-				const value = find(text, valueMatcher, start+i, length-i, incrementIndex)
+				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
 					return {
 						startIndex: start,

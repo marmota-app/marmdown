@@ -39,10 +39,10 @@ export class ThematicBreakParser extends LeafTextParser<UpdatableHorizontalRuleC
 
 		const parts: string[] = []
 		let i = 0
-		const textFound = (l: number, t: string) => { i+=l, parts.push(t) }
+		const whenFound = (l: number, t: string) => { i+=l, parts.push(t) }
 
 
-		if(find(text, /[*-_]([ \t]*[*-_])([ \t]*[*-_])+/, start, length, textFound, 3)) {
+		if(find(text, /[*-_]([ \t]*[*-_])([ \t]*[*-_])+/, start, length, { whenFound, maxLeadingSpaces: 3, })) {
 			return {
 				startIndex: start,
 				length: i,

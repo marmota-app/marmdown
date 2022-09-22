@@ -72,19 +72,24 @@ describe('find', () => {
 
 			expect(result).toHaveProperty('foundText', 'foo')
 		})
+		it('returns null if there are more leading whitespaces than allowed', () => {
+			const result = find(' \t \tfoo', 'fo', 0, 5, { maxLeadingSpaces: 3, })
+			
+			expect(result).toBeNull()
+		})
 	})
 
 	it('notifies the listener of the result length', () => {
 		let resultLength = -1
 
-		find('123abc', /[0-9]+/, 0, 6, l => resultLength=l)
+		find('123abc', /[0-9]+/, 0, 6, { whenFound: l => resultLength=l })
 
 		expect(resultLength).toEqual(3)
 	})
 	it('does not notify the listener when there is no result', () => {
 		let resultLength = -1
 
-		find('123abc', /[xyz]+/, 0, 6, l => resultLength=l)
+		find('123abc', /[xyz]+/, 0, 6, { whenFound: l => resultLength=l })
 
 		expect(resultLength).toEqual(-1)
 	})

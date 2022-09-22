@@ -35,9 +35,9 @@ export class UpdatableNewlineContent extends UpdatableElement<UpdatableNewlineCo
 export class NewlineContentParser extends LeafTextParser<UpdatableNewlineContent> implements TextParser<UpdatableNewlineContent> {
 	parse(text: string, start: number, length: number): ParserResult<UpdatableNewlineContent> | null {
 		let i = 0
-		const incrementIndex = (l: number) => i+=l
+		const whenFound = (l: number) => i+=l
 
-		const newLine = findOne(text, ['\r\n', '\r', '\n'], start+i, length-i, incrementIndex)
+		const newLine = findOne(text, ['\r\n', '\r', '\n'], start+i, length-i, { whenFound })
 		if(newLine) {
 			return {
 				startIndex: start,

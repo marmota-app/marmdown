@@ -18,8 +18,12 @@ export interface FindResult {
 	completeText: string,
 	length: number,
 }
+export interface FindOptions {
+	whenFound?: (length: number, foundText: string) => unknown,
+	maxLeadingSpaces?: number,
+}
 
-export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}, maxLeadingSpaces: number = -1): FindResult | null {
+export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, { whenFound = ()=>{}, maxLeadingSpaces = -1}: FindOptions = {}): FindResult | null {
 	let result = null
 
 	const whitespaceMatcher = /[ \t]+/y
@@ -63,20 +67,20 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 	return result
 }
 
-export function findOne(text: string, toFind: (string | RegExp)[], startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}): FindResult | null {
+export function findOne(text: string, toFind: (string | RegExp)[], startIndex: number, maxLength: number, options: FindOptions = {}): FindResult | null {
 	for(var i=0; i<toFind.length; i++) {
-		const result = find(text, toFind[i], startIndex, maxLength, whenFound)
+		const result = find(text, toFind[i], startIndex, maxLength, options)
 		if(result) { return result }
 	}
 	return null
 }
 
-export function skipSpaces(text: string, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}) {
+export function skipSpaces(text: string, startIndex: number, maxLength: number, { whenFound = ()=>{}, maxLeadingSpaces=-1}: FindOptions = {}) {
 	const whitespaceMatcher = /[ \t]+/y
 	whitespaceMatcher.lastIndex = startIndex
 	const foundWhitespace = whitespaceMatcher.exec(text)
 
-	if(foundWhitespace) {
+	if(foundWhitespace && (maxLeadingSpaces <= 0 || foundWhitespace[0].length <= maxLeadingSpaces)) {
 		whenFound(foundWhitespace[0].length, foundWhitespace[0])
 	}
 }

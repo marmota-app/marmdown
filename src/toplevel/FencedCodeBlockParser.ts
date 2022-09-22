@@ -49,9 +49,9 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 
 		const parts: (UpdatableCodeBlockContent | string)[] = []
 		let i = 0
-		const textFound = (l: number, t: string) => { i+=l; parts.push(t) }
+		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
 
-		const fence = find(text, /(``[`]+)|(~~[~]+)/, start+i, length-i, textFound)
+		const fence = find(text, /(``[`]+)|(~~[~]+)/, start+i, length-i, { whenFound })
 		if(!fence) {
 			return null
 		}
@@ -60,7 +60,7 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 			i += parsedOptions.length
 			options = parsedOptions.content
 		} else {
-			const foundInfo = find(text, /[^\r\n]*/, start+i, length-i, textFound)
+			const foundInfo = find(text, /[^\r\n]*/, start+i, length-i, { whenFound })
 			if(foundInfo) {
 				const infoString = foundInfo.foundText.trim()
 				const language = infoString.split(/[ \t]/)
@@ -69,10 +69,10 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 			}	
 		}
 
-		find(text, /[^\r\n]*(\n|\r\n|$)/, start+i, length-i, textFound)
+		find(text, /[^\r\n]*(\n|\r\n|$)/, start+i, length-i, { whenFound })
 
 		while(i < length) {
-			if(find(text, new RegExp(`${fence.foundText}[^\\r\\n]*(\\n|\\r\\n|$)`), start+i, length-i, textFound)) {
+			if(find(text, new RegExp(`${fence.foundText}[^\\r\\n]*(\\n|\\r\\n|$)`), start+i, length-i, { whenFound })) {
 				break;
 			} else if(find(text, /((#+)[ \t\r\n])|((--)-+)|((__)_+)|((\*\*)\*+)/, start+i, length-i)) {
 				//FIXME this if should really something like "newSlideParsers.map(couldParse).some(...)" - See LineContentParser for reference!

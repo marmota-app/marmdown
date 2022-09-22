@@ -28,10 +28,10 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 	parse(text: string, start: number, length: number): ParserResult<Options> | null {
 		let i = 0
 		const foundParts: (string | Option)[] = []
-		const incrementIndex = (l: number, t: string) => { i+=l; foundParts.push(t) }
+		const whenFound = (l: number, t: string) => { i+=l; foundParts.push(t) }
 
 		const foundOptionsStartIndex = start+i
-		if(find(text, '{', start+i, length-i, incrementIndex)) {
+		if(find(text, '{', start+i, length-i, { whenFound })) {
 			const foundOptions: Option[] = []
 
 			let nextParser = this.defaultOptionParser
@@ -43,11 +43,11 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 					foundOptions.push(nextOption.content)
 					i += nextOption.length
 				}
-				find(text, ';', start+i, length-i, incrementIndex)
+				find(text, ';', start+i, length-i, { whenFound })
 				nextParser = this.optionParser
 			} while(nextOption != null)
 
-			if(find(text, '}', start+i, length-i, incrementIndex)) {
+			if(find(text, '}', start+i, length-i, { whenFound })) {
 				return {
 					startIndex: start,
 					length: i,
