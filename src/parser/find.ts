@@ -19,7 +19,7 @@ export interface FindResult {
 	length: number,
 }
 
-export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}): FindResult | null {
+export function find(text: string, toFind: string | RegExp, startIndex: number, maxLength: number, whenFound: (length: number, foundText: string) => unknown = ()=>{}, maxLeadingSpaces: number = -1): FindResult | null {
 	let result = null
 
 	const whitespaceMatcher = /[ \t]+/y
@@ -28,6 +28,9 @@ export function find(text: string, toFind: string | RegExp, startIndex: number, 
 	let whitespaceLength = 0
 
 	if(foundWhitespace) {
+		if(maxLeadingSpaces >= 0 && foundWhitespace[0].length > maxLeadingSpaces) {
+			return null
+		}
 		startIndex += foundWhitespace[0].length
 		whitespaceLength = foundWhitespace[0].length
 	}

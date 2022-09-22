@@ -21,12 +21,20 @@ import { TextParser } from "./parser/TextParser";
 import { find } from "./parser/find";
 import { ParagraphParser } from "./toplevel/ParagraphParser";
 import { FencedCodeBlockParser } from "./toplevel/FencedCodeBlockParser";
+import { ThematicBreakParser } from "./toplevel/ThematicBreakParser";
 
-export const documentParsers: () => TextParser[] = () => [
-	new HeadingParser(),
-	new FencedCodeBlockParser(),
-	new ParagraphParser(),
-]
+let _documentParsers: TextParser[] | undefined
+export const documentParsers: () => TextParser[] = () => {
+	if(_documentParsers === undefined) {
+		_documentParsers = [
+			new HeadingParser(),
+			new ThematicBreakParser(),
+			new FencedCodeBlockParser(),
+			new ParagraphParser(),
+		]
+	}
+	return _documentParsers
+}
 
 export class Marmdown {
 	private _document: MarkdownDocument

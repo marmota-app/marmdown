@@ -171,7 +171,7 @@ describe('parseMarkdown', () => {
 	})
 
 	describe('horizontal rule', () => {
-		it.skip('parses --- as horizontal rule', () => {
+		it('parses --- as horizontal rule', () => {
 			const markdown = '---\n'
 	
 			const result = parseMarkdown(markdown)

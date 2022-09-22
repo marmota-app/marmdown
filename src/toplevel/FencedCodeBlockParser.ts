@@ -1,3 +1,19 @@
+/*
+   Copyright [2020-2022] [David Tanzer - @dtanzer]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 import { ToUpdatable, PreformattedContent, Preformatted, DefaultContent, AdvancedConent } from "$markdown/MarkdownDocument"
 import { Options, UpdatableOption, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { OptionsParser } from "$markdown/options/OptionsParser"
@@ -59,6 +75,7 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 			if(find(text, new RegExp(`${fence.foundText}[^\\r\\n]*(\\n|\\r\\n|$)`), start+i, length-i, textFound)) {
 				break;
 			} else if(find(text, /((#+)[ \t\r\n])|((--)-+)|((__)_+)|((\*\*)\*+)/, start+i, length-i)) {
+				//FIXME this if should really something like "newSlideParsers.map(couldParse).some(...)" - See LineContentParser for reference!
 				break;
 			}
 			const newLineIndex = NEW_LINE_CHARS

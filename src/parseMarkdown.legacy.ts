@@ -26,7 +26,7 @@ export function parseMarkdown(markdown: string, changes: ContentChange[] = []): 
 
 	if(markdown.length > 0) {
 		const lines = markdown.replaceAll('\r', '').split('\n')
-		const hasLineChanged = (line: number) => changes.length > 0 && changes[0].range.startLineNumber === (line + 1)
+		const hasLineChanged = (line: number) => changes.length > 0 && changes[0].range?.startLineNumber === (line + 1)
 
 		parseDocumentOptions(lines, document)
 		for(let i = 0; i < lines.length; i++) {
