@@ -13,11 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { documentParsers } from "$markdown/Marmdown"
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { Parsers } from "$markdown/Parsers"
 import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
-import { NewlineContentParser } from "./NewlineParser"
+import { NewlineContentParser, UpdatableNewlineContent } from "./NewlineParser"
 import { TextContentParser, UpdatableTextContent } from "./TextContentParser"
 
 export class UpdatableLineContent extends UpdatableContainerElement<UpdatableLineContent, UpdatableParagraphContent> {
@@ -31,7 +31,8 @@ export class UpdatableLineContent extends UpdatableContainerElement<UpdatableLin
 
 export const NEW_LINE_CHARS = [ '\r', '\n', '\r\n' ]
 export class LineContentParser extends ContainerTextParser<UpdatableLineContent, UpdatableParagraphContent> implements TextParser<UpdatableLineContent> {
-	constructor(private textParser = new TextContentParser(), private newlineParser = new NewlineContentParser()) {
+
+	constructor(private parsers: Parsers<'TextContentParser' | 'NewLineParser'>) {
 		super()
 	}
 
@@ -40,7 +41,7 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		let i = 0
 		const incrementIndex = (l: number) => i+=l
 
-		const couldBeParsedInToplevel = documentParsers()
+		const couldBeParsedInToplevel = this.parsers.toplevel()
 			.map(dp => dp.couldParse(text, start, length))
 			.some(cp => cp)
 
@@ -54,8 +55,8 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 			.reduce((p: number | null, c)=>p? Math.min(p,c) : c, null)
 
 		const textContent = newLineIndex? 
-			this.textParser.parse(text, start, newLineIndex-start) :
-			this.textParser.parse(text, start, length)
+			this.parsers.knownParsers()['TextContentParser'].parse(text, start, newLineIndex-start) :
+			this.parsers.knownParsers()['TextContentParser'].parse(text, start, length)
 		
 		if(textContent) {
 			i += textContent.length
@@ -63,7 +64,7 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		}
 
 		if(newLineIndex) {
-			const newlineContent = this.newlineParser.parse(text, start+i, length-i)
+			const newlineContent = this.parsers.knownParsers()['NewLineParser'].parse(text, start+i, length-i)
 			if(newlineContent) {
 				i += newlineContent.length
 				parts.push(newlineContent.content)

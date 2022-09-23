@@ -18,6 +18,7 @@ import { Options, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { OptionsParser } from "$markdown/options/OptionsParser"
 import { find, findOne } from "$markdown/parser/find"
 import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { Parsers } from "$markdown/Parsers"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 
 export class UpdatableNewlineContent extends UpdatableElement<UpdatableNewlineContent> implements Newline, DefaultContent {
@@ -33,6 +34,7 @@ export class UpdatableNewlineContent extends UpdatableElement<UpdatableNewlineCo
 }
 
 export class NewlineContentParser extends LeafTextParser<UpdatableNewlineContent> implements TextParser<UpdatableNewlineContent> {
+	constructor(_: Parsers<never>) { super() }
 	parse(text: string, start: number, length: number): ParserResult<UpdatableNewlineContent> | null {
 		let i = 0
 		const whenFound = (l: number) => i+=l

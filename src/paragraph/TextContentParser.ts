@@ -15,6 +15,7 @@
 */
 import {  DefaultContent, TextContent } from "$markdown/MarkdownDocument"
 import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { Parsers } from "$markdown/Parsers"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 
 export class UpdatableTextContent extends UpdatableElement<UpdatableTextContent> implements TextContent, DefaultContent {
@@ -30,6 +31,9 @@ export class UpdatableTextContent extends UpdatableElement<UpdatableTextContent>
 }
 
 export class TextContentParser extends LeafTextParser<UpdatableTextContent> implements TextParser<UpdatableTextContent> {
+	constructor(_: Parsers<never>) {
+		super()
+	}
 	parse(text: string, start: number, length: number): ParserResult<UpdatableTextContent> | null {
 		return {
 			startIndex: start,

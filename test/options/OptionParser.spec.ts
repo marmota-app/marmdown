@@ -15,10 +15,11 @@
 */
 import { ContentChange } from "$markdown/ContentChange"
 import { UpdatableOption } from "$markdown/MarkdownOptions"
+import { MfMParsers } from "$markdown/MfMParsers"
 import { OptionParser } from "$markdown/options/OptionParser"
 
 describe('OptionParser', () => {
-	const optionParser = new OptionParser()
+	const optionParser = new OptionParser(new MfMParsers())
 
 	it('returns option for correctly parsed option', () => {
 		const option = 'foo = bar'
@@ -54,7 +55,7 @@ describe('OptionParser', () => {
 
 	it('parses default option when allowed', () => {
 		const option = 'bar'
-		const optionParser = new OptionParser({ allowDefault: true, })
+		const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
 
 		const result = optionParser.parse(option, 0, option.length)
 
@@ -67,7 +68,7 @@ describe('OptionParser', () => {
 
 	it('does not parse default option when not allowed', () => {
 		const option = 'bar'
-		const optionParser = new OptionParser({ allowDefault: false, })
+		const optionParser = new OptionParser(new MfMParsers(), { allowDefault: false, })
 
 		const result = optionParser.parse(option, 0, option.length)
 
@@ -94,7 +95,7 @@ describe('OptionParser', () => {
 			[';', ';',],
 		].forEach(tc => it(`parses a default option ended by "${tc[1]}"`, () => {
 			const option = `bar${tc[0]}ignoreme`
-			const optionParser = new OptionParser({ allowDefault: true, })
+			const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
 	
 			const result = optionParser.parse(option, 0, option.length)
 	
@@ -173,7 +174,7 @@ describe('OptionParser', () => {
 			[{ rangeOffset: 14, rangeLength: 10, text: '', range: undefined }, null],
 		]
 		defaultOptionData.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
-			const optionParser = new OptionParser({ allowDefault: true, })
+			const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
 			const result = optionParser.parsePartial(existingDefaultOption, d[0])
 
 			if(d[1] === null) {

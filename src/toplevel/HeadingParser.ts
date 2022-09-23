@@ -19,6 +19,7 @@ import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find, skipSpaces } from "$markdown/parser/find";
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser";
+import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement } from "$markdown/UpdatableElement";
 
 const headingIdentifiers = [ 
@@ -46,7 +47,7 @@ export class UpdatableHeading extends UpdatableContainerElement<UpdatableHeading
 }
 
 export class HeadingParser extends ContainerTextParser<UpdatableHeading, string | Options> implements TextParser<UpdatableHeading> {
-	constructor(private optionsParser: OptionsParser = new OptionsParser()) {
+	constructor(private parsers: Parsers<'OptionsParser'>) {
 		super()
 	}
 
@@ -57,8 +58,8 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 
 		for(var h=0; h<headingIdentifiers.length; h++) {
 			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
-				let options: Options = new UpdatableOptions([], -1, this.optionsParser)
-				const optionsResult = this.optionsParser.parse(text, start+i, length-i)
+				let options: Options = new UpdatableOptions([], -1)
+				const optionsResult = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
 				if(optionsResult) {
 					i += optionsResult.length
 					options = optionsResult.content

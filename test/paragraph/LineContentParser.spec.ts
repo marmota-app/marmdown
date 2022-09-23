@@ -13,10 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import { MfMParsers } from "$markdown/MfMParsers"
 import { LineContentParser } from "$markdown/paragraph/LineContentParser"
 
 describe('LineContentParser', () => {
-	const lineParser = new LineContentParser()
+	const lineParser = new LineContentParser(new MfMParsers())
 	function parse(text: string, start: number = 0) {
 		return lineParser.parse(text, start, text.length)
 	}

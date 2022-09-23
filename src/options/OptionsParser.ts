@@ -17,11 +17,13 @@ import { ContentChange } from "$markdown/ContentChange";
 import { Updatable } from "$markdown/MarkdownDocument";
 import { ContentOptions, Option, Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { find } from "$markdown/parser/find";
+import { Parsers } from "$markdown/Parsers";
 import { ContainerTextParser, ParserResult, TextParser } from "../parser/TextParser";
 import { OptionParser } from "./OptionParser";
 
 export class OptionsParser extends ContainerTextParser<Options, string | Option> implements TextParser<Options> {
-	constructor(private defaultOptionParser = new OptionParser({ allowDefault: true, }), private optionParser = new OptionParser()) {
+	//private defaultOptionParser = new OptionParser({ allowDefault: true, }), private optionParser = new OptionParser()
+	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
 		super()
 	}
 
@@ -34,7 +36,7 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 		if(find(text, '{', start+i, length-i, { whenFound })) {
 			const foundOptions: Option[] = []
 
-			let nextParser = this.defaultOptionParser
+			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
 			let nextOption: ParserResult<Option> | null
 			do {
 				nextOption = nextParser.parse(text, start+i, length-i)
@@ -44,7 +46,7 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 					i += nextOption.length
 				}
 				find(text, ';', start+i, length-i, { whenFound })
-				nextParser = this.optionParser
+				nextParser = this.parsers.knownParsers()['OptionParser']
 			} while(nextOption != null)
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {

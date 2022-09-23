@@ -14,10 +14,11 @@
    limitations under the License.
 */
 
+import { MfMParsers } from "$markdown/MfMParsers"
 import { ThematicBreakParser } from "$markdown/toplevel/ThematicBreakParser"
 
 describe('ThematicBreakParser (---, ...)', () => {
-	const parser = new ThematicBreakParser()
+	const parser = new ThematicBreakParser(new MfMParsers())
 
 	it('parses --- as thematic break', () => {
 		const md = '---'

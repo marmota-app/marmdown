@@ -20,6 +20,7 @@ import { LineContentParser, UpdatableLineContent } from "$markdown/paragraph/Lin
 import { NewlineContentParser } from "$markdown/paragraph/NewlineParser";
 import { TextContentParser, UpdatableTextContent } from "$markdown/paragraph/TextContentParser";
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser";
+import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement, UpdatableElement } from "$markdown/UpdatableElement";
 
 
@@ -46,8 +47,7 @@ const emptyLineDelimiters = [ /([^\n]*)(\n[ \t]*\n)/, /([^\n]*)(\r\n[ \t]*\r\n)/
 
 export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, UpdatableLineContent> implements TextParser<UpdatableParagraph> {
 	constructor(
-		private optionsParser: OptionsParser = new OptionsParser(),
-		private lineParser = new LineContentParser(),
+		private parsers: Parsers<'OptionsParser' | 'LineContentParser'>
 	) {
 		super()
 	}
@@ -59,7 +59,7 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 	parse(text: string, start: number, length: number): ParserResult<UpdatableParagraph> | null {
 		let i = 0
 		const parts: UpdatableLineContent[] = []
-		let options: Options = new UpdatableOptions([], -1, this.optionsParser)
+		let options: Options = new UpdatableOptions([], -1)
 
 		type EmptyLine = { index: number, delimiter: string }
 		const findEmptyLine: (r: RegExp)=>EmptyLine | null = d => {
@@ -90,7 +90,7 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		const parseLength = nextEmptyLine? nextEmptyLine.index-start : length
 
 		while((i) < parseLength) {
-			const line = this.lineParser.parse(text, i+start, parseLength-i)
+			const line = this.parsers.knownParsers()['LineContentParser'].parse(text, i+start, parseLength-i)
 
 			if(!line) break
 

@@ -16,10 +16,11 @@
 import { ContentChange } from "$markdown/ContentChange"
 import { Level } from "$markdown/MarkdownDocument"
 import { ContentOptions, Options } from "$markdown/MarkdownOptions"
+import { MfMParsers } from "$markdown/MfMParsers"
 import { HeadingParser, UpdatableHeading } from "$markdown/toplevel/HeadingParser"
 
 describe('HeadingParser', () => {
-	const headingParser = new HeadingParser()
+	const headingParser = new HeadingParser(new MfMParsers())
 
 	const headingIdentifiers: string[] = [ '#', '##', '###', '####', '#####', '######', ]
 	headingIdentifiers.forEach((h: string) => {

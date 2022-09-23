@@ -15,10 +15,11 @@
 */
 import { ContentChange } from "$markdown/ContentChange"
 import { Option, UpdatableOptions } from "$markdown/MarkdownOptions"
+import { MfMParsers } from "$markdown/MfMParsers"
 import { OptionsParser } from "$markdown/options/OptionsParser"
 
 describe('OptionsParser', () => {
-	const optionsParser = new OptionsParser()
+	const optionsParser = new OptionsParser(new MfMParsers())
 
 	function parse(text: string) {
 		return optionsParser.parse(text, 0, text.length)

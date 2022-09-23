@@ -22,6 +22,7 @@ import { NewlineContentParser } from "$markdown/paragraph/NewlineParser"
 import { TextContentParser } from "$markdown/paragraph/TextContentParser"
 import { find } from "$markdown/parser/find"
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { parsers, Parsers } from "$markdown/Parsers"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
 
 export type UpdatableCodeBlockContent = ToUpdatable<PreformattedContent>
@@ -42,7 +43,8 @@ export class UpdatableFencedCodeBlock extends UpdatableContainerElement<Updatabl
 }
 
 export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCodeBlock, UpdatableCodeBlockContent | string> implements TextParser<UpdatableFencedCodeBlock> {
-	constructor(private textParser = new TextContentParser(), private newlineParser = new NewlineContentParser(), private optionsParser = new OptionsParser()) { super() }
+	//private textParser = new TextContentParser(), private newlineParser = new NewlineContentParser(), private optionsParser = new OptionsParser()
+	constructor(private parsers: Parsers<'TextContentParser' | 'NewLineParser' | 'OptionsParser' | 'HeadingParser' | 'ThematicBreakParser'>) { super() }
 
 	parse(text: string, start: number, length: number): ParserResult<UpdatableFencedCodeBlock> | null {
 		let options: Options = new UpdatableOptions([], -1)
@@ -55,7 +57,7 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 		if(!fence) {
 			return null
 		}
-		const parsedOptions = this.optionsParser.parse(text, start+i, length-i)
+		const parsedOptions = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
 		if(parsedOptions) {
 			i += parsedOptions.length
 			options = parsedOptions.content
@@ -72,10 +74,12 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 		find(text, /[^\r\n]*(\n|\r\n|$)/, start+i, length-i, { whenFound })
 
 		while(i < length) {
+			const endedByOtherElement = () => parsers(this.parsers.knownParsers(), [ 'HeadingParser', 'ThematicBreakParser'])
+				.map(p => p.couldParse(text, start+i, length-i))
+				.some(cp => cp)
 			if(find(text, new RegExp(`${fence.foundText}[^\\r\\n]*(\\n|\\r\\n|$)`), start+i, length-i, { whenFound })) {
 				break;
-			} else if(find(text, /((#+)[ \t\r\n])|((--)-+)|((__)_+)|((\*\*)\*+)/, start+i, length-i)) {
-				//FIXME this if should really something like "newSlideParsers.map(couldParse).some(...)" - See LineContentParser for reference!
+			} else if(endedByOtherElement()) {
 				break;
 			}
 			const newLineIndex = NEW_LINE_CHARS
@@ -84,8 +88,8 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 				.reduce((p: number | null, c)=>p? Math.min(p,c) : c, null)
 		
 			const textContent = newLineIndex? 
-				this.textParser.parse(text, start+i, newLineIndex-start-i) :
-				this.textParser.parse(text, start+i, length-i)
+				this.parsers.knownParsers()['TextContentParser'].parse(text, start+i, newLineIndex-start-i) :
+				this.parsers.knownParsers()['TextContentParser'].parse(text, start+i, length-i)
 			
 			if(textContent && textContent.length > 0) {
 				i += textContent.length
@@ -93,7 +97,7 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 			}
 
 			if(newLineIndex) {
-				const newlineContent = this.newlineParser.parse(text, start+i, length-i)
+				const newlineContent = this.parsers.knownParsers()['NewLineParser'].parse(text, start+i, length-i)
 				if(newlineContent) {
 					i += newlineContent.length
 					parts.push(newlineContent.content)

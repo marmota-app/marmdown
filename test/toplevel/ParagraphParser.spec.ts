@@ -13,10 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import { MfMParsers } from "$markdown/MfMParsers"
 import { ParagraphParser } from "$markdown/toplevel/ParagraphParser"
 
 describe('ParagraphParser', () => {
-	const paragraphParser = new ParagraphParser()
+	const paragraphParser = new ParagraphParser(new MfMParsers())
 	function parse(md: string, start: number = 0) {
 		return paragraphParser.parse(md, start, md.length-start)
 	}

@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import { MfMParsers } from "$markdown/MfMParsers"
 import { TextContentParser } from "$markdown/paragraph/TextContentParser"
 
 describe('TextContentParser', () => {
@@ -21,7 +22,7 @@ describe('TextContentParser', () => {
 		const startIndex = 'ignore me;'.length
 		const length = 'this is the text'.length
 
-		const result = new TextContentParser().parse(markdown, startIndex, length)
+		const result = new TextContentParser(new MfMParsers()).parse(markdown, startIndex, length)
 
 		expect(result).toHaveProperty('startIndex', startIndex)
 		expect(result).toHaveProperty('length', length)

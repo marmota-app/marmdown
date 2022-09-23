@@ -17,6 +17,7 @@ import { ContentChange } from "$markdown/ContentChange"
 import { Option, UpdatableOption } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
 import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { Parsers } from "$markdown/Parsers"
 
 export interface OptionParserConfig {
 	allowDefault: boolean,
@@ -24,7 +25,7 @@ export interface OptionParserConfig {
 export class OptionParser extends LeafTextParser<Option> implements TextParser<Option> {
 	private config: OptionParserConfig
 
-	constructor(config: Partial<OptionParserConfig> = {}) {
+	constructor(_: Parsers<never>, config: Partial<OptionParserConfig> = {}) {
 		super()
 
 		const defaultConfig: OptionParserConfig = {

@@ -13,33 +13,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { HeadingParser } from "./toplevel/HeadingParser";
-import { AdvancedConent, Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
-import { Options } from "./MarkdownOptions";
-import { OptionsParser } from "./options/OptionsParser";
-import { TextParser } from "./parser/TextParser";
+import { Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
 import { find } from "./parser/find";
-import { ParagraphParser } from "./toplevel/ParagraphParser";
-import { FencedCodeBlockParser } from "./toplevel/FencedCodeBlockParser";
-import { ThematicBreakParser } from "./toplevel/ThematicBreakParser";
-
-let _documentParsers: TextParser[] | undefined
-export const documentParsers: () => TextParser[] = () => {
-	if(_documentParsers === undefined) {
-		_documentParsers = [
-			new HeadingParser(),
-			new ThematicBreakParser(),
-			new FencedCodeBlockParser(),
-			new ParagraphParser(),
-		]
-	}
-	return _documentParsers
-}
+import { Parsers } from "./Parsers";
+import { MfMParsers } from "./MfMParsers";
 
 export class Marmdown {
 	private _document: MarkdownDocument
 
-	constructor(initialText: string, private optionsParser: TextParser<Options> = new OptionsParser(), private subparsers: TextParser[] = documentParsers()) {
+	constructor(initialText: string, private allParsers: Parsers<'OptionsParser'> = new MfMParsers()) {
 		this._document = this.parseFullDocument(initialText)
 	}
 
@@ -53,7 +35,7 @@ export class Marmdown {
 		const content: (Content&DefaultContent)[] = []
 		let options = {}
 
-		const currentOptions = this.optionsParser.parse(text, startIndex, length)
+		const currentOptions = this.allParsers.knownParsers()['OptionsParser'].parse(text, startIndex, length)
 		if(currentOptions) {
 			options = currentOptions.content
 
@@ -64,7 +46,7 @@ export class Marmdown {
 		while(startIndex < text.length) {
 			let noResultParsed = true
 
-			for(let i=0; i<this.subparsers.length; i++) {
+			for(let i=0; i<this.allParsers.toplevel().length; i++) {
 				const whenFound = (l: number) => {
 					noResultParsed = false
 					startIndex += l
@@ -72,7 +54,7 @@ export class Marmdown {
 				}
 				if(find(text, /[\r\n]+/, startIndex, length, { whenFound })) { break }
 				
-				const currentResult = this.subparsers[i].parse(text, startIndex, length)
+				const currentResult = this.allParsers.toplevel()[i].parse(text, startIndex, length)
 	
 				if(currentResult) {
 					noResultParsed = false

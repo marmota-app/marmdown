@@ -15,10 +15,11 @@
 */
 
 import { TextContent } from "$markdown/MarkdownDocument"
+import { MfMParsers } from "$markdown/MfMParsers"
 import { FencedCodeBlockParser } from "$markdown/toplevel/FencedCodeBlockParser"
 
 describe('FencedCodeBlockParser', () => {
-	const parser = new FencedCodeBlockParser()
+	const parser = new FencedCodeBlockParser(new MfMParsers())
 
 	it('parses empty fenced code block', () => {
 		const md = '```\n```'
