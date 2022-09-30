@@ -39,11 +39,13 @@ export class UpdatableFencedCodeBlock extends UpdatableContainerElement<Updatabl
 
 	get options() { return this.allOptions.asMap }
 	get hasChanged() { return false }
+	//FIXME this might not work when updating the code block content on edit, because then Options must
+	//      be part of _parts! See BlockParser for a better implementation. Also check other content types
+	//      whether they have the same problem. And maybe test if it's even a problem!
 	get content() { return this.parts.filter(p => typeof(p) === 'object') as PreformattedContent[] }
 }
 
 export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCodeBlock, UpdatableCodeBlockContent | string> implements TextParser<UpdatableFencedCodeBlock> {
-	//private textParser = new TextContentParser(), private newlineParser = new NewlineContentParser(), private optionsParser = new OptionsParser()
 	constructor(private parsers: Parsers<'TextContentParser' | 'NewLineParser' | 'OptionsParser' | 'HeadingParser' | 'ThematicBreakParser'>) { super() }
 
 	parse(text: string, start: number, length: number): ParserResult<UpdatableFencedCodeBlock> | null {

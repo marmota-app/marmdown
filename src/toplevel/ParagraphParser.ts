@@ -19,7 +19,8 @@ import { OptionsParser } from "$markdown/options/OptionsParser";
 import { LineContentParser, UpdatableLineContent } from "$markdown/paragraph/LineContentParser";
 import { NewlineContentParser } from "$markdown/paragraph/NewlineParser";
 import { TextContentParser, UpdatableTextContent } from "$markdown/paragraph/TextContentParser";
-import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser";
+import { skipSpaces } from "$markdown/parser/find";
+import { ContainerTextParser, ParserResult, SkipLineStart, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement, UpdatableElement } from "$markdown/UpdatableElement";
 

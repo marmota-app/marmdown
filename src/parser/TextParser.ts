@@ -22,8 +22,9 @@ export interface ParserResult<T = (Content & DefaultContent)> {
 	content: T,
 }
 
+export type SkipLineStart = (text: string, start: number, length: number)=>{ isValidStart: boolean, skipCharacters: number, }
 export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
-	parse(text: string, start: number, length: number): ParserResult<T> | null,
+	parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): ParserResult<T> | null,
 	couldParse(text: string, start: number, length: number): boolean,
 	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null,
 }

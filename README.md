@@ -9,6 +9,7 @@ some differences.
 * No [setext headings](https://github.github.com/gfm/#setext-heading)
 * No [HTML blocks](https://github.github.com/gfm/#html-block)
 * Thematic breaks and headlines end fenced code blocks
+* Block quotes (and asides) do not support [lazyness](https://github.github.com/gfm/#block-quote-marker)
 
 ### Thematic breaks and headlines end fenced code blocks
 
