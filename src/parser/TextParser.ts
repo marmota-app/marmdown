@@ -22,7 +22,11 @@ export interface ParserResult<T = (Content & DefaultContent)> {
 	content: T,
 }
 
-export type SkipLineStart = (text: string, start: number, length: number)=>{ isValidStart: boolean, skipCharacters: number, }
+export interface SkipLineStartOptions {
+	whenSkipping: (textToSkip: string) => unknown,
+}
+export type SkipLineStart = (text: string, start: number, length: number, options?: SkipLineStartOptions)=>{ isValidStart: boolean, skipCharacters: number, }
+export const defaultSkipLineStart: SkipLineStart = () => ({ isValidStart: true, skipCharacters: 0, })
 export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
 	parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): ParserResult<T> | null,
 	couldParse(text: string, start: number, length: number): boolean,
@@ -30,7 +34,7 @@ export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
 }
 
 export abstract class LeafTextParser<T extends Updatable<T>> implements TextParser<T> {
-	abstract parse(text: string, start: number, length: number): ParserResult<T> | null
+	abstract parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): ParserResult<T> | null
 
 	couldParse(text: string, start: number, length: number): boolean {
 		return this.parse(text, start, length) != null
@@ -84,8 +88,11 @@ export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P>
 			for(let i=0; i<existing.parts.length; i++) {
 				const affected = existing.parts[i]
 				if(affected && (affected as unknown as Updatable<any>).asText != null) {
-					const affectedOption = (affected as unknown as Updatable<any>)
-					const result = affectedOption.parsedWith.parsePartial(affectedOption, change)
+					const affectedUpdatable = (affected as unknown as Updatable<any>)
+
+					if(affectedUpdatable.parsedWith == null) return null
+
+					const result = affectedUpdatable.parsedWith.parsePartial(affectedUpdatable, change)
 					if(result) {
 						existing.parts[i] = result.content
 						return {

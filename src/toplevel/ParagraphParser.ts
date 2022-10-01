@@ -20,7 +20,7 @@ import { LineContentParser, UpdatableLineContent } from "$markdown/paragraph/Lin
 import { NewlineContentParser } from "$markdown/paragraph/NewlineParser";
 import { TextContentParser, UpdatableTextContent } from "$markdown/paragraph/TextContentParser";
 import { skipSpaces } from "$markdown/parser/find";
-import { ContainerTextParser, ParserResult, SkipLineStart, TextParser } from "$markdown/parser/TextParser";
+import { ContainerTextParser, defaultSkipLineStart, ParserResult, SkipLineStart, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement, UpdatableElement } from "$markdown/UpdatableElement";
 
@@ -33,20 +33,20 @@ export interface MdParagraph extends Paragraph, DefaultContent, AdvancedConent {
 const PARAGRAPH_PARSERS = {
 }
 
-export class UpdatableParagraph extends UpdatableContainerElement<UpdatableParagraph, UpdatableLineContent> implements MdParagraph {
+export class UpdatableParagraph extends UpdatableContainerElement<UpdatableParagraph, UpdatableLineContent | string> implements MdParagraph {
 	readonly type = 'Paragraph' as const
 	
-	constructor(public readonly allOptions: Options, _parts: (UpdatableLineContent)[], _start: number, parsedWith: ParagraphParser) {
+	constructor(public readonly allOptions: Options, private _content: UpdatableLineContent[], _parts: (UpdatableLineContent | string)[], _start: number, parsedWith: ParagraphParser) {
 		super(_parts, _start, parsedWith)
 	}
 
 	get hasChanged() { return false }
-	get content() { return this.parts.map(p => p.content).flat() }
+	get content() { return this._content.map(p => p.content).flat() }
 }
 
 const emptyLineDelimiters = [ /([^\n]*)(\n[ \t]*\n)/, /([^\n]*)(\r\n[ \t]*\r\n)/, /([^\n]*)(\n[ \t]*\r\n)/, /([^\n]*)(\r\n[ \t]*\n)/ ]
 
-export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, UpdatableLineContent> implements TextParser<UpdatableParagraph> {
+export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, UpdatableLineContent | string> implements TextParser<UpdatableParagraph> {
 	constructor(
 		private parsers: Parsers<'OptionsParser' | 'LineContentParser'>
 	) {
@@ -57,9 +57,10 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		return false
 	}
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableParagraph> | null {
+	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): ParserResult<UpdatableParagraph> | null {
 		let i = 0
-		const parts: UpdatableLineContent[] = []
+		const parts: (UpdatableLineContent | string)[] = []
+		const content: UpdatableLineContent[] = []
 		let options: Options = new UpdatableOptions([], -1)
 
 		type EmptyLine = { index: number, delimiter: string }
@@ -91,18 +92,23 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		const parseLength = nextEmptyLine? nextEmptyLine.index-start : length
 
 		while((i) < parseLength) {
+			const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
+			if(!skip.isValidStart) break;
+			i += skip.skipCharacters
+
 			const line = this.parsers.knownParsers()['LineContentParser'].parse(text, i+start, parseLength-i)
 
 			if(!line) break
 
 			i += line.length
 			parts.push(line.content)
+			content.push(line.content)
 		}
 
 		return {
 			startIndex: start,
 			length: i,
-			content: new UpdatableParagraph(options, parts, i, this),
+			content: new UpdatableParagraph(options, content, parts, i, this),
 		}
 	}
 }

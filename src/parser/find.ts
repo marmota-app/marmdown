@@ -80,7 +80,11 @@ export function skipSpaces(text: string, startIndex: number, maxLength: number, 
 	whitespaceMatcher.lastIndex = startIndex
 	const foundWhitespace = whitespaceMatcher.exec(text)
 
-	if(foundWhitespace && (maxLeadingSpaces <= 0 || foundWhitespace[0].length <= maxLeadingSpaces)) {
+	if(foundWhitespace) {
+		if(maxLeadingSpaces > 0 && foundWhitespace[0].length > maxLeadingSpaces) {
+			whenFound(maxLeadingSpaces, new Array(maxLeadingSpaces).fill(' ').join(''))
+			return
+		}
 		whenFound(foundWhitespace[0].length, foundWhitespace[0])
 	}
 }

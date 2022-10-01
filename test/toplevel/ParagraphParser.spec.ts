@@ -14,6 +14,7 @@
    limitations under the License.
 */
 import { MfMParsers } from "$markdown/MfMParsers"
+import { SkipLineStart, SkipLineStartOptions } from "$markdown/parser/TextParser"
 import { ParagraphParser } from "$markdown/toplevel/ParagraphParser"
 
 describe('ParagraphParser', () => {
@@ -86,5 +87,66 @@ describe('ParagraphParser', () => {
 		expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
 
 		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
+	})
+
+	describe('skipping line start', () => {
+		it('skips text at the start of each line when skipText is passed', () => {
+			const markdown = `>@! lorem\n>@! ipsum`
+			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = paragraphParser.parse(markdown, 0, markdown.length, skipLineStart)
+	
+			expect(result?.content.content).toHaveLength(3)
+			expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+	
+			expect(result?.content.content[2]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[2]).toHaveProperty('content', 'ipsum')
+		})
+		it('ends the paragraph when there is not a valid line start', () => {
+			const markdown = `>@! lorem\n>@! ipsum\ndolor`
+			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				if(text.indexOf('>@!', start) !== start) {
+					return {
+						isValidStart: false,
+						skipCharacters: 0,
+					}
+				}
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = paragraphParser.parse(markdown, 0, markdown.length, skipLineStart)
+	
+			expect(result?.content.content).toHaveLength(4)
+			expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+
+			expect(result?.content.content[2]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[2]).toHaveProperty('content', 'ipsum')
+		})
+		it('adds skipped characters to the text representation', () => {
+			const markdown = `>@! lorem\n>@! ipsum`
+			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = paragraphParser.parse(markdown, 0, markdown.length, skipLineStart)
+
+			expect(result?.content.asText).toEqual(markdown)
+		})
 	})
 })
