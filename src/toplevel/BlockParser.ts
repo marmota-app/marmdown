@@ -16,7 +16,7 @@
 import { AdvancedConent, Block, Content, DefaultContent, ToUpdatable } from "$markdown/MarkdownDocument"
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { find, skipSpaces } from "$markdown/parser/find"
-import { ContainerTextParser, ParserResult, SkipLineStart, SkipLineStartOptions, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser, defaultSkipLineStart, ParserResult, SkipLineStart, SkipLineStartOptions, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
 
@@ -34,12 +34,19 @@ export class UpdatableBlock extends UpdatableContainerElement<UpdatableBlock, Up
 	get options() { return this.allOptions.asMap }
 	get hasChanged() { return false }
 	get content() { return this._content }
+	get simplified() { return this._content.map(c => simplify(c)) } //FIXME remove!
 }
 
+function simplify(c: any): any { //FIXME remove!
+	const simplifiedInner = c.content? 
+		Array.isArray(c.content)? c.content.map((ic: any) => simplify(ic)): simplify(c.content)
+		: undefined
+	return typeof(c)==='object'? ({ ...c, content: simplifiedInner, parsedWith: undefined }) : c
+}
 export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBlockContent | Options | string> implements TextParser<UpdatableBlock> {
 	constructor(private delimiter: string, private type: 'Blockquote' | 'Aside', private parsers: Parsers<'OptionsParser'>) { super() }
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableBlock> | null {
+	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): ParserResult<UpdatableBlock> | null {
 		const parts: (UpdatableBlockContent | Options | string)[] = []
 		const content: UpdatableBlockContent[] = []
 
@@ -48,7 +55,11 @@ export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBl
 
 		let options = new UpdatableOptions([], -1)
 
-		const delimiter = find(text, this.delimiter, start+i, length-i, { whenFound, maxLeadingSpaces: 3, })
+		const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
+		if(!skip.isValidStart) { return null };
+		i += skip.skipCharacters
+
+		let delimiter = find(text, this.delimiter, start+i, length-i, { whenFound, maxLeadingSpaces: 3, })
 		if(!delimiter) {
 			return null
 		}
@@ -60,17 +71,37 @@ export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBl
 		}
 
 		skipSpaces(text, start+i, length-i, { whenFound, maxLeadingSpaces: 1, })
-		const startOfContent = i
+		let startOfContent = start+i
 
-		for(let p=0; p<this.parsers.toplevel().length; p++) {
-			const result = this.parsers.toplevel()[p].parse(text, start+i, length-i, this.skipLineStart(startOfContent))
-
-			if(result) {
-				parts.push(result.content)
-				content.push(result.content)
-				i+=result.length
-				break;
+		while(delimiter) {
+			for(let p=0; p<this.parsers.toplevel().length; p++) {
+				const result = this.parsers.toplevel()[p].parse(text, start+i, length-i, this.skipBlockLineStart(startOfContent, skipLineStart))
+	
+				if(result) {
+					parts.push(result.content)
+					content.push(result.content)
+					i+=result.length
+					break;
+				}
 			}
+			find(text, /[\r\n]+/, start+i, length-i, { whenFound })
+
+			const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
+			if(!skip.isValidStart) { break };
+			i += skip.skipCharacters
+			while(find(text, new RegExp(`\\${this.delimiter}[ \t]*\r?\n`), start+i, length-i, { whenFound })) { 
+				/* skipping empty line. must also skip the next line start again! */
+				const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
+				if(!skip.isValidStart) { break };
+				i += skip.skipCharacters	
+			}
+
+			delimiter = find(text, this.delimiter, start+i, length-i, { whenFound, maxLeadingSpaces: 3, })
+			if(!delimiter) {
+				break
+			}
+			skipSpaces(text, start+i, length-i, { whenFound, maxLeadingSpaces: 1, })
+			startOfContent = start+i
 		}
 
 		return {
@@ -80,22 +111,30 @@ export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBl
 		}
 	}
 
-	private skipLineStart: (startOfContent: number) => SkipLineStart = (startOfContent: number) => {
+	private skipBlockLineStart = (startOfContent: number, outerSkipLineStart: SkipLineStart): SkipLineStart => {
 		return (text: string, start: number, length: number, options?: SkipLineStartOptions) => {
-			if(start===startOfContent) {
+			let i = start
+
+			if(i===startOfContent) {
 				return {
 					isValidStart: true,
 					skipCharacters: 0,
 				}
 			} else {
-				const found = find(text, this.delimiter, start, length)
+				const outerSkip = outerSkipLineStart(text, i, length, options)
+				if(!outerSkip.isValidStart) {
+					return outerSkip
+				}
+				i += outerSkip.skipCharacters
+
+				const found = find(text, this.delimiter, i, length)
 				if(found) {
 					let spaces = 0
-					skipSpaces(text, start+found.length, length-found.length, { maxLeadingSpaces: 1, whenFound: l => spaces=l, })
+					skipSpaces(text, i+found.length, length-found.length, { maxLeadingSpaces: 1, whenFound: l => spaces=l, })
 					options?.whenSkipping(found.completeText)
 					return {
 						isValidStart: true,
-						skipCharacters: found.length+spaces,
+						skipCharacters: outerSkip.skipCharacters + found.length + spaces,
 					}
 				}
 			}

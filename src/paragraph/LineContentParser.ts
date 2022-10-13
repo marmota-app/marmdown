@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import { find } from "$markdown/parser/find"
 import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
@@ -44,10 +45,10 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		const couldBeParsedInToplevel = this.parsers.toplevel()
 			.map(dp => dp.couldParse(text, start, length))
 			.some(cp => cp)
+		if(couldBeParsedInToplevel) { return null }
 
-		if(couldBeParsedInToplevel) {
-			return null
-		}
+		const isEmptyLine = find(text, /[\r\n]/, start+i, length-i)
+		if(isEmptyLine) { return null }
 
 		const newLineIndex = NEW_LINE_CHARS
 			.map(c => text.indexOf(c, i+start))

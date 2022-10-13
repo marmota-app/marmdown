@@ -5,6 +5,7 @@ import { NewlineContentParser } from "./paragraph/NewlineParser"
 import { TextContentParser } from "./paragraph/TextContentParser"
 import { TextParser } from "./parser/TextParser"
 import { parsers, Parsers } from "./Parsers"
+import { BlockParser } from "./toplevel/BlockParser"
 import { FencedCodeBlockParser } from "./toplevel/FencedCodeBlockParser"
 import { HeadingParser } from "./toplevel/HeadingParser"
 import { ParagraphParser } from "./toplevel/ParagraphParser"
@@ -21,6 +22,8 @@ export const ParserNames = [
 	'OptionsParser',
 	'OptionParser',
 	'DefaultOptionParser',
+	'BlockQuoteParser',
+	'AsideParser',
 ] as const
 export type ParserName = (typeof ParserNames)[number]
 
@@ -42,13 +45,16 @@ export class MfMParsers implements Parsers<ParserName> {
 				'OptionsParser': new OptionsParser(this),
 				'OptionParser': new OptionParser(this),
 				'DefaultOptionParser': new OptionParser(this, { allowDefault: true, }),
+				'BlockQuoteParser': new BlockParser('>', 'Blockquote', this),
+				'AsideParser': new BlockParser('^', 'Aside', this),
 			}
 		}
 		return this._knownParsers
 	}
 	toplevel() {
 		if(!this._toplevel) {
-			this._toplevel = parsers<ParserName>(this.knownParsers(), [ 'HeadingParser', 'ThematicBreakParser', 'FencedCodeBlockParser', 'ParagraphParser', ])
+			this._toplevel = parsers<ParserName>(this.knownParsers(), 
+				[ 'HeadingParser', 'ThematicBreakParser', 'FencedCodeBlockParser', 'AsideParser', 'BlockQuoteParser', 'ParagraphParser', ])
 		}
 		return this._toplevel
 	}

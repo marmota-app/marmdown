@@ -63,11 +63,12 @@ describe('ParagraphParser', () => {
 	it('parses paragraph only until paragraph end denoted by "\\n\\n"', () => {
 		const result = parse(`lorem\n\nipsum`)
 
-		expect(result?.length).toEqual('lorem'.length)
+		expect(result?.length).toEqual('lorem'.length + 1)
 		expect(result?.content).toHaveProperty('content')
-		expect(result?.content.content).toHaveLength(1)
+		expect(result?.content.content).toHaveLength(2)
 		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
 		expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
 	})
 	it('parses second paragraph', () => {
 		const result = parse(`lorem\n\nipsum`, 'lorem\n\n'.length)
@@ -111,6 +112,56 @@ describe('ParagraphParser', () => {
 		})
 		it('ends the paragraph when there is not a valid line start', () => {
 			const markdown = `>@! lorem\n>@! ipsum\ndolor`
+			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				if(text.indexOf('>@!', start) !== start) {
+					return {
+						isValidStart: false,
+						skipCharacters: 0,
+					}
+				}
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = paragraphParser.parse(markdown, 0, markdown.length, skipLineStart)
+	
+			expect(result?.content.content).toHaveLength(4)
+			expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+
+			expect(result?.content.content[2]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[2]).toHaveProperty('content', 'ipsum')
+		})
+		it('ends the paragraph when there is a paragraph end marker within the skipped text', () => {
+			const markdown = `>@! lorem\n>@! ipsum\n>@! \n>@! dolor`
+			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				if(text.indexOf('>@!', start) !== start) {
+					return {
+						isValidStart: false,
+						skipCharacters: 0,
+					}
+				}
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = paragraphParser.parse(markdown, 0, markdown.length, skipLineStart)
+	
+			expect(result?.content.content).toHaveLength(4)
+			expect(result?.content.content[0]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[0]).toHaveProperty('content', 'lorem')
+
+			expect(result?.content.content[2]).toHaveProperty('type', 'Text')
+			expect(result?.content.content[2]).toHaveProperty('content', 'ipsum')
+		})
+		it('ends the paragraph when there is toplevel element after the skipped text', () => {
+			const markdown = `>@! lorem\n>@! ipsum\n>@! # heading\n>@! dolor`
 			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				if(text.indexOf('>@!', start) !== start) {
 					return {

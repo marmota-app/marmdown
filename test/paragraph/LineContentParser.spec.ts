@@ -49,4 +49,13 @@ describe('LineContentParser', () => {
 
 		expect(result).toBeNull()
 	}))
+
+	const emptyLineData = [
+		'\n', '\r\n', '         \n', '\t\r\n', '   \t  \t  \n',
+	]
+	emptyLineData.forEach(td => it(`does not parse empty line "${td.replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t')}" (it ends the current paragraph)`, () => {
+		const result = parse(`${td}`)
+
+		expect(result).toBeNull()
+	}))
 })

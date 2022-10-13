@@ -121,9 +121,10 @@ describe('parseMarkdown', () => {
 			expect(result.content).toHaveLength(2)
 			expect(result.content[0]).toHaveProperty('type', 'Paragraph')
 			expect(result.content[1]).toHaveProperty('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).toHaveLength(1)
+			expect((result.content[0] as Paragraph).content).toHaveLength(2)
 			expect((result.content[1] as Paragraph).content).toHaveLength(1)
 			expect((result.content[0] as Paragraph).content[0]).toHaveProperty('content', 'lorem')
+			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Newline')
 			expect((result.content[1] as Paragraph).content[0]).toHaveProperty('content', 'ipsum')
 		})
 
@@ -135,9 +136,10 @@ describe('parseMarkdown', () => {
 			expect(result.content).toHaveLength(2)
 			expect(result.content[0]).toHaveProperty('type', 'Paragraph')
 			expect(result.content[1]).toHaveProperty('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).toHaveLength(1)
+			expect((result.content[0] as Paragraph).content).toHaveLength(2)
 			expect((result.content[1] as Paragraph).content).toHaveLength(1)
 			expect((result.content[0] as Paragraph).content[0]).toHaveProperty('content', 'lorem')
+			expect((result.content[0] as Paragraph).content[1]).toHaveProperty('type', 'Newline')
 			expect((result.content[1] as Paragraph).content[0]).toHaveProperty('content', 'ipsum')
 		})
 	})
@@ -184,7 +186,7 @@ describe('parseMarkdown', () => {
 	const blocks: string[][] = [ [ '^', 'Aside', ], [ '>', 'Blockquote', ], ]
 	blocks.forEach(block => {
 		describe('parse ' + block[1], () => {
-			it.skip(`adds an ${block[1]} when the line starts with a ${block[0]} character`, () => {
+			it(`adds an ${block[1]} when the line starts with a ${block[0]} character`, () => {
 				const markdown = `${block[0]} lorem`
 
 				const result = parseMarkdown(markdown)
@@ -193,7 +195,7 @@ describe('parseMarkdown', () => {
 				expect(result.content[0]).toHaveProperty('type', block[1])
 			})
 
-			it.skip(`adds a paragraph with the first line to the ${block[1]}`, () => {
+			it(`adds a paragraph with the first line to the ${block[1]}`, () => {
 				const markdown = `${block[0]} lorem`
 
 				const result = parseMarkdown(markdown)
@@ -208,7 +210,7 @@ describe('parseMarkdown', () => {
 				expect((blockContent[0] as Paragraph).content[0]).toHaveProperty('content', 'lorem')
 			})
 
-			it.skip(`adds more content to existing ${block[1]}`, () => {
+			it(`adds more content to existing ${block[1]}`, () => {
 				const markdown = `${block[0]} lorem\n${block[0]} ipsum`
 
 				const result = parseMarkdown(markdown)
