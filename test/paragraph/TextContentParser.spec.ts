@@ -17,7 +17,7 @@ import { MfMParsers } from "$markdown/MfMParsers"
 import { TextContentParser } from "$markdown/paragraph/TextContentParser"
 
 describe('TextContentParser', () => {
-	it('parses given text completely', () => {
+	it.skip('parses given text completely', () => {
 		const markdown = 'ignore me;this is the text;ignore me'
 		const startIndex = 'ignore me;'.length
 		const length = 'this is the text'.length

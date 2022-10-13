@@ -22,7 +22,7 @@ describe('LineContentParser', () => {
 		return lineParser.parse(text, start, text.length)
 	}
 
-	it('parses string until the end when there is no newline', () => {
+	it.skip('parses string until the end when there is no newline', () => {
 		const result = parse('lorem ipsum')
 
 		expect(result?.parts).toHaveLength(1)
@@ -31,7 +31,7 @@ describe('LineContentParser', () => {
 	})
 
 	const newLineTestData = [ ['\n', '\\n'], ['\r', '\\r'], ['\r\n', '\\r\\n'], ]
-	newLineTestData.forEach(([separator, name]) => it(`parses string until newline separator "${name}"`, () => {
+	newLineTestData.forEach(([separator, name]) => it.skip(`parses string until newline separator "${name}"`, () => {
 		const result = parse(`lorem${separator}ipsum`)
 
 		expect(result).toHaveProperty('length', `lorem${separator}`.length)
@@ -44,7 +44,7 @@ describe('LineContentParser', () => {
 	const noLineStartData = [
 		'# ', '#{', '## ', '##{', '### ', '###{', '#### ', '####{',
 	]
-	noLineStartData.forEach(td => it(`does not parse line that starts with toplevel element "${td}"`, () => {
+	noLineStartData.forEach(td => it.skip(`does not parse line that starts with toplevel element "${td}"`, () => {
 		const result = parse(`${td}lorem ipsum`)
 
 		expect(result).toBeNull()
@@ -53,7 +53,7 @@ describe('LineContentParser', () => {
 	const emptyLineData = [
 		'\n', '\r\n', '         \n', '\t\r\n', '   \t  \t  \n',
 	]
-	emptyLineData.forEach(td => it(`does not parse empty line "${td.replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t')}" (it ends the current paragraph)`, () => {
+	emptyLineData.forEach(td => it.skip(`does not parse empty line "${td.replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t')}" (it ends the current paragraph)`, () => {
 		const result = parse(`${td}`)
 
 		expect(result).toBeNull()

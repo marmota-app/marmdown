@@ -23,7 +23,7 @@ describe('ParagraphParser', () => {
 		return paragraphParser.parse(md, start, md.length-start)
 	}
 
-	it('parses single line of text as paragraph', () => {
+	it.skip('parses single line of text as paragraph', () => {
 		const result = parse('text content')
 
 		expect(result).toHaveProperty('start', 0)
@@ -33,7 +33,7 @@ describe('ParagraphParser', () => {
 		expect(result?.content[0]).toHaveProperty('content', 'text content')
 	})
 
-	it('parses single line of text, not at the start of the string', () => {
+	it.skip('parses single line of text, not at the start of the string', () => {
 		const result = parse('     \ntext content', 6)
 
 		expect(result).toHaveProperty('start', 6)
@@ -46,7 +46,7 @@ describe('ParagraphParser', () => {
 	})
 
 	const newLineTestData = [ ['\n', '\\n'], ['\r', '\\r'], ['\r\n', '\\r\\n'], ]
-	newLineTestData.forEach(([separator, name]) => it(`parses "NewLine" in between two lines of text content separated by ${name}`, () => {
+	newLineTestData.forEach(([separator, name]) => it.skip(`parses "NewLine" in between two lines of text content separated by ${name}`, () => {
 		const result = parse(`lorem${separator}ipsum`)
 
 		expect(result).toHaveProperty('content')
@@ -60,7 +60,7 @@ describe('ParagraphParser', () => {
 		expect(result?.content[2]).toHaveProperty('content', 'ipsum')
 	}))
 
-	it('parses paragraph only until paragraph end denoted by "\\n\\n"', () => {
+	it.skip('parses paragraph only until paragraph end denoted by "\\n\\n"', () => {
 		const result = parse(`lorem\n\nipsum`)
 
 		//expect(result?.length).toEqual('lorem'.length) FIXME skipping until we have a better, line-based parser.
@@ -69,7 +69,7 @@ describe('ParagraphParser', () => {
 		expect(result?.content[0]).toHaveProperty('type', 'Text')
 		expect(result?.content[0]).toHaveProperty('content', 'lorem')
 	})
-	it('parses second paragraph', () => {
+	it.skip('parses second paragraph', () => {
 		const result = parse(`lorem\n\nipsum`, 'lorem\n\n'.length)
 
 		expect(result?.length).toEqual('ipsum'.length)
@@ -78,7 +78,7 @@ describe('ParagraphParser', () => {
 		expect(result?.content[0]).toHaveProperty('type', 'Text')
 		expect(result?.content[0]).toHaveProperty('content', 'ipsum')
 	})
-	it('parses paragraph only until paragraph end denoted by heading', () => {
+	it.skip('parses paragraph only until paragraph end denoted by heading', () => {
 		const result = parse(`lorem\n# ipsum`)
 
 		expect(result).toHaveProperty('content')
@@ -90,7 +90,7 @@ describe('ParagraphParser', () => {
 	})
 
 	describe('skipping line start', () => {
-		it('skips text at the start of each line when skipText is passed', () => {
+		it.skip('skips text at the start of each line when skipText is passed', () => {
 			const markdown = `>@! lorem\n>@! ipsum`
 			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				options.whenSkipping('>@! ')
@@ -109,7 +109,7 @@ describe('ParagraphParser', () => {
 			expect(result?.content[2]).toHaveProperty('type', 'Text')
 			expect(result?.content[2]).toHaveProperty('content', 'ipsum')
 		})
-		it('ends the paragraph when there is not a valid line start', () => {
+		it.skip('ends the paragraph when there is not a valid line start', () => {
 			const markdown = `>@! lorem\n>@! ipsum\ndolor`
 			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				if(text.indexOf('>@!', start) !== start) {
@@ -134,7 +134,7 @@ describe('ParagraphParser', () => {
 			expect(result?.content[2]).toHaveProperty('type', 'Text')
 			expect(result?.content[2]).toHaveProperty('content', 'ipsum')
 		})
-		it('ends the paragraph when there is a paragraph end marker within the skipped text', () => {
+		it.skip('ends the paragraph when there is a paragraph end marker within the skipped text', () => {
 			const markdown = `>@! lorem\n>@! ipsum\n>@! \n>@! dolor`
 			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				if(text.indexOf('>@!', start) !== start) {
@@ -159,7 +159,7 @@ describe('ParagraphParser', () => {
 			expect(result?.content[2]).toHaveProperty('type', 'Text')
 			expect(result?.content[2]).toHaveProperty('content', 'ipsum')
 		})
-		it('ends the paragraph when there is toplevel element after the skipped text', () => {
+		it.skip('ends the paragraph when there is toplevel element after the skipped text', () => {
 			const markdown = `>@! lorem\n>@! ipsum\n>@! # heading\n>@! dolor`
 			const skipLineStart: SkipLineStart = (text: string, start: number, length: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				if(text.indexOf('>@!', start) !== start) {
@@ -184,7 +184,7 @@ describe('ParagraphParser', () => {
 			expect(result?.content[2]).toHaveProperty('type', 'Text')
 			expect(result?.content[2]).toHaveProperty('content', 'ipsum')
 		})
-		it('adds skipped characters to the text representation', () => {
+		it.skip('adds skipped characters to the text representation', () => {
 			const markdown = `>@! lorem\n>@! ipsum`
 			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				options.whenSkipping('>@! ')

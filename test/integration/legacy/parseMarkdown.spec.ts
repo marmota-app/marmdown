@@ -17,7 +17,7 @@ import { Block, BoldTextContent, InlineCodeTextContent, ItalicTextContent, Parag
 import { parseMarkdown, } from '$markdown/parseMarkdown'
 
 describe('parseMarkdown', () => {
-	it('always creates a resulting document', () => {
+	it.skip('always creates a resulting document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)
@@ -26,7 +26,7 @@ describe('parseMarkdown', () => {
 		expect(result).not.toBeNull()
 	})
 
-	it('empty markdown creates empty document', () => {
+	it.skip('empty markdown creates empty document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)
@@ -37,7 +37,7 @@ describe('parseMarkdown', () => {
 	describe('parse headings', () => {
 		const headlines: string[] = [ '#', '##', '###', '####', ]
 		headlines.forEach((h: string) => {
-			it(`heading level ${h.length} creates Headline`, () => {
+			it.skip(`heading level ${h.length} creates Headline`, () => {
 				const markdown = h + ' Foobar\n'
 
 				const result = parseMarkdown(markdown)
@@ -48,7 +48,7 @@ describe('parseMarkdown', () => {
 				expect(result.content[0]).toHaveProperty('text', 'Foobar')
 			})
 
-			it(`creates empty heading fro single ${h}`, () => {
+			it.skip(`creates empty heading fro single ${h}`, () => {
 				const markdown = h
 
 				const result = parseMarkdown(markdown)
@@ -62,7 +62,7 @@ describe('parseMarkdown', () => {
 
 		const texts: string[] = [ 'Foobar\n', 'Foobar', 'Foo bar', 'Foo\r\n', 'Foo\n\r', 'foo # foobar', ]
 		texts.forEach((text: string) => {
-			it(`heading create Headling with text ${text}`, () => {
+			it.skip(`heading create Headling with text ${text}`, () => {
 				const markdown = '# ' + text
 
 				const result = parseMarkdown(markdown)
@@ -76,7 +76,7 @@ describe('parseMarkdown', () => {
 		})
 
 
-		it('parses two headings into multiple heading', () => {
+		it.skip('parses two headings into multiple heading', () => {
 			const markdown = '# foo\n# bar'
 
 			const result = parseMarkdown(markdown)
@@ -88,7 +88,7 @@ describe('parseMarkdown', () => {
 	})
 
 	describe('parse paragraph', () => {
-		it('create paragraph when line starts with normal text', () => {
+		it.skip('create paragraph when line starts with normal text', () => {
 			const markdown = 'lorem ipsum'
 
 			const result = parseMarkdown(markdown)
@@ -100,7 +100,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[0] as Paragraph).content[0]).toHaveProperty('content', 'lorem ipsum')
 		})
 
-		it('create paragraph when multiple line starts with normal text', () => {
+		it.skip('create paragraph when multiple line starts with normal text', () => {
 			const markdown = 'lorem\nipsum'
 
 			const result = parseMarkdown(markdown)
@@ -113,7 +113,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[0] as Paragraph).content[2]).toHaveProperty('content', 'ipsum')
 		})
 
-		it('create new paragraph for every empty line', () => {
+		it.skip('create new paragraph for every empty line', () => {
 			const markdown = 'lorem\n\nipsum'
 
 			const result = parseMarkdown(markdown)
@@ -128,7 +128,7 @@ describe('parseMarkdown', () => {
 			expect((result.content[1] as Paragraph).content[0]).toHaveProperty('content', 'ipsum')
 		})
 
-		it('create new paragraph for every empty line that contains only whitespaces', () => {
+		it.skip('create new paragraph for every empty line that contains only whitespaces', () => {
 			const markdown = 'lorem\n    \t\nipsum'
 
 			const result = parseMarkdown(markdown)
@@ -144,7 +144,7 @@ describe('parseMarkdown', () => {
 		})
 	})
 
-	it('parses a multiline code block that starts and ends with triple-backquote', () => {
+	it.skip('parses a multiline code block that starts and ends with triple-backquote', () => {
 		const markdown = '```\nlorem ipsum\ndolor sit amet\n```'
 
 		const result = parseMarkdown(markdown)
@@ -160,7 +160,7 @@ describe('parseMarkdown', () => {
 		expect(preformattedContent[3]).toHaveProperty('type', 'Newline')
 	})
 
-	it('parses github-style highlighted code blocks into the default option', () => {
+	it.skip('parses github-style highlighted code blocks into the default option', () => {
 		const markdown = '```javascript\nlorem ipsum\n```'
 
 		const result = parseMarkdown(markdown)
@@ -173,7 +173,7 @@ describe('parseMarkdown', () => {
 	})
 
 	describe('horizontal rule', () => {
-		it('parses --- as horizontal rule', () => {
+		it.skip('parses --- as horizontal rule', () => {
 			const markdown = '---\n'
 	
 			const result = parseMarkdown(markdown)
@@ -183,6 +183,7 @@ describe('parseMarkdown', () => {
 		})
 	})
 
+	//-----------------------------------------------------------------------
 	const blocks: string[][] = [ [ '^', 'Aside', ], [ '>', 'Blockquote', ], ]
 	blocks.forEach(block => {
 		describe('parse ' + block[1], () => {

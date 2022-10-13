@@ -20,7 +20,7 @@ import { ThematicBreakParser } from "$markdown/toplevel/ThematicBreakParser"
 describe('ThematicBreakParser (---, ...)', () => {
 	const parser = new ThematicBreakParser(new MfMParsers())
 
-	it('parses --- as thematic break', () => {
+	it.skip('parses --- as thematic break', () => {
 		const md = '---'
 
 		const result = parser.parse(md, 0, md.length)
@@ -31,7 +31,7 @@ describe('ThematicBreakParser (---, ...)', () => {
 	})
 
 
-	it('does not parse --- as thematic break', () => {
+	it.skip('does not parse --- as thematic break', () => {
 		const md = '--'
 
 		const result = parser.parse(md, 0, md.length)
@@ -54,7 +54,7 @@ describe('ThematicBreakParser (---, ...)', () => {
 		['-  -  -  -', 0, '-  -  -  -'],
 		['**\t* *\t***', 0, '**\t* *\t***'],
 	]
-	thematicBreakTestData.forEach(([text, start, expected]) => it(`parses ${text} as ${expected}`, () => {
+	thematicBreakTestData.forEach(([text, start, expected]) => it.skip(`parses ${text} as ${expected}`, () => {
 		const result = parser.parse(text, start, text.length-start)
 
 		if(expected == null) {

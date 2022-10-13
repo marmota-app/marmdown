@@ -25,7 +25,7 @@ describe('HeadingParser', () => {
 
 	const headingIdentifiers: string[] = [ '#', '##', '###', '####', '#####', '######', ]
 	headingIdentifiers.forEach((h: string) => {
-		it(`heading level ${h.length} creates Headline`, () => {
+		it.skip(`heading level ${h.length} creates Headline`, () => {
 			const markdown = h + ' Foobar\n'
 
 			const result = headingParser.parse(markdown, 0, markdown.length)
@@ -37,7 +37,7 @@ describe('HeadingParser', () => {
 			expect(result?.length).toEqual(markdown.length - '\n'.length)
 		})
 
-		it(`creates empty heading for single ${h}`, () => {
+		it.skip(`creates empty heading for single ${h}`, () => {
 			const markdown = h
 
 			const result = headingParser.parse(markdown, 0, markdown.length)
@@ -50,29 +50,29 @@ describe('HeadingParser', () => {
 	})
 
 	const illegalHeadingStarts = [ '####### foobar', '#foobar']
-	illegalHeadingStarts.forEach(is => it(`does not parse a heading for an illegal heading start "${is}"`, () => {
+	illegalHeadingStarts.forEach(is => it.skip(`does not parse a heading for an illegal heading start "${is}"`, () => {
 		const result = headingParser.parse(is, 0, is.length)
 
 		expect(result).toBeNull()
 	}))
 
-	it(`does not parse a heading for an legal heading start "#"`, () => {
+	it.skip(`does not parse a heading for an legal heading start "#"`, () => {
 		const result = headingParser.parse('#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
-	it(`does not parse a heading for an legal heading start "#\r"`, () => {
+	it.skip(`does not parse a heading for an legal heading start "#\r"`, () => {
 		const result = headingParser.parse('#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
-	it(`does not parse a heading for an legal heading start "#\n"`, () => {
+	it.skip(`does not parse a heading for an legal heading start "#\n"`, () => {
 		const result = headingParser.parse('#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
 
-	it('parses heading options', () => {
+	it.skip('parses heading options', () => {
 		const markdown = '#{ foo = bar } Foobar\n'
 
 		const result = headingParser.parse(markdown, 0, markdown.length)
@@ -100,7 +100,7 @@ describe('HeadingParser', () => {
 			[ { rangeOffset: 7+'#{ option } The '.length, rangeLength: 'Heading'.length, text: 'Überschrift', range: undefined }, { level: 1, heading: 'The Überschrift', options: { default: 'option' }, completeText: '#{ option } The Überschrift', } ],
 			[ { rangeOffset: 7+'#{ option } The Heading'.length, rangeLength: 0, text: 's', range: undefined }, { level: 1, heading: 'The Headings', options: { default: 'option' }, completeText: '#{ option } The Headings', } ],
 		]
-		data.forEach(td => it(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
+		data.forEach(td => it.skip(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
 			const existing = existingHeading()!
 			const result = existing.parsedWith!.parsePartial(existing, td[0])
 
@@ -119,7 +119,7 @@ describe('HeadingParser', () => {
 	})
 
 	describe('skipping line start', () => {
-		it('skips text at the start skipText is passed', () => {
+		it.skip('skips text at the start skipText is passed', () => {
 			const markdown = `>@! # the heading`
 			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				options.whenSkipping('>@! ')
@@ -134,7 +134,7 @@ describe('HeadingParser', () => {
 			expect(result).toHaveProperty('text', 'the heading')
 		})
 
-		it('adds skipped characters to the text representation', () => {
+		it.skip('adds skipped characters to the text representation', () => {
 			const markdown = `>@! # heading`
 			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
 				options.whenSkipping('>@! ')
