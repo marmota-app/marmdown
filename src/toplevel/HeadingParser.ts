@@ -18,7 +18,7 @@ import { AdvancedConent, DefaultContent, Heading, Level as HeadingLevel } from "
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find, skipSpaces } from "$markdown/parser/find";
-import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser";
+import { ContainerTextParser, TextParser, defaultSkipLineStart } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement } from "$markdown/UpdatableElement";
 
@@ -51,10 +51,14 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 		super()
 	}
 
-	parse(text: string, start: number, length: number): UpdatableHeading | null {
+	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): UpdatableHeading | null {
 		let i = 0
 		const parts: (string | Options)[] = []
 		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
+
+		const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
+		if(!skip.isValidStart) { return null };
+		i += skip.skipCharacters
 
 		for(var h=0; h<headingIdentifiers.length; h++) {
 			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {

@@ -44,7 +44,12 @@ export class UpdatableParagraph extends UpdatableContainerElement<UpdatableParag
 	get content() { return this._content.map(p => p.content).flat() }
 }
 
-const emptyLineDelimiters = [ /([^\n]*)(\n[ \t]*\n)/, /([^\n]*)(\r\n[ \t]*\r\n)/, /([^\n]*)(\n[ \t]*\r\n)/, /([^\n]*)(\r\n[ \t]*\n)/ ]
+const emptyLineDelimiters = [
+	/([^\n]*)(\n[ \t]*\n)/,
+	/([^\n]*)(\r\n[ \t]*\r\n)/,
+	/([^\n]*)(\n[ \t]*\r\n)/,
+	/([^\n]*)(\r\n[ \t]*\n)/,
+]
 
 export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, UpdatableLineContent | string> implements TextParser<UpdatableParagraph> {
 	constructor(
@@ -63,42 +68,18 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		const content: UpdatableLineContent[] = []
 		let options: Options = new UpdatableOptions([], -1)
 
-		type EmptyLine = { index: number, delimiter: string }
-		const findEmptyLine: (r: RegExp)=>EmptyLine | null = d => {
-			const searchRegex = new RegExp(d, 'y')
-			searchRegex.lastIndex = start
-			const findResult = searchRegex.exec(text)
-	 
-			if(findResult) {
-				return { index: start+findResult[1].length, delimiter: findResult[2], }
-			}
-			return null
-		}
-		const filterEmptyLine = (c: EmptyLine | null) => c != null && c.index >= 0 && c.index < start+length
-
-		const nextEmptyLine: EmptyLine | null = emptyLineDelimiters
-			.map(findEmptyLine)
-			.filter(filterEmptyLine)
-			.reduce((p: EmptyLine | null, c: EmptyLine | null) => {
-				if(p) {
-					if(c) {
-						return c.index < p.index? p : c
-					}
-					return p
-				}
-				return c
-			}, null)
-
-		const parseLength = nextEmptyLine? nextEmptyLine.index-start : length
-
-		while((i) < parseLength) {
+		while((i) < length) {
 			const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
-			if(!skip.isValidStart) break;
+			if(!skip.isValidStart) { break };
 			i += skip.skipCharacters
 
-			const line = this.parsers.knownParsers()['LineContentParser'].parse(text, i+start, parseLength-i)
+			const line = this.parsers.knownParsers()['LineContentParser'].parse(text, i+start, length-i)
 
-			if(!line) break
+			if(!line) {
+				//un-skip skipped chars because we did not find the correct content inside this line!
+				i -= skip.skipCharacters
+				break
+			}
 
 			i += line.length
 			parts.push(line)

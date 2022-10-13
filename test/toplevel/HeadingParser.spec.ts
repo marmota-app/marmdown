@@ -17,6 +17,7 @@ import { ContentChange } from "$markdown/ContentChange"
 import { Level } from "$markdown/MarkdownDocument"
 import { ContentOptions, Options } from "$markdown/MarkdownOptions"
 import { MfMParsers } from "$markdown/MfMParsers"
+import { SkipLineStart, SkipLineStartOptions } from "$markdown/parser/TextParser"
 import { HeadingParser, UpdatableHeading } from "$markdown/toplevel/HeadingParser"
 
 describe('HeadingParser', () => {
@@ -117,4 +118,35 @@ describe('HeadingParser', () => {
 		}))
 	})
 
+	describe('skipping line start', () => {
+		it('skips text at the start skipText is passed', () => {
+			const markdown = `>@! # the heading`
+			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = headingParser.parse(markdown, 0, markdown.length, skipLineStart)
+	
+			expect(result).toHaveProperty('text', 'the heading')
+		})
+
+		it('adds skipped characters to the text representation', () => {
+			const markdown = `>@! # heading`
+			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
+				options.whenSkipping('>@! ')
+				return {
+					isValidStart: true,
+					skipCharacters: 4,
+				}
+			}
+	
+			const result = headingParser.parse(markdown, 0, markdown.length, skipLineStart) as UpdatableHeading
+
+			expect(result.asText).toEqual(markdown)
+		})
+	})
 })

@@ -14,11 +14,10 @@
    limitations under the License.
 */
 import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser"
+import { find } from "$markdown/parser/find"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
-import { NewlineContentParser, UpdatableNewlineContent } from "./NewlineParser"
-import { TextContentParser, UpdatableTextContent } from "./TextContentParser"
 
 export class UpdatableLineContent extends UpdatableContainerElement<UpdatableLineContent, UpdatableParagraphContent> {
 	constructor(parts: UpdatableParagraphContent[], _start: number, parsedWith: LineContentParser) {
@@ -44,10 +43,10 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		const couldBeParsedInToplevel = this.parsers.toplevel()
 			.map(dp => dp.couldParse(text, start, length))
 			.some(cp => cp)
+		if(couldBeParsedInToplevel) { return null }
 
-		if(couldBeParsedInToplevel) {
-			return null
-		}
+		const isEmptyLine = find(text, /[\r\n]/, start+i, length-i)
+		if(isEmptyLine) { return null }
 
 		const newLineIndex = NEW_LINE_CHARS
 			.map(c => text.indexOf(c, i+start))
