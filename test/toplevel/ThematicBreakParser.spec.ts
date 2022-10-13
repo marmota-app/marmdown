@@ -25,9 +25,9 @@ describe('ThematicBreakParser (---, ...)', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result).toHaveProperty('startIndex', 0)
+		expect(result).toHaveProperty('start', 0)
 		expect(result).toHaveProperty('length', md.length)
-		expect(result?.content).toHaveProperty('type', 'HorizontalRule')
+		expect(result).toHaveProperty('type', 'HorizontalRule')
 	})
 
 
@@ -60,10 +60,10 @@ describe('ThematicBreakParser (---, ...)', () => {
 		if(expected == null) {
 			expect(result).toBeNull()
 		} else {
-			expect(result).toHaveProperty('startIndex', start)
+			expect(result).toHaveProperty('start', start)
 			expect(result).toHaveProperty('length', expected.length)
-			expect(result?.content).toHaveProperty('type', 'HorizontalRule')
-			expect(result?.content).toHaveProperty('asText', expected)
+			expect(result).toHaveProperty('type', 'HorizontalRule')
+			expect(result).toHaveProperty('asText', expected)
 		}
 	}))
 })

@@ -15,11 +15,18 @@
 */
 import { ContentChange } from "$markdown/ContentChange"
 import { Option, UpdatableOptions } from "$markdown/MarkdownOptions"
-import { MfMParsers } from "$markdown/MfMParsers"
+import { OptionParser } from "$markdown/options/OptionParser"
 import { OptionsParser } from "$markdown/options/OptionsParser"
+import { Parsers } from "$markdown/Parsers"
 
+const NO_PARSERS: Parsers<never> = { names: () => [], knownParsers: () => ({}), toplevel: () => [], }
+const PARSERS: Parsers<'OptionParser' | 'DefaultOptionParser'> = {
+	names: () => [ 'OptionParser', 'DefaultOptionParser', ],
+	knownParsers: () => ({ 'OptionParser': new OptionParser(NO_PARSERS), 'DefaultOptionParser': new OptionParser(NO_PARSERS, { allowDefault: true, }), }),
+	toplevel: () => [],
+}
 describe('OptionsParser', () => {
-	const optionsParser = new OptionsParser(new MfMParsers())
+	const optionsParser = new OptionsParser(PARSERS)
 
 	function parse(text: string) {
 		return optionsParser.parse(text, 0, text.length)
@@ -29,9 +36,9 @@ describe('OptionsParser', () => {
 		const result = parse('{}')
 
 		expect(result).not.toBeNull()
-		expect(result?.startIndex).toEqual(0)
+		expect(result?.start).toEqual(0)
 		expect(result?.length).toEqual(2)
-		expect(result?.content.asMap).toEqual({})
+		expect(result?.asMap).toEqual({})
 	})
 	it('does not parse options when the closing curly bracket is missing', () => {
 		const result = parse('{')
@@ -44,7 +51,7 @@ describe('OptionsParser', () => {
 
 		const result = parse(options)
 
-		expect(result?.content.asMap).toHaveProperty('foo', 'bar')
+		expect(result?.asMap).toHaveProperty('foo', 'bar')
 		expect(result?.length).toEqual(options.length)
 	})
 
@@ -53,7 +60,7 @@ describe('OptionsParser', () => {
 
 		const result = parse(options)
 
-		expect(result?.content.asMap).toHaveProperty('default', 'the-value')
+		expect(result?.asMap).toHaveProperty('default', 'the-value')
 		expect(result?.length).toEqual(options.length)
 	})
 
@@ -62,16 +69,16 @@ describe('OptionsParser', () => {
 
 		const result = parse(options)
 
-		expect(result?.content.asMap).toHaveProperty('k1', 'v1')
-		expect(result?.content.options.length).toEqual(2)
+		expect(result?.asMap).toHaveProperty('k1', 'v1')
+		expect(result?.options.length).toEqual(2)
 	})
 	it('parses named option after named option', () => {
 		const options = '{ k1 = v1; k2 = v2 }'
 
 		const result = parse(options)
 
-		expect(result?.content.asMap).toHaveProperty('k2', 'v2')
-		expect(result?.content.options.length).toEqual(2)
+		expect(result?.asMap).toHaveProperty('k2', 'v2')
+		expect(result?.options.length).toEqual(2)
 	})
 
 	it('stops parsing when there is a default option after a named option', () => {
@@ -86,7 +93,7 @@ describe('OptionsParser', () => {
 	textTestData.forEach(options => it(`generates text ${options} after parsing ${options}`, () => {
 		const result = parse(options)
 
-		expect(result?.content.asText).toEqual(options)
+		expect(result?.asText).toEqual(options)
 	}))
 
 	describe('partial parsing options', () => {
@@ -94,24 +101,24 @@ describe('OptionsParser', () => {
 			const change: ContentChange = {
 				rangeOffset: '{ default;   key'.length, rangeLength: 1, text: 'changed', range: undefined,
 			}
-			const options = parse('{ default;   key1   = value1; }')?.content
+			const options = parse('{ default;   key1   = value1; }')
 			expect(options).not.toBeNull()
 
-			const result = options!.parsedWith.parsePartial(options!, change)
+			const result = options!.parsedWith!.parsePartial(options!, change) as UpdatableOptions
 
 			expect(result).not.toBeNull()
-			expect(result?.content.asMap).toHaveProperty('keychanged', 'value1')
+			expect(result?.asMap).toHaveProperty('keychanged', 'value1')
 		})
 
 		it('does not update option when start is -1 updates existing option, partially', () => {
 			const change: ContentChange = {
 				rangeOffset: 0, rangeLength: 1, text: 'changed', range: undefined,
 			}
-			const options = parse('{ default;   key1   = value1; }')!.content
-			options.start = -1
+			const options = parse('{ default;   key1   = value1; }')
+			options!.start = -1
 			expect(options).not.toBeNull()
 
-			const result = options!.parsedWith.parsePartial(options!, change)
+			const result = options!.parsedWith!.parsePartial(options!, change)
 
 			expect(result).toBeNull()
 		})
@@ -121,46 +128,46 @@ describe('OptionsParser', () => {
 			const change: ContentChange = {
 				rangeOffset: '{ '.length, rangeLength: 0, text: 'value', range: undefined,
 			}
-			const options = parse('{ default;   key1   = value1; }')?.content
+			const options = parse('{ default;   key1   = value1; }')
 			expect(options).not.toBeNull()
 
-			const result = options!.parsedWith.parsePartial(options!, change)
+			const result = options!.parsedWith!.parsePartial(options!, change) as UpdatableOptions
 
 			expect(result).not.toBeNull()
-			expect(result?.content.asMap).toHaveProperty('default', 'valuedefault')
+			expect(result?.asMap).toHaveProperty('default', 'valuedefault')
 		})
 
 		it('updates existing default option, at the end of the option', () => {
 			const change: ContentChange = {
 				rangeOffset: '{ default'.length, rangeLength: 0, text: 'value', range: undefined,
 			}
-			const options = parse('{ default;   key1   = value1; }')?.content
+			const options = parse('{ default;   key1   = value1; }')
 			expect(options).not.toBeNull()
 
-			const result = options!.parsedWith.parsePartial(options!, change)
+			const result = options!.parsedWith!.parsePartial(options!, change) as UpdatableOptions
 
 			expect(result).not.toBeNull()
-			expect(result?.content.asMap).toHaveProperty('default', 'defaultvalue')
+			expect(result?.asMap).toHaveProperty('default', 'defaultvalue')
 		})
 
 		it('updates existing options block outside of option', () => {
 			const change: ContentChange = {
 				rangeOffset: '{'.length, rangeLength: 0, text: 'defaultvalue;', range: undefined,
 			}
-			const options = parse('{    key1   = value1; }')?.content
+			const options = parse('{    key1   = value1; }')
 			expect(options).not.toBeNull()
 			expect(options?.asMap).toHaveProperty('key1', 'value1')
 			expect(options?.asMap).not.toHaveProperty('default')
 
-			const result = options!.parsedWith.parsePartial(options!, change)
+			const result = options!.parsedWith!.parsePartial(options!, change) as UpdatableOptions
 
 			expect(result).not.toBeNull()
 			expect(options?.asMap).toHaveProperty('key1', 'value1')
-			expect(result?.content.asMap).toHaveProperty('default', 'defaultvalue')
+			expect(result?.asMap).toHaveProperty('default', 'defaultvalue')
 		})
 
-		const baseOptions = () => parse('{ defaultValue; foo=bar; }')?.content
-		const existingOptions =() => new UpdatableOptions(baseOptions()!.parts as (string | Option)[], 7, baseOptions()!.parsedWith)
+		const baseOptions = () => (parse('{ defaultValue; foo=bar; }') as UpdatableOptions)
+		const existingOptions =() => new UpdatableOptions(baseOptions()!.parts as (string | Option)[], 7, baseOptions()!.parsedWith as OptionsParser)
 		const textTestData: [string, ContentChange, string][] = [
 			['{}', { rangeOffset: 1, rangeLength: 0, text: ' content ', range: undefined }, '{ content }'],
 			['{ default }', { rangeOffset: '{ de'.length, rangeLength: 3, text: '', range: undefined }, '{ delt }'],
@@ -171,17 +178,17 @@ describe('OptionsParser', () => {
 		textTestData.forEach(([options, change, newText]) => it(`updates text to ${newText} after parsing change ${JSON.stringify(change)} in ${options}`, () => {
 			const parsed = parse(options)
 	
-			const result = parsed?.content!.parsedWith.parsePartial(parsed.content!, change)
+			const result = parsed?.parsedWith!.parsePartial(parsed, change)
 
-			expect(result?.content.asText).toEqual(newText)
+			expect(result?.asText).toEqual(newText)
 		}))
 
-		const indexTestData: [ContentChange, {startIndex: number, length: number}][] = [
-			[{ rangeOffset: '{ default'.length+7, rangeLength: 'Value'.length, text: '', range: undefined }, { startIndex: 7, length: existingOptions().length-'Value'.length}],
-			[{ rangeOffset: '{ defaultValue; foo='.length+7, rangeLength: 0, text: 'i', range: undefined }, { startIndex: 7, length: existingOptions().length+'i'.length}],
+		const indexTestData: [ContentChange, {start: number, length: number}][] = [
+			[{ rangeOffset: '{ default'.length+7, rangeLength: 'Value'.length, text: '', range: undefined }, { start: 7, length: existingOptions().length-'Value'.length}],
+			[{ rangeOffset: '{ defaultValue; foo='.length+7, rangeLength: 0, text: 'i', range: undefined }, { start: 7, length: existingOptions().length+'i'.length}],
 		]
 		indexTestData.forEach(([change, indexData]) => it(`Updates index data to ${JSON.stringify(indexData)} after change ${JSON.stringify(change)}`, () => {
-			const result = existingOptions()!.parsedWith.parsePartial(existingOptions(), change)
+			const result = existingOptions()!.parsedWith!.parsePartial(existingOptions(), change)
 
 			expect(result).toEqual(expect.objectContaining(indexData))
 		}))
@@ -192,7 +199,7 @@ describe('OptionsParser', () => {
 			{ rangeOffset: existingOptions().length+7-5, rangeLength: 'long text'.length, text: '', range: undefined },
 		]
 		outOfBoundsTestdata.forEach(change => it(`Does not parse out-of-bounds change ${JSON.stringify(change)}`, () => {
-			const result = existingOptions()!.parsedWith.parsePartial(existingOptions(), change)
+			const result = existingOptions()!.parsedWith!.parsePartial(existingOptions(), change)
 
 			expect(result).toBeNull()
 		}))

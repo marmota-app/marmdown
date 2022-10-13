@@ -37,10 +37,10 @@ export class Marmdown {
 
 		const currentOptions = this.allParsers.knownParsers()['OptionsParser'].parse(text, startIndex, length)
 		if(currentOptions) {
-			options = currentOptions.content
+			options = currentOptions
 
-			startIndex = currentOptions.startIndex + currentOptions.length
-			length = text.length - currentOptions.startIndex - currentOptions.length
+			startIndex = currentOptions.start + currentOptions.length
+			length = text.length - currentOptions.start - currentOptions.length
 		}
 
 		while(startIndex < text.length) {
@@ -58,10 +58,10 @@ export class Marmdown {
 	
 				if(currentResult) {
 					noResultParsed = false
-					content.push(currentResult.content)
+					content.push(currentResult)
 
-					startIndex = currentResult.startIndex + currentResult.length
-					length = text.length - currentResult.startIndex - currentResult.length
+					startIndex = currentResult.start + currentResult.length
+					length = text.length - currentResult.start - currentResult.length
 					break;
 				}
 			}

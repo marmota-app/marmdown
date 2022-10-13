@@ -160,7 +160,7 @@ export interface Updatable<T> {
 	parent: Updatable<unknown> | undefined,
 	start: number,
 	length: number,
-	parsedWith?: TextParser<T>,
+	parsedWith?: TextParser<Updatable<T>>,
 }
 
 export interface UpdatableContainer<T, P> extends Updatable<T> {

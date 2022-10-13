@@ -21,7 +21,7 @@ export abstract class UpdatableElement<T> implements Updatable<T> {
 	private _previous: Updatable<unknown> | undefined
 
 	constructor(
-		private _start: number, private _length: number, public readonly parsedWith?: TextParser<T>,
+		private _start: number, private _length: number, public readonly parsedWith?: TextParser<Updatable<T>>,
 	) {}
 
 	abstract get asText(): string
@@ -47,7 +47,7 @@ export abstract class UpdatableElement<T> implements Updatable<T> {
 export class UpdatableContainerElement<T, P> extends UpdatableElement<T> implements UpdatableContainer<T, P> {
 	constructor(
 		private _parts: P[],
-		_start: number, parsedWith?: TextParser<T>,
+		_start: number, parsedWith?: TextParser<Updatable<T>>,
 	) {
 		super(_start, 0, parsedWith)
 	}

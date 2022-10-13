@@ -21,6 +21,8 @@ import { AdvancedConent, DefaultContent, Empty } from '$markdown/MarkdownDocumen
 import { ContentOptions, Options, Option, UpdatableOptions, UpdatableOption } from '$markdown/MarkdownOptions'
 import { OptionParser } from '$markdown/options/OptionParser'
 import { parsers, Parsers } from '$markdown/Parsers'
+import { UpdatableParagraph } from '$markdown/toplevel/ParagraphParser'
+import { HeadingParser, UpdatableHeading } from '$markdown/toplevel/HeadingParser'
 
 class TestParsers implements Parsers<'OptionsParser'> {
 	constructor(private _knownParsers: {[key: string]: TextParser<any>}, private _toplevel: string[]) {}
@@ -40,7 +42,7 @@ describe('Marmdown', () => {
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
 		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
 
-		const firstTextParserMock = mock<TextParser>('firstTextParserMock')
+		const firstTextParserMock = mock<TextParser<UpdatableParagraph>>('firstTextParserMock')
 		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(null).once()
 
 		
@@ -56,8 +58,8 @@ describe('Marmdown', () => {
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
 		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
 
-		const firstTextParserMock = mock<TextParser>('firstTextParserMock')
-		const secondTextParserMock = mock<TextParser>('secondTextParserMock')
+		const firstTextParserMock = mock<TextParser<UpdatableParagraph>>('firstTextParserMock')
+		const secondTextParserMock = mock<TextParser<UpdatableParagraph>>('secondTextParserMock')
 		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(null)
 		when(secondTextParserMock.parse('the content', 0, 'the content'.length)).return(null).once()
 
@@ -74,13 +76,9 @@ describe('Marmdown', () => {
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
 		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
 
-		const firstTextParserMock = mock<TextParser>('firstTextParserMock')
-		const secondTextParserMock = mock<TextParser>('secondTextParserMock')
-		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return({
-			startIndex: 1,
-			length: 2,
-			content: { type: 'Empty', hasChanged: true, allOptions: new UpdatableOptions([], -1) },
-		})
+		const firstTextParserMock = mock<TextParser<UpdatableHeading>>('firstTextParserMock')
+		const secondTextParserMock = mock<TextParser<UpdatableHeading>>('secondTextParserMock')
+		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(new UpdatableHeading(1, new UpdatableOptions([], -1), ['12'], 1, undefined))
 		when(firstTextParserMock.parse('the content', 3, 'the content'.length-3)).return(null).once()
 		when(secondTextParserMock.parse('the content', 3, 'the content'.length-3)).return(null).once()
 
@@ -98,16 +96,11 @@ describe('Marmdown', () => {
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
 		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
 
-		const parsedContent: Empty&DefaultContent&AdvancedConent = { type: 'Empty', hasChanged: true, allOptions: new UpdatableOptions([], -1)}
-		const firstTextParserMock = mock<TextParser>('firstTextParserMock')
-		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return({
-			startIndex: 1,
-			length: 2,
-			content: parsedContent,
-		})
+		const parsedContent = new UpdatableHeading(1, new UpdatableOptions([], -1), ['12'], 1, undefined)
+		const firstTextParserMock = mock<TextParser<UpdatableHeading>>('firstTextParserMock')
+		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(parsedContent)
 		when(firstTextParserMock.parse('the content', 3, 'the content'.length-3)).return(null)
 
-		const subparsers: TextParser[] = [ instance(firstTextParserMock), ]
 		const marmdown = new Marmdown('the content', new TestParsers({
 			'OptionsParser': instance(optionsParserMock),
 			'one': instance(firstTextParserMock),
@@ -119,11 +112,7 @@ describe('Marmdown', () => {
 	it('parses document options first', () => {
 		const expectedOptions = new UpdatableOptions([ new UpdatableOption('foo=bar', 'foo', 'bar', -1, -1, new OptionParser(new TestParsers({}, []))) ], -1)
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
-		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return({
-			startIndex: 1,
-			length: 2,
-			content: expectedOptions,
-		})
+		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(expectedOptions)
 
 		const marmdown = new Marmdown('the content', new TestParsers({
 			'OptionsParser': instance(optionsParserMock),

@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
@@ -36,7 +36,7 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		super()
 	}
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableLineContent> | null {
+	parse(text: string, start: number, length: number): UpdatableLineContent | null {
 		const parts: UpdatableParagraphContent[] = []
 		let i = 0
 		const incrementIndex = (l: number) => i+=l
@@ -60,21 +60,17 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		
 		if(textContent) {
 			i += textContent.length
-			parts.push(textContent.content)
+			parts.push(textContent)
 		}
 
 		if(newLineIndex) {
 			const newlineContent = this.parsers.knownParsers()['NewLineParser'].parse(text, start+i, length-i)
 			if(newlineContent) {
 				i += newlineContent.length
-				parts.push(newlineContent.content)
+				parts.push(newlineContent)
 			}
 		}
 
-		return {
-			startIndex: start,
-			length: i,
-			content: new UpdatableLineContent(parts, start, this),
-		}
+		return new UpdatableLineContent(parts, start, this)
 	}
 }

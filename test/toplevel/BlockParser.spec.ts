@@ -33,33 +33,33 @@ describe('BlockParser', () => {
 
 		it(`parses line starting with ${delimiter} as ${type}`, () => {
 			const result = parse(`${delimiter}`)
-			expect(result?.content).toHaveProperty('type', type)
+			expect(result).toHaveProperty('type', type)
 		})
 		it(`parses text after ${delimiter}`, () => {
 			const result = parse(`${delimiter}the quick brown fox`)
 
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Paragraph')
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Paragraph')
 
-			const paragraph = result?.content.content[0] as Paragraph
+			const paragraph = result?.content[0] as Paragraph
 			expect(paragraph.content[0]).toHaveProperty('content', 'the quick brown fox')
 		})
 		it(`parses text after ${delimiter}, skipping one space`, () => {
 			const result = parse(`${delimiter} the quick brown fox`)
 
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Paragraph')
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Paragraph')
 
-			const paragraph = result?.content.content[0] as Paragraph
+			const paragraph = result?.content[0] as Paragraph
 			expect(paragraph.content[0]).toHaveProperty('content', 'the quick brown fox')
 		})
 		it(`parses text after ${delimiter}, skipping at most one space`, () => {
 			const result = parse(`${delimiter}  the quick brown fox`)
 
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Paragraph')
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Paragraph')
 
-			const paragraph = result?.content.content[0] as Paragraph
+			const paragraph = result?.content[0] as Paragraph
 			expect(paragraph.content[0]).toHaveProperty('content', ' the quick brown fox')
 		})
 
@@ -71,24 +71,23 @@ describe('BlockParser', () => {
 		it('parses heading inside block with correct position data', () => {
 			const result = parse(`before\n${delimiter} # Heading`, 'before\n'.length)
 
-			expect(result).toHaveProperty('startIndex', 'before\n'.length)
+			expect(result).toHaveProperty('start', 'before\n'.length)
 			expect(result).toHaveProperty('length', `${delimiter} # Heading`.length)
-			expect(result?.content).toHaveProperty('type', type)
-			expect(result?.content).toHaveProperty('start', 'before\n'.length)
+			expect(result).toHaveProperty('type', type)
 		})
 
 		it('parses heading inside block with correct content', () => {
 			const result = parse(`before\n${delimiter} # The Heading`, 'before\n'.length)
 
-			expect(result?.content).toHaveProperty('type', type)
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Heading')
-			expect(result?.content.content[0]).toHaveProperty('text', 'The Heading')
+			expect(result).toHaveProperty('type', type)
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Heading')
+			expect(result?.content[0]).toHaveProperty('text', 'The Heading')
 		})
 
 		it('parses options at the beginning of the block', () => {
 			const result = parse(`${delimiter}{ foo=bar }`)
-			expect(result?.content.options).toHaveProperty('foo', 'bar')
+			expect(result?.options).toHaveProperty('foo', 'bar')
 		})
 
 		it('does not allow more than three spaces before a block delimiter', () => {
@@ -99,10 +98,10 @@ describe('BlockParser', () => {
 		it('parses a multi-line paragraph inside the block', () => {
 			const result = parse(`${delimiter} the quick brown fox\n${delimiter}jumps over the lazy dog\n${delimiter}   but why?`)
 
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Paragraph')
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Paragraph')
 
-			const paragraph = result?.content.content[0] as Paragraph
+			const paragraph = result?.content[0] as Paragraph
 			expect(paragraph.content).toHaveLength(5)
 			expect(paragraph.content[0]).toHaveProperty('content', 'the quick brown fox')
 			expect(paragraph.content[2]).toHaveProperty('content', 'jumps over the lazy dog')
@@ -111,10 +110,10 @@ describe('BlockParser', () => {
 		it('parses a multi-line paragraph inside the block', () => {
 			const result = parse(`${delimiter} the quick brown fox\n${delimiter}jumps over the lazy dog\nnot part of aside`)
 
-			expect(result?.content.content).toHaveLength(1)
-			expect(result?.content.content[0]).toHaveProperty('type', 'Paragraph')
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'Paragraph')
 
-			const paragraph = result?.content.content[0] as Paragraph
+			const paragraph = result?.content[0] as Paragraph
 			expect(paragraph.content).toHaveLength(4)
 			expect(paragraph.content[0]).toHaveProperty('content', 'the quick brown fox')
 			expect(paragraph.content[2]).toHaveProperty('content', 'jumps over the lazy dog')

@@ -24,14 +24,10 @@ describe('TextContentParser', () => {
 
 		const result = new TextContentParser(new MfMParsers()).parse(markdown, startIndex, length)
 
-		expect(result).toHaveProperty('startIndex', startIndex)
+		expect(result).toHaveProperty('type', 'Text')
+		expect(result).toHaveProperty('content', 'this is the text')
+		expect(result).toHaveProperty('asText', 'this is the text')
+		expect(result).toHaveProperty('start', startIndex)
 		expect(result).toHaveProperty('length', length)
-
-		
-		expect(result?.content).toHaveProperty('type', 'Text')
-		expect(result?.content).toHaveProperty('content', 'this is the text')
-		expect(result?.content).toHaveProperty('asText', 'this is the text')
-		expect(result?.content).toHaveProperty('start', startIndex)
-		expect(result?.content).toHaveProperty('length', length)
 	})
 })

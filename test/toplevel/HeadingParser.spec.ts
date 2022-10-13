@@ -30,9 +30,9 @@ describe('HeadingParser', () => {
 			const result = headingParser.parse(markdown, 0, markdown.length)
 
 			expect(result).not.toBeNull()
-			expect(result?.content).toHaveProperty('type', 'Heading')
-			expect(result?.content).toHaveProperty('level', h.length)
-			expect(result?.content).toHaveProperty('text', 'Foobar')
+			expect(result).toHaveProperty('type', 'Heading')
+			expect(result).toHaveProperty('level', h.length)
+			expect(result).toHaveProperty('text', 'Foobar')
 			expect(result?.length).toEqual(markdown.length - '\n'.length)
 		})
 
@@ -41,9 +41,9 @@ describe('HeadingParser', () => {
 
 			const result = headingParser.parse(markdown, 0, markdown.length)
 
-			expect(result?.content).toHaveProperty('type', 'Heading')
-			expect(result?.content).toHaveProperty('level', h.length)
-			expect(result?.content).toHaveProperty('text', '')
+			expect(result).toHaveProperty('type', 'Heading')
+			expect(result).toHaveProperty('level', h.length)
+			expect(result).toHaveProperty('text', '')
 			expect(result?.length).toEqual(markdown.length)
 		})
 	})
@@ -76,7 +76,7 @@ describe('HeadingParser', () => {
 
 		const result = headingParser.parse(markdown, 0, markdown.length)
 
-		expect(result?.content.options).toHaveProperty('foo', 'bar')
+		expect(result?.options).toHaveProperty('foo', 'bar')
 	})
 
 	describe('partial parsing of headings', () => {
@@ -84,7 +84,7 @@ describe('HeadingParser', () => {
 
 		const markdown = '      \n#{ option } The Heading'
 		const existingHeading = () => {
-			return headingParser.parse(markdown, 7, markdown.length)?.content
+			return headingParser.parse(markdown, 7, markdown.length)
 		}
 
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
@@ -101,16 +101,16 @@ describe('HeadingParser', () => {
 		]
 		data.forEach(td => it(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
 			const existing = existingHeading()!
-			const result = existing.parsedWith.parsePartial(existing, td[0])
+			const result = existing.parsedWith!.parsePartial(existing, td[0])
 
 			if(td[1]) {
-				expect(result?.startIndex).toEqual(existing.start)
+				expect(result?.start).toEqual(existing.start)
 				expect(result?.length).toEqual(td[1].completeText.length)
 
-				expect(result?.content).toHaveProperty('text', td[1].heading)
-				expect(result?.content).toHaveProperty('asText', td[1].completeText)
-				expect(result?.content).toHaveProperty('level', td[1].level)
-				expect(result?.content).toHaveProperty('options', td[1].options)
+				expect(result).toHaveProperty('text', td[1].heading)
+				expect(result).toHaveProperty('asText', td[1].completeText)
+				expect(result).toHaveProperty('level', td[1].level)
+				expect(result).toHaveProperty('options', td[1].options)
 			} else {
 				expect(result).toBeNull()
 			}

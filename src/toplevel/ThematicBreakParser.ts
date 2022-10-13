@@ -17,7 +17,7 @@
 import { DefaultContent, HorizontalRule } from "$markdown/MarkdownDocument"
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
-import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { LeafTextParser, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 
@@ -38,7 +38,7 @@ export class ThematicBreakParser extends LeafTextParser<UpdatableHorizontalRuleC
 	constructor(_: Parsers<never>) {
 		super()
 	}
-	parse(text: string, start: number, length: number): ParserResult<UpdatableHorizontalRuleContent> | null {
+	parse(text: string, start: number, length: number): UpdatableHorizontalRuleContent | null {
 		let options: Options = new UpdatableOptions([], -1)
 
 		const parts: string[] = []
@@ -47,11 +47,7 @@ export class ThematicBreakParser extends LeafTextParser<UpdatableHorizontalRuleC
 
 
 		if(find(text, /[*-_]([ \t]*[*-_])([ \t]*[*-_])+/, start, length, { whenFound, maxLeadingSpaces: 3, })) {
-			return {
-				startIndex: start,
-				length: i,
-				content: new UpdatableHorizontalRuleContent(options, parts, 0, length, this),
-			}	
+			return new UpdatableHorizontalRuleContent(options, parts, start, i, this)
 		}
 
 		return null

@@ -16,31 +16,25 @@
 import { ContentChange } from "$markdown/ContentChange";
 import { AdvancedConent, Content, DefaultContent, Updatable, UpdatableContainer } from "$markdown/MarkdownDocument";
 
-export interface ParserResult<T = (Content & DefaultContent)> {
-	startIndex: number,
-	length: number,
-	content: T,
-}
-
 export interface SkipLineStartOptions {
 	whenSkipping: (textToSkip: string) => unknown,
 }
 export type SkipLineStart = (text: string, start: number, length: number, options?: SkipLineStartOptions)=>{ isValidStart: boolean, skipCharacters: number, }
 export const defaultSkipLineStart: SkipLineStart = () => ({ isValidStart: true, skipCharacters: 0, })
-export interface TextParser<T = (Content & DefaultContent & AdvancedConent)> {
-	parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): ParserResult<T> | null,
+export interface TextParser<T extends Updatable<T>> {
+	parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null,
 	couldParse(text: string, start: number, length: number): boolean,
-	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null,
+	parsePartial(existing: T, change: ContentChange): T | null,
 }
 
 export abstract class LeafTextParser<T extends Updatable<T>> implements TextParser<T> {
-	abstract parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): ParserResult<T> | null
+	abstract parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null
 
 	couldParse(text: string, start: number, length: number): boolean {
 		return this.parse(text, start, length) != null
 	}
 
-	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null {
+	parsePartial(existing: T, change: ContentChange): T | null {
 		const optionStart = existing.start
 
 		const changeStart = change.rangeOffset
@@ -54,18 +48,13 @@ export abstract class LeafTextParser<T extends Updatable<T>> implements TextPars
 
 			const newText = beforeChange + change.text + afterChange
 			const newResult = this.parse(newText, 0, newText.length)
-			const newResultWasFullyParsed = (r: ParserResult<T>) => r.length === newText.length
+			const newResultWasFullyParsed = (r: T) => r.length === newText.length
 
 			if(newResult && newResultWasFullyParsed(newResult)) {
-				const newContent = newResult.content
-				newContent.start = optionStart
-				newContent.previous = existing.previous
-				newContent.parent = existing.parent
-				return {
-					length: newResult.length,
-					startIndex: optionStart,
-					content: newContent,
-				}
+				newResult.start = optionStart
+				newResult.previous = existing.previous
+				newResult.parent = existing.parent
+				return newResult
 			}
 		}
 		return null
@@ -73,7 +62,7 @@ export abstract class LeafTextParser<T extends Updatable<T>> implements TextPars
 }
 
 export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P> extends LeafTextParser<T> {
-	parsePartial(existing: T, change: ContentChange): ParserResult<T> | null {
+	parsePartial(existing: T, change: ContentChange): T | null {
 		const existingStart = existing.start
 		if(existingStart < 0) {
 			return null
@@ -94,12 +83,8 @@ export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P>
 
 					const result = affectedUpdatable.parsedWith.parsePartial(affectedUpdatable, change)
 					if(result) {
-						existing.parts[i] = result.content
-						return {
-							startIndex: existingStart,
-							length: existing.length,
-							content: existing,
-						}
+						existing.parts[i] = result
+						return existing
 					}
 				}
 			}

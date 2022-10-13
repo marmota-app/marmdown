@@ -13,13 +13,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { ContentChange } from "$markdown/ContentChange";
-import { Updatable } from "$markdown/MarkdownDocument";
-import { ContentOptions, Option, Options, UpdatableOptions } from "$markdown/MarkdownOptions";
+import { Option, Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { find } from "$markdown/parser/find";
 import { Parsers } from "$markdown/Parsers";
-import { ContainerTextParser, ParserResult, TextParser } from "../parser/TextParser";
-import { OptionParser } from "./OptionParser";
+import { ContainerTextParser, TextParser } from "../parser/TextParser";
 
 export class OptionsParser extends ContainerTextParser<Options, string | Option> implements TextParser<Options> {
 	//private defaultOptionParser = new OptionParser({ allowDefault: true, }), private optionParser = new OptionParser()
@@ -27,7 +24,7 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 		super()
 	}
 
-	parse(text: string, start: number, length: number): ParserResult<Options> | null {
+	parse(text: string, start: number, length: number): Options | null {
 		let i = 0
 		const foundParts: (string | Option)[] = []
 		const whenFound = (l: number, t: string) => { i+=l; foundParts.push(t) }
@@ -37,12 +34,12 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 			const foundOptions: Option[] = []
 
 			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
-			let nextOption: ParserResult<Option> | null
+			let nextOption: Option | null
 			do {
 				nextOption = nextParser.parse(text, start+i, length-i)
 				if(nextOption) {
-					foundParts.push(nextOption.content)
-					foundOptions.push(nextOption.content)
+					foundParts.push(nextOption)
+					foundOptions.push(nextOption)
 					i += nextOption.length
 				}
 				find(text, ';', start+i, length-i, { whenFound })
@@ -50,11 +47,7 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 			} while(nextOption != null)
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {
-				return {
-					startIndex: start,
-					length: i,
-					content: new UpdatableOptions(foundParts, foundOptionsStartIndex, this),
-				}	
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
 			}
 		}
 

@@ -16,7 +16,7 @@
 import { ContentChange } from "$markdown/ContentChange"
 import { Option, UpdatableOption } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
-import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { LeafTextParser, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 
 export interface OptionParserConfig {
@@ -37,7 +37,7 @@ export class OptionParser extends LeafTextParser<Option> implements TextParser<O
 		}
 	}
 
-	parse(text: string, start: number, length: number): ParserResult<Option> | null {
+	parse(text: string, start: number, length: number): Option | null {
 		let i = 0
 		const whenFound = (l: number) => i+=l
 
@@ -49,30 +49,22 @@ export class OptionParser extends LeafTextParser<Option> implements TextParser<O
 			if(equals) {
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
-					return {
-						startIndex: start,
-						length: i,
-						content: new UpdatableOption(
-							text.substring(start, start+i),
-							ident.foundText,
-							value.foundText.trim(),
-							start, i,
-							this,
-						),
-					}
-				}
-			} else if(this.config.allowDefault) {
-				return {
-					startIndex: start,
-					length: i,
-					content: new UpdatableOption(
+					return new UpdatableOption(
 						text.substring(start, start+i),
-						'default',
 						ident.foundText,
+						value.foundText.trim(),
 						start, i,
 						this,
-					),
+					)
 				}
+			} else if(this.config.allowDefault) {
+				return new UpdatableOption(
+					text.substring(start, start+i),
+					'default',
+					ident.foundText,
+					start, i,
+					this,
+				)
 			}
 		}
 

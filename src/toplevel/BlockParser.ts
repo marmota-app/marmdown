@@ -16,7 +16,7 @@
 import { AdvancedConent, Block, Content, DefaultContent, ToUpdatable } from "$markdown/MarkdownDocument"
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions"
 import { find, skipSpaces } from "$markdown/parser/find"
-import { ContainerTextParser, ParserResult, SkipLineStart, SkipLineStartOptions, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser, SkipLineStart, SkipLineStartOptions, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
 
@@ -39,7 +39,7 @@ export class UpdatableBlock extends UpdatableContainerElement<UpdatableBlock, Up
 export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBlockContent | Options | string> implements TextParser<UpdatableBlock> {
 	constructor(private delimiter: string, private type: 'Blockquote' | 'Aside', private parsers: Parsers<'OptionsParser'>) { super() }
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableBlock> | null {
+	parse(text: string, start: number, length: number): UpdatableBlock | null {
 		const parts: (UpdatableBlockContent | Options | string)[] = []
 		const content: UpdatableBlockContent[] = []
 
@@ -55,7 +55,7 @@ export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBl
 		const optionsResult = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
 		if(optionsResult) {
 			i += optionsResult.length
-			options = optionsResult.content
+			options = optionsResult
 			parts.push(options)
 		}
 
@@ -66,18 +66,14 @@ export class BlockParser extends ContainerTextParser<UpdatableBlock, UpdatableBl
 			const result = this.parsers.toplevel()[p].parse(text, start+i, length-i, this.skipLineStart(startOfContent))
 
 			if(result) {
-				parts.push(result.content)
-				content.push(result.content)
+				parts.push(result)
+				content.push(result)
 				i+=result.length
 				break;
 			}
 		}
 
-		return {
-			startIndex: start,
-			length: i,
-			content: new UpdatableBlock(this.type, content, options, parts, start, this)
-		}
+		return new UpdatableBlock(this.type, content, options, parts, start, this)
 	}
 
 	private skipLineStart: (startOfContent: number) => SkipLineStart = (startOfContent: number) => {

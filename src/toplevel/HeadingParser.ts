@@ -18,7 +18,7 @@ import { AdvancedConent, DefaultContent, Heading, Level as HeadingLevel } from "
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find, skipSpaces } from "$markdown/parser/find";
-import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser";
+import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement } from "$markdown/UpdatableElement";
 
@@ -37,7 +37,7 @@ export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 export class UpdatableHeading extends UpdatableContainerElement<UpdatableHeading, string | Options> implements MdHeading {
 	readonly type = 'Heading' as const
 
-	constructor(public readonly level: HeadingLevel, public readonly allOptions: Options, _parts: (string | Options)[], _start: number, parsedWith: HeadingParser) {
+	constructor(public readonly level: HeadingLevel, public readonly allOptions: Options, _parts: (string | Options)[], _start: number, parsedWith: HeadingParser | undefined) {
 		super(_parts, _start, parsedWith)
 	}
 
@@ -51,7 +51,7 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 		super()
 	}
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableHeading> | null {
+	parse(text: string, start: number, length: number): UpdatableHeading | null {
 		let i = 0
 		const parts: (string | Options)[] = []
 		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
@@ -62,7 +62,7 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 				const optionsResult = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
 				if(optionsResult) {
 					i += optionsResult.length
-					options = optionsResult.content
+					options = optionsResult
 					parts.push(options)
 				} else if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t' && text.charAt(start+i)!='{' && text.charAt(start+i)!='\n' && text.charAt(start+i)!='\r') {
 					return null
@@ -74,11 +74,7 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 					parts.push('')
 				}
 
-				return {
-					startIndex: start,
-					length: i,
-					content: new UpdatableHeading(headingIdentifiers[h].level, options, parts, start, this),
-				}
+				return new UpdatableHeading(headingIdentifiers[h].level, options, parts, start, this)
 			}
 		}
 

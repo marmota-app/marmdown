@@ -14,7 +14,7 @@
    limitations under the License.
 */
 import {  DefaultContent, TextContent } from "$markdown/MarkdownDocument"
-import { LeafTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { LeafTextParser, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 
@@ -34,11 +34,7 @@ export class TextContentParser extends LeafTextParser<UpdatableTextContent> impl
 	constructor(_: Parsers<never>) {
 		super()
 	}
-	parse(text: string, start: number, length: number): ParserResult<UpdatableTextContent> | null {
-		return {
-			startIndex: start,
-			length: length,
-			content: new UpdatableTextContent(text.substring(start, start + length), start, length, this),
-		}
+	parse(text: string, start: number, length: number): UpdatableTextContent | null {
+		return new UpdatableTextContent(text.substring(start, start + length), start, length, this)
 	}
 }

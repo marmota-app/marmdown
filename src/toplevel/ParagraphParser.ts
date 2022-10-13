@@ -20,7 +20,7 @@ import { LineContentParser, UpdatableLineContent } from "$markdown/paragraph/Lin
 import { NewlineContentParser } from "$markdown/paragraph/NewlineParser";
 import { TextContentParser, UpdatableTextContent } from "$markdown/paragraph/TextContentParser";
 import { skipSpaces } from "$markdown/parser/find";
-import { ContainerTextParser, defaultSkipLineStart, ParserResult, SkipLineStart, TextParser } from "$markdown/parser/TextParser";
+import { ContainerTextParser, defaultSkipLineStart, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { UpdatableContainerElement, UpdatableElement } from "$markdown/UpdatableElement";
 
@@ -57,7 +57,7 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 		return false
 	}
 
-	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): ParserResult<UpdatableParagraph> | null {
+	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): UpdatableParagraph | null {
 		let i = 0
 		const parts: (UpdatableLineContent | string)[] = []
 		const content: UpdatableLineContent[] = []
@@ -101,14 +101,10 @@ export class ParagraphParser extends ContainerTextParser<UpdatableParagraph, Upd
 			if(!line) break
 
 			i += line.length
-			parts.push(line.content)
-			content.push(line.content)
+			parts.push(line)
+			content.push(line)
 		}
 
-		return {
-			startIndex: start,
-			length: i,
-			content: new UpdatableParagraph(options, content, parts, i, this),
-		}
+		return new UpdatableParagraph(options, content, parts, start, this)
 	}
 }

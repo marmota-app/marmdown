@@ -25,9 +25,9 @@ describe('LineContentParser', () => {
 	it('parses string until the end when there is no newline', () => {
 		const result = parse('lorem ipsum')
 
-		expect(result?.content.parts).toHaveLength(1)
-		expect(result?.content.parts[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.parts[0]).toHaveProperty('content', 'lorem ipsum')
+		expect(result?.parts).toHaveLength(1)
+		expect(result?.parts[0]).toHaveProperty('type', 'Text')
+		expect(result?.parts[0]).toHaveProperty('content', 'lorem ipsum')
 	})
 
 	const newLineTestData = [ ['\n', '\\n'], ['\r', '\\r'], ['\r\n', '\\r\\n'], ]
@@ -35,10 +35,10 @@ describe('LineContentParser', () => {
 		const result = parse(`lorem${separator}ipsum`)
 
 		expect(result).toHaveProperty('length', `lorem${separator}`.length)
-		expect(result?.content.parts).toHaveLength(2)
-		expect(result?.content.parts[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.parts[0]).toHaveProperty('content', 'lorem')
-		expect(result?.content.parts[1]).toHaveProperty('type', 'Newline')
+		expect(result?.parts).toHaveLength(2)
+		expect(result?.parts[0]).toHaveProperty('type', 'Text')
+		expect(result?.parts[0]).toHaveProperty('content', 'lorem')
+		expect(result?.parts[1]).toHaveProperty('type', 'Newline')
 	}))
 
 	const noLineStartData = [

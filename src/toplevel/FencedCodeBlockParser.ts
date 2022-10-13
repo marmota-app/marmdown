@@ -21,7 +21,7 @@ import { NEW_LINE_CHARS } from "$markdown/paragraph/LineContentParser"
 import { NewlineContentParser } from "$markdown/paragraph/NewlineParser"
 import { TextContentParser } from "$markdown/paragraph/TextContentParser"
 import { find } from "$markdown/parser/find"
-import { ContainerTextParser, ParserResult, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser"
 import { parsers, Parsers } from "$markdown/Parsers"
 import { UpdatableContainerElement } from "$markdown/UpdatableElement"
 
@@ -48,7 +48,7 @@ export class UpdatableFencedCodeBlock extends UpdatableContainerElement<Updatabl
 export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCodeBlock, UpdatableCodeBlockContent | string> implements TextParser<UpdatableFencedCodeBlock> {
 	constructor(private parsers: Parsers<'TextContentParser' | 'NewLineParser' | 'OptionsParser' | 'HeadingParser' | 'ThematicBreakParser'>) { super() }
 
-	parse(text: string, start: number, length: number): ParserResult<UpdatableFencedCodeBlock> | null {
+	parse(text: string, start: number, length: number): UpdatableFencedCodeBlock | null {
 		let options: Options = new UpdatableOptions([], -1)
 
 		const parts: (UpdatableCodeBlockContent | string)[] = []
@@ -62,7 +62,7 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 		const parsedOptions = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
 		if(parsedOptions) {
 			i += parsedOptions.length
-			options = parsedOptions.content
+			options = parsedOptions
 		} else {
 			const foundInfo = find(text, /[^\r\n]*/, start+i, length-i, { whenFound })
 			if(foundInfo) {
@@ -95,22 +95,18 @@ export class FencedCodeBlockParser extends ContainerTextParser<UpdatableFencedCo
 			
 			if(textContent && textContent.length > 0) {
 				i += textContent.length
-				parts.push(textContent.content)
+				parts.push(textContent)
 			}
 
 			if(newLineIndex) {
 				const newlineContent = this.parsers.knownParsers()['NewLineParser'].parse(text, start+i, length-i)
 				if(newlineContent) {
 					i += newlineContent.length
-					parts.push(newlineContent.content)
+					parts.push(newlineContent)
 				}
 			}
 		}
 
-		return {
-			startIndex: start,
-			length: i,
-			content: new UpdatableFencedCodeBlock(options, parts, -1, this)
-		}
+		return new UpdatableFencedCodeBlock(options, parts, start, this)
 	}
 }

@@ -15,22 +15,23 @@
 */
 import { ContentChange } from "$markdown/ContentChange"
 import { UpdatableOption } from "$markdown/MarkdownOptions"
-import { MfMParsers } from "$markdown/MfMParsers"
 import { OptionParser } from "$markdown/options/OptionParser"
+import { Parsers } from "$markdown/Parsers"
 
+const NO_PARSERS: Parsers<never> = { names: () => [], knownParsers: () => ({}), toplevel: () => [], }
 describe('OptionParser', () => {
-	const optionParser = new OptionParser(new MfMParsers())
+	const optionParser = new OptionParser(NO_PARSERS)
 
 	it('returns option for correctly parsed option', () => {
 		const option = 'foo = bar'
 
 		const result = optionParser.parse(option, 0, option.length)
 
-		expect(result).toHaveProperty('startIndex', 0)
+		expect(result).toHaveProperty('start', 0)
 		expect(result).toHaveProperty('length', option.length)
-		expect(result?.content).toHaveProperty('key', 'foo')
-		expect(result?.content).toHaveProperty('value', 'bar')
-		expect(result?.content).toHaveProperty('asText', 'foo = bar')
+		expect(result).toHaveProperty('key', 'foo')
+		expect(result).toHaveProperty('value', 'bar')
+		expect(result).toHaveProperty('asText', 'foo = bar')
 	})
 
 	it('returns null when option could not be parsed', () => {
@@ -46,29 +47,29 @@ describe('OptionParser', () => {
 
 		const result = optionParser.parse(option, 11, option.length-11)
 
-		expect(result).toHaveProperty('startIndex', 11)
+		expect(result).toHaveProperty('start', 11)
 		expect(result).toHaveProperty('length', option.length-11)
-		expect(result?.content).toHaveProperty('key', 'bar')
-		expect(result?.content).toHaveProperty('value', 'foo')
-		expect(result?.content).toHaveProperty('asText', 'bar = foo')
+		expect(result).toHaveProperty('key', 'bar')
+		expect(result).toHaveProperty('value', 'foo')
+		expect(result).toHaveProperty('asText', 'bar = foo')
 	})
 
 	it('parses default option when allowed', () => {
 		const option = 'bar'
-		const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
+		const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
 
 		const result = optionParser.parse(option, 0, option.length)
 
-		expect(result).toHaveProperty('startIndex', 0)
+		expect(result).toHaveProperty('start', 0)
 		expect(result).toHaveProperty('length', option.length)
-		expect(result?.content).toHaveProperty('key', 'default')
-		expect(result?.content).toHaveProperty('value', 'bar')
-		expect(result?.content).toHaveProperty('asText', 'bar')
+		expect(result).toHaveProperty('key', 'default')
+		expect(result).toHaveProperty('value', 'bar')
+		expect(result).toHaveProperty('asText', 'bar')
 	})
 
 	it('does not parse default option when not allowed', () => {
 		const option = 'bar'
-		const optionParser = new OptionParser(new MfMParsers(), { allowDefault: false, })
+		const optionParser = new OptionParser(NO_PARSERS, { allowDefault: false, })
 
 		const result = optionParser.parse(option, 0, option.length)
 
@@ -80,9 +81,9 @@ describe('OptionParser', () => {
 
 		const result = optionParser.parse(option, 0, option.length)
 
-		expect(result?.content).toHaveProperty('key', 'foo')
-		expect(result?.content).toHaveProperty('value', 'some longer\ttext')
-		expect(result).toHaveProperty('startIndex', 0)
+		expect(result).toHaveProperty('key', 'foo')
+		expect(result).toHaveProperty('value', 'some longer\ttext')
+		expect(result).toHaveProperty('start', 0)
 		expect(result).toHaveProperty('length', option.length)
 	})
 
@@ -95,14 +96,14 @@ describe('OptionParser', () => {
 			[';', ';',],
 		].forEach(tc => it(`parses a default option ended by "${tc[1]}"`, () => {
 			const option = `bar${tc[0]}ignoreme`
-			const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
+			const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
 	
 			const result = optionParser.parse(option, 0, option.length)
 	
 			expect(result).toHaveProperty('length', 3)
-			expect(result).toHaveProperty('startIndex', 0)
-			expect(result?.content).toHaveProperty('key', 'default')
-			expect(result?.content).toHaveProperty('value', 'bar')
+			expect(result).toHaveProperty('start', 0)
+			expect(result).toHaveProperty('key', 'default')
+			expect(result).toHaveProperty('value', 'bar')
 		}))
 
 		it('parses named option ended by "="', () => {
@@ -110,10 +111,10 @@ describe('OptionParser', () => {
 	
 			const result = optionParser.parse(option, 0, option.length)
 	
-			expect(result).toHaveProperty('startIndex', 0)
+			expect(result).toHaveProperty('start', 0)
 			expect(result).toHaveProperty('length', option.length)
-			expect(result?.content).toHaveProperty('key', 'foo')
-			expect(result?.content).toHaveProperty('value', 'bar')
+			expect(result).toHaveProperty('key', 'foo')
+			expect(result).toHaveProperty('value', 'bar')
 		})	
 	})
 
@@ -146,13 +147,13 @@ describe('OptionParser', () => {
 			if(d[1] === null) {
 				expect(result).toBeNull()
 			} else {
-				expect(result?.content).toHaveProperty('asText', d[1].text)
-				expect(result?.content).toHaveProperty('key', d[1].key)
-				expect(result?.content).toHaveProperty('value', d[1].value)
-				expect(result?.content).toHaveProperty('length', d[1].length)
-				expect(result?.content).toHaveProperty('start', existingOption.start)
-				expect(result?.content).toHaveProperty('previous', existingOption.previous)
-				expect(result?.content).toHaveProperty('parent', existingOption.parent)
+				expect(result).toHaveProperty('asText', d[1].text)
+				expect(result).toHaveProperty('key', d[1].key)
+				expect(result).toHaveProperty('value', d[1].value)
+				expect(result).toHaveProperty('length', d[1].length)
+				expect(result).toHaveProperty('start', existingOption.start)
+				expect(result).toHaveProperty('previous', existingOption.previous)
+				expect(result).toHaveProperty('parent', existingOption.parent)
 			}
 		}))
 
@@ -174,19 +175,19 @@ describe('OptionParser', () => {
 			[{ rangeOffset: 14, rangeLength: 10, text: '', range: undefined }, null],
 		]
 		defaultOptionData.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
-			const optionParser = new OptionParser(new MfMParsers(), { allowDefault: true, })
+			const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
 			const result = optionParser.parsePartial(existingDefaultOption, d[0])
 
 			if(d[1] === null) {
 				expect(result).toBeNull()
 			} else {
-				expect(result?.content).toHaveProperty('asText', d[1].text)
-				expect(result?.content).toHaveProperty('key', d[1].key)
-				expect(result?.content).toHaveProperty('value', d[1].value)
-				expect(result?.content).toHaveProperty('length', d[1].length)
-				expect(result?.content).toHaveProperty('start', existingDefaultOption.start)
-				expect(result?.content).toHaveProperty('previous', existingDefaultOption.previous)
-				expect(result?.content).toHaveProperty('parent', existingDefaultOption.parent)
+				expect(result).toHaveProperty('asText', d[1].text)
+				expect(result).toHaveProperty('key', d[1].key)
+				expect(result).toHaveProperty('value', d[1].value)
+				expect(result).toHaveProperty('length', d[1].length)
+				expect(result).toHaveProperty('start', existingDefaultOption.start)
+				expect(result).toHaveProperty('previous', existingDefaultOption.previous)
+				expect(result).toHaveProperty('parent', existingDefaultOption.parent)
 			}
 		}))
 	})

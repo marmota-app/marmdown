@@ -26,7 +26,7 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content).toHaveProperty('type', 'Preformatted')
+		expect(result).toHaveProperty('type', 'Preformatted')
 	})
 
 	it('returns null if text is not fenced', () => {
@@ -42,10 +42,10 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.content).toHaveLength(2)
-		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[0]).toHaveProperty('content', 'content')
-		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
+		expect(result?.content).toHaveLength(2)
+		expect(result?.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content[0]).toHaveProperty('content', 'content')
+		expect(result?.content[1]).toHaveProperty('type', 'Newline')
 	})
 
 	it('parses multiline-text content until end of document when there is no closing fence', () => {
@@ -53,12 +53,12 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.content).toHaveLength(3)
-		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[0]).toHaveProperty('content', 'content')
-		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
-		expect(result?.content.content[2]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[2]).toHaveProperty('content', 'more content')
+		expect(result?.content).toHaveLength(3)
+		expect(result?.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content[0]).toHaveProperty('content', 'content')
+		expect(result?.content[1]).toHaveProperty('type', 'Newline')
+		expect(result?.content[2]).toHaveProperty('type', 'Text')
+		expect(result?.content[2]).toHaveProperty('content', 'more content')
 	})
 
 	it('parses text content inside code block', () => {
@@ -66,10 +66,10 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.content).toHaveLength(2)
-		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[0]).toHaveProperty('content', 'content')
-		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
+		expect(result?.content).toHaveLength(2)
+		expect(result?.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content[0]).toHaveProperty('content', 'content')
+		expect(result?.content[1]).toHaveProperty('type', 'Newline')
 	})
 
 	it('parses text content with empty lines inside code block', () => {
@@ -77,13 +77,13 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.content).toHaveLength(4)
-		expect(result?.content.content[0]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[0]).toHaveProperty('content', 'content')
-		expect(result?.content.content[1]).toHaveProperty('type', 'Newline')
-		expect(result?.content.content[2]).toHaveProperty('type', 'Newline')
-		expect(result?.content.content[3]).toHaveProperty('type', 'Text')
-		expect(result?.content.content[3]).toHaveProperty('content', 'more content')
+		expect(result?.content).toHaveLength(4)
+		expect(result?.content[0]).toHaveProperty('type', 'Text')
+		expect(result?.content[0]).toHaveProperty('content', 'content')
+		expect(result?.content[1]).toHaveProperty('type', 'Newline')
+		expect(result?.content[2]).toHaveProperty('type', 'Newline')
+		expect(result?.content[3]).toHaveProperty('type', 'Text')
+		expect(result?.content[3]).toHaveProperty('content', 'more content')
 	})
 
 	it('sets start and length correctly', () => {
@@ -91,7 +91,7 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 'before\n'.length, md.length-'before\n'.length)
 
-		expect(result?.startIndex).toEqual('before\n'.length)
+		expect(result?.start).toEqual('before\n'.length)
 		expect(result?.length).toEqual('```\ncontent\n```\n'.length)
 	})
 
@@ -100,7 +100,7 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.options).toHaveProperty('default', 'foo')
+		expect(result?.options).toHaveProperty('default', 'foo')
 	})
 
 	it('parses github-style language indicator as default option', () => {
@@ -108,15 +108,15 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.options).toHaveProperty('default', 'foo')
+		expect(result?.options).toHaveProperty('default', 'foo')
 	})
 	it('parses multi-word github-style info string (language indicator + language) as default option + codeBlockInfo', () => {
 		const md = '```   \tfoo bar baz   \ncontent\n'
 
 		const result = parser.parse(md, 0, md.length)
 
-		expect(result?.content.options).toHaveProperty('default', 'foo')
-		expect(result?.content.options).toHaveProperty('codeBlockInfo', 'foo bar baz')
+		expect(result?.options).toHaveProperty('default', 'foo')
+		expect(result?.options).toHaveProperty('codeBlockInfo', 'foo bar baz')
 	})
 
 	const fenceTestData: [string, string, string, string[]][] = [
@@ -137,7 +137,7 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 'before code block\n'.length, md.length-'before code block\n'.length)
 
-		const textsInCodeBlock = result?.content.content
+		const textsInCodeBlock = result?.content
 			.filter(c => c.type==='Text')
 			.map(c => (c as TextContent).content)
 
@@ -159,7 +159,7 @@ describe('FencedCodeBlockParser', () => {
 
 		const result = parser.parse(md, 'before code block\n'.length, md.length-'before code block\n'.length)
 
-		const textsInCodeBlock = result?.content.content
+		const textsInCodeBlock = result?.content
 			.filter(c => c.type==='Text')
 			.map(c => (c as TextContent).content)
 
@@ -176,7 +176,6 @@ describe('FencedCodeBlockParser', () => {
 		const result = parser.parse(md, start, md.length-start)
 
 		expect(result?.length).toEqual(expectedLength)
-		expect(result?.content.length).toEqual(expectedLength)
 	}))
 
 	const textTestData: [string, number, string][] = [
@@ -188,6 +187,6 @@ describe('FencedCodeBlockParser', () => {
 	textTestData.forEach(([md, start, expectedText])=>it(`produces result of length ${expectedText} for markdown "${md}"`, () => {
 		const result = parser.parse(md, start, md.length-start)
 
-		expect(result?.content.asText).toEqual(expectedText)
+		expect(result?.asText).toEqual(expectedText)
 	}))
 })
