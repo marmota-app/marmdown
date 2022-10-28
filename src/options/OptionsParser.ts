@@ -17,7 +17,7 @@ import { Option, Options, ParsedOptionsContent, UpdatableOptions } from "$markdo
 import { find } from "$markdown/parser/find";
 import { Parsers } from "$markdown/Parsers";
 import { ParsedDocumentContent } from "$markdown/Updatable";
-import { ContainerTextParser, SkipLineStart, TextParser } from "../parser/TextParser";
+import { ContainerTextParser, } from "../parser/TextParser";
 
 export class OptionsParser extends ContainerTextParser<string | Option, Options, ParsedOptionsContent> {
 	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
