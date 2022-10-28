@@ -13,40 +13,35 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { AdvancedConent, Updatable, UpdatableContainer } from "./MarkdownDocument"
+import { ParsedDocumentContent, Updatable } from "./Updatable"
 import { OptionParser } from "./options/OptionParser"
 import { OptionsParser } from "./options/OptionsParser"
 import { TextParser } from "./parser/TextParser"
-import { UpdatableContainerElement, UpdatableElement } from "./UpdatableElement"
+import { UpdatableElement } from "./UpdatableElement"
 
-export interface Option extends Updatable<Option> {
+export interface Option extends Updatable<Option, unknown> {
 	key: string,
 	value: string,
 }
 export type ContentOptions = {
 	[key: string]: string,
 }
-export interface Options extends UpdatableContainer<Options, string | Option>{
+export interface Options extends Updatable<Options, Option>{
 	readonly options: Option[],
 	readonly asMap: ContentOptions,
 }
 
-export class UpdatableOption extends UpdatableElement<Option> implements Option {
+export class UpdatableOption extends UpdatableElement<Option, unknown> implements Option {
 	constructor(
-		public asText: string,
-		private _key: string, private _value: string,
-		_start: number, _length: number, parsedWith?: TextParser<Option>,
+		public readonly key: string, public readonly value: string, content: ParsedDocumentContent<unknown, unknown>, parsedWith?: TextParser<unknown, Option>,
 	) {
-		super(_start, _length, parsedWith)
+		super([content], parsedWith)
 	}
-
-	get key() { return this._key }
-	get value() { return this._value}
 }
 
-export class UpdatableOptions extends UpdatableContainerElement<Options, string | Option> implements Options {
-	constructor(_parts: (string | Option)[], _start: number, parsedWith?: OptionsParser) {
-		super(_parts, _start, parsedWith)
+export class UpdatableOptions extends UpdatableElement<Options, string | Option> implements Options {
+	constructor(contents: ParsedLineContent<string | Option>[], parsedWith?: OptionsParser) {
+		super(contents, parsedWith)
 	}
 
 	get options() {

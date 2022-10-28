@@ -19,24 +19,22 @@ import { Parsers } from "$markdown/Parsers";
 import { ContainerTextParser, TextParser } from "../parser/TextParser";
 
 export class OptionsParser extends ContainerTextParser<Options, string | Option> implements TextParser<Options> {
-	//private defaultOptionParser = new OptionParser({ allowDefault: true, }), private optionParser = new OptionParser()
 	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
 		super()
 	}
 
-	parse(text: string, start: number, length: number): Options | null {
+	parse(previous: Options | null, text: string, start: number, length: number): Options | null {
 		let i = 0
-		const foundParts: (string | Option)[] = []
-		const whenFound = (l: number, t: string) => { i+=l; foundParts.push(t) }
 
-		const foundOptionsStartIndex = start+i
-		if(find(text, '{', start+i, length-i, { whenFound })) {
-			const foundOptions: Option[] = []
-
+		if(previous != null) {
+			const foundParts: (string | Option)[] = []
+			const whenFound = (l: number, t: string) => { i+=l; foundParts.push(t) }
+			const foundOptionsStartIndex = previous.start
+	
 			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
 			let nextOption: Option | null
 			do {
-				nextOption = nextParser.parse(text, start+i, length-i)
+				nextOption = nextParser.parse(null, text, start+i, length-i)
 				if(nextOption) {
 					foundParts.push(nextOption)
 					foundOptions.push(nextOption)
@@ -45,6 +43,53 @@ export class OptionsParser extends ContainerTextParser<Options, string | Option>
 				find(text, ';', start+i, length-i, { whenFound })
 				nextParser = this.parsers.knownParsers()['OptionParser']
 			} while(nextOption != null)
+
+			const shouldContinueLF =   i == length-3 && text.startsWith('  \n',   i)
+			if(i == length-2 && text.startsWith('  \n',   i)) {
+				foundParts.push('  ')
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
+			}
+
+			if(find(text, '}', start+i, length-i, { whenFound })) {
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
+			}
+			//TODO test for return null!
+		}
+
+		const foundParts: (string | Option)[] = []
+		const whenFound = (l: number, t: string) => { i+=l; foundParts.push(t) }
+		if(find(text, '{', start+i, length-i, { whenFound })) {
+			const foundOptionsStartIndex = start+i
+			const foundOptions: Option[] = []
+
+			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
+			let nextOption: Option | null
+			do {
+				nextOption = nextParser.parse(null, text, start+i, length-i)
+				if(nextOption) {
+					foundParts.push(nextOption)
+					foundOptions.push(nextOption)
+					i += nextOption.length
+				}
+				find(text, ';', start+i, length-i, { whenFound })
+				nextParser = this.parsers.knownParsers()['OptionParser']
+			} while(nextOption != null)
+
+			const shouldContinueLF =   i == length-3 && text.startsWith('  \n',   i)
+			const shouldContinueCR =   i == length-3 && text.startsWith('  \r',   i)
+			const shouldContinueCRLF = i == length-4 && text.startsWith('  \r\n', i)
+			if(shouldContinueLF) {
+				foundParts.push('  \n')
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
+			}
+			if(shouldContinueCR) {
+				foundParts.push('  \r')
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
+			}
+			if(shouldContinueCRLF) {
+				foundParts.push('  \r\n')
+				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)
+			}
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {
 				return new UpdatableOptions(foundParts, foundOptionsStartIndex, this)

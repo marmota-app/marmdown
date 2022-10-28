@@ -1,5 +1,14 @@
 The "new", stateful markdown parser for [marmota.app](https://marmota.app)
 
+## Design
+
+This markdown parser serves two main purposes:
+
+* Make it possible to partially parse a document: When a part of the document changes, only the smallest possible portion of the document should be re-parsed.
+* Re-generate the document's text from the model: The program must be able to change the document's model and then generate the document's text from it.
+
+Read more about the design decisions in [the Design documentation](./docs/design.md)
+
 ## Differences to GitHub Flavored Markdown
 
 Marmota-Flavored-Markdown (MfM) tries to be mostly compatible with

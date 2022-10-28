@@ -14,62 +14,62 @@
    limitations under the License.
 */
 import { ContentChange } from "$markdown/ContentChange";
-import { AdvancedConent, Content, DefaultContent, Updatable, UpdatableContainer } from "$markdown/MarkdownDocument";
+import { Updatable } from "$markdown/Updatable";
 
 export interface SkipLineStartOptions {
 	whenSkipping: (textToSkip: string) => unknown,
 }
 export type SkipLineStart = (text: string, start: number, length: number, options?: SkipLineStartOptions)=>{ isValidStart: boolean, skipCharacters: number, }
 export const defaultSkipLineStart: SkipLineStart = () => ({ isValidStart: true, skipCharacters: 0, })
-export interface TextParser<T extends Updatable<T>> {
-	parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null,
-	couldParse(text: string, start: number, length: number): boolean,
+export interface TextParser<C, T extends Updatable<T, C>> {
+	parse(previous: T | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null,
+	couldParse(previous: T | null, text: string, start: number, length: number): boolean,
 	parsePartial(existing: T, change: ContentChange): T | null,
 }
 
-export abstract class LeafTextParser<T extends Updatable<T>> implements TextParser<T> {
-	abstract parse(text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null
+export abstract class ContainerTextParser<C, T extends Updatable<C, T>> implements TextParser<C, T> {
+	abstract parse(previous: T | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null
 
-	couldParse(text: string, start: number, length: number): boolean {
-		return this.parse(text, start, length) != null
+	couldParse(previous: T | null, text: string, start: number, length: number): boolean {
+		return this.parse(previous, text, start, length) != null
 	}
 
 	parsePartial(existing: T, change: ContentChange): T | null {
-		const optionStart = existing.start
+		for(let ci = 0; ci < existing.contents.length; ci++) {
+			const current = existing.contents[ci]
 
-		const changeStart = change.rangeOffset
-		const changeEnd = change.rangeOffset + change.rangeLength
-		const rangeStartsWithingExistingBounds = changeStart >= optionStart && changeStart <= optionStart+existing.length
-		const rangeEndsWithinExistingBounds = changeEnd >= optionStart && changeEnd <= optionStart+existing.length
+			const changeStart = change.rangeOffset
+			const changeEnd = change.rangeOffset + change.rangeLength
 
-		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			const beforeChange = existing.asText.substring(0, changeStart - optionStart)
-			const afterChange = existing.asText.substring(changeEnd - optionStart)
+			const rangeStartsWithingExistingBounds = changeStart >= current.start && changeStart <= current.start+current.length
+			const rangeEndsWithinExistingBounds = changeEnd >= current.start && changeEnd <= current.start+current.length
+	
+			if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
+				const beforeChange = current.asText.substring(0, changeStart - current.start)
+				const afterChange = current.asText.substring(changeEnd - current.start)
+	
+				const newText = beforeChange + change.text + afterChange
+				const newResult = this.parse(null, newText, 0, newText.length)
+				const newResultWasFullyParsed = (r: T) => r.contents[0].length === newText.length
+	
+				if(newResult && newResultWasFullyParsed(newResult)) {
+					newResult.contents[0].start = current.start
+					newResult.contents[0].parent = current.parent
 
-			const newText = beforeChange + change.text + afterChange
-			const newResult = this.parse(newText, 0, newText.length)
-			const newResultWasFullyParsed = (r: T) => r.length === newText.length
+					const newContents = [ ...existing.contents ]
+					newContents[ci] = newResult.contents[0]
+					newResult.contents = newContents
 
-			if(newResult && newResultWasFullyParsed(newResult)) {
-				newResult.start = optionStart
-				newResult.previous = existing.previous
-				newResult.parent = existing.parent
-				return newResult
+					return newResult
+				}
 			}
 		}
-		return null
-	}
-}
-
-export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P> extends LeafTextParser<T> {
-	parsePartial(existing: T, change: ContentChange): T | null {
+		/*
 		const existingStart = existing.start
 		if(existingStart < 0) {
 			return null
 		}
 
-		const changeStart = change.rangeOffset
-		const changeEnd = change.rangeOffset + change.rangeLength
 		const rangeStartsWithingExistingBounds = changeStart >= existingStart && changeStart <= existingStart+existing.length
 		const rangeEndsWithinExistingBounds = changeEnd >= existingStart && changeEnd <= existingStart+existing.length
 
@@ -81,7 +81,7 @@ export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P>
 
 					if(affectedUpdatable.parsedWith == null) return null
 
-					const result = affectedUpdatable.parsedWith.parsePartial(affectedUpdatable, change)
+					const result = affectedUpdatable.parsedWith.parsePartial(affectedUpdatable, change) as P
 					if(result) {
 						existing.parts[i] = result
 						return existing
@@ -91,7 +91,7 @@ export abstract class ContainerTextParser<T extends UpdatableContainer<T, P>, P>
 	
 			return super.parsePartial(existing, change)
 		}
-
+		*/
 		return null
 	}
 }

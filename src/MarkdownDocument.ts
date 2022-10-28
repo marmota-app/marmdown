@@ -14,7 +14,6 @@
    limitations under the License.
 */
 import { ContentOptions, Options } from "./MarkdownOptions";
-import { TextParser } from "./parser/TextParser";
 
 export type Content = Empty |
 	Heading |
@@ -153,18 +152,3 @@ export interface ParseResult {
 export interface AdvancedConent {
 	readonly allOptions: Options,
 }
-
-export interface Updatable<T> {
-	asText: string,
-	previous: Updatable<unknown> | undefined,
-	parent: Updatable<unknown> | undefined,
-	start: number,
-	length: number,
-	parsedWith?: TextParser<Updatable<T>>,
-}
-
-export interface UpdatableContainer<T, P> extends Updatable<T> {
-	parts: P[],
-}
-
-export type ToUpdatable<T> = T extends any? Updatable<T> & T : never

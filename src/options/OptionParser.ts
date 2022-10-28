@@ -13,16 +13,22 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { ContentChange } from "$markdown/ContentChange"
 import { Option, UpdatableOption } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
-import { LeafTextParser, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
 
 export interface OptionParserConfig {
 	allowDefault: boolean,
 }
-export class OptionParser extends LeafTextParser<Option> implements TextParser<Option> {
+
+/**
+ * Parses a single `Option` that is either a default value or a "key=value" pair.
+ * 
+ * `Option` is a leaf node, so it does not have any content. Hence, the "C" type
+ * parameter is `unknown`.
+ */
+export class OptionParser extends ContainerTextParser<unknown, Option> {
 	private config: OptionParserConfig
 
 	constructor(_: Parsers<never>, config: Partial<OptionParserConfig> = {}) {
@@ -37,9 +43,12 @@ export class OptionParser extends LeafTextParser<Option> implements TextParser<O
 		}
 	}
 
-	parse(text: string, start: number, length: number): Option | null {
+	parse(previous: Option | null, text: string, start: number, length: number): Option | null {
+		if(previous != null) { return null }
+		
 		let i = 0
-		const whenFound = (l: number) => i+=l
+		const parts: string[] = []
+		const whenFound = (l: number, text: string) => { i+=l; parts.push(text) }
 
 		const identMatcher = /[^ \n\r\t}=;]+/
 		const valueMatcher = /[^\n\r}=;]+/
@@ -50,19 +59,15 @@ export class OptionParser extends LeafTextParser<Option> implements TextParser<O
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
 					return new UpdatableOption(
-						text.substring(start, start+i),
-						ident.foundText,
-						value.foundText.trim(),
-						start, i,
+						ident.foundText, value.foundText.trim(),
+						{ start: start, length: i, contained: [], asText: parts.join('') },
 						this,
 					)
 				}
 			} else if(this.config.allowDefault) {
 				return new UpdatableOption(
-					text.substring(start, start+i),
-					'default',
-					ident.foundText,
-					start, i,
+					'default', ident.foundText,
+					{ start: start, length: i, contained:[], asText: parts.join('') },
 					this,
 				)
 			}

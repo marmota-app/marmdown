@@ -44,7 +44,6 @@ describe('Marmdown', () => {
 
 		const firstTextParserMock = mock<TextParser<UpdatableParagraph>>('firstTextParserMock')
 		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(null).once()
-
 		
 		const marmdown = new Marmdown('the content', new TestParsers({
 			'OptionsParser': instance(optionsParserMock),
@@ -53,7 +52,7 @@ describe('Marmdown', () => {
 
 		verify(firstTextParserMock)
 	})
-
+	
 	it.skip('passes content to next subparser when pervious subparser returns null', () => {
 		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
 		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
