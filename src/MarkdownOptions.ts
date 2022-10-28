@@ -19,7 +19,15 @@ import { OptionsParser } from "./options/OptionsParser"
 import { TextParser } from "./parser/TextParser"
 import { UpdatableElement } from "./UpdatableElement"
 
-export interface Option extends Updatable<Option, unknown> {
+export interface ParsedOptionContent extends ParsedDocumentContent<unknown, unknown> {
+	key: string,
+	value: string,
+}
+export interface ParsedOptionsContent extends ParsedDocumentContent<string | Option, Options> {
+	lineOptions: Option[],
+}
+
+export interface Option extends Updatable<Option, unknown, ParsedOptionContent> {
 	key: string,
 	value: string,
 }
@@ -31,15 +39,15 @@ export interface Options extends Updatable<Options, Option, ParsedOptionsContent
 	readonly asMap: ContentOptions,
 }
 
-export class UpdatableOption extends UpdatableElement<Option, unknown> implements Option {
+export class UpdatableOption extends UpdatableElement<Option, unknown, ParsedOptionContent> implements Option {
 	constructor(
-		public readonly key: string, public readonly value: string, content: ParsedDocumentContent<unknown, unknown>, parsedWith?: TextParser<unknown, Option>,
+		content: ParsedOptionContent, parsedWith?: TextParser<unknown, Option, ParsedOptionContent>,
 	) {
 		super([content], parsedWith)
 	}
-}
-export interface ParsedOptionsContent extends ParsedDocumentContent<string | Option, Options> {
-	lineOptions: Option[],
+
+	get key() { return this.contents[0].key }
+	get value() { return this.contents[0].value }
 }
 
 /**

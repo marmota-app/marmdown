@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { Option, UpdatableOption } from "$markdown/MarkdownOptions"
+import { Option, ParsedOptionContent, UpdatableOption } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
 import { ContainerTextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
@@ -29,7 +29,7 @@ export interface OptionParserConfig {
  * `Option` is a leaf node, so it does not have any content. Hence, the "C" type
  * parameter is `unknown`.
  */
-export class OptionParser extends ContainerTextParser<unknown, Option> {
+export class OptionParser extends ContainerTextParser<unknown, Option, ParsedOptionContent> {
 	private config: OptionParserConfig
 
 	constructor(_: Parsers<never>, config: Partial<OptionParserConfig> = {}) {
@@ -44,7 +44,7 @@ export class OptionParser extends ContainerTextParser<unknown, Option> {
 		}
 	}
 
-	parse(previous: Option | null, text: string, start: number, length: number): [Option | null, ParsedDocumentContent<unknown, Option> | null] {
+	parse(previous: Option | null, text: string, start: number, length: number): [Option | null, ParsedOptionContent | null] {
 		if(previous != null) { return [ null, null] }
 		
 		let i = 0
@@ -59,18 +59,16 @@ export class OptionParser extends ContainerTextParser<unknown, Option> {
 			if(equals) {
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
-					const content = { start: start, length: i, contained: [], asText: parts.join('') }
+					const content = { key: ident.foundText, value: value.foundText.trim(), start: start, length: i, contained: [], asText: parts.join('') }
 					const option = new UpdatableOption(
-						ident.foundText, value.foundText.trim(),
 						content,
 						this,
 					)
 					return [ option, content, ]
 				}
 			} else if(this.config.allowDefault) {
-				const content = { start: start, length: i, contained:[], asText: parts.join('') }
+				const content = { key: 'default', value: ident.foundText, start: start, length: i, contained:[], asText: parts.join('') }
 				const option = new UpdatableOption(
-					'default', ident.foundText,
 					content,
 					this,
 				)

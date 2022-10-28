@@ -4,22 +4,29 @@ import { UpdatableElement } from "$markdown/UpdatableElement";
 
 describe('TextParser', () => {
 	describe('partial parsing of leaf element', () => {
-		interface Leaf extends Updatable<Leaf, unknown> {}
-		class UpdatableLeaf extends UpdatableElement<Leaf, unknown> {
-			constructor(public readonly text: string, contents: ParsedDocumentContent<Leaf, unknown>[], parsedWith?: TextParser<unknown, Updatable<Leaf, unknown>>) {
+		interface Leaf extends Updatable<Leaf, unknown, LeafContent> {
+			text: string,
+		}
+		interface LeafContent extends ParsedDocumentContent<Leaf, unknown> {
+			text: string,
+		}
+		class UpdatableLeaf extends UpdatableElement<Leaf, unknown, LeafContent> {
+			constructor(contents: LeafContent[], parsedWith?: TextParser<unknown, Updatable<Leaf, unknown, LeafContent>, LeafContent>) {
 				super(contents, parsedWith)
 			}
+
+			get text() { return this.contents[0].text }
 		}
 		
-		class TestLeafTextParser extends ContainerTextParser<unknown, Leaf> {
-			parse(previous: Leaf | null, text: string, start: number, length: number): [ Leaf | null, ParsedDocumentContent<unknown, unknown> | null, ] {
+		class TestLeafTextParser extends ContainerTextParser<unknown, Leaf, LeafContent> {
+			parse(previous: Leaf | null, text: string, start: number, length: number): [ Leaf | null, LeafContent | null, ] {
 				//Allow for **not** fully parsing by adding a special character where parsing stops:
 				const parsedText = text.indexOf('#')>0? text.substring(0, text.indexOf('#')) : text
 
 				//A leaf element has no other contained elements. The parser should only consider start,
 				//length and asText when partially parsing this element.
-				const content = { asText: parsedText, length: parsedText.length, start: start, contained: []}
-				const leaf = new UpdatableLeaf(parsedText, [content], this)
+				const content = { text: parsedText, asText: parsedText, length: parsedText.length, start: start, contained: []}
+				const leaf = new UpdatableLeaf([content], this)
 				return [ leaf, content]
 			}
 		}

@@ -35,8 +35,8 @@ export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updat
 		return this.parse(previous, text, start, length) != null
 	}
 
-	parseSingleContent(contentIndex: number, text: string, start: number, length: number, skipLineStart?: SkipLineStart): [UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null] {
-		return this.parse(null, text, start, length)
+	parseSingleContent(contentIndex: number, text: string, start: number, length: number): DOCUMENT_CONTENT | null {
+		return this.parse(null, text, start, length)[1]
 	}
 
 	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): UPDATABLE_TYPE | null {
@@ -55,18 +55,16 @@ export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updat
 				const afterChange = current.asText.substring(changeEnd - current.start)
 	
 				const newText = beforeChange + change.text + afterChange
-				const [newResult, contents] = this.parseSingleContent(ci, newText, 0, newText.length)
-				const newResultWasFullyParsed = (r: UPDATABLE_TYPE) => r.contents[0].length === newText.length
+				const contents = this.parseSingleContent(ci, newText, 0, newText.length)
+				const newResultWasFullyParsed = (c: DOCUMENT_CONTENT) => c.length === newText.length
 	
-				if(newResult && contents && newResultWasFullyParsed(newResult)) {
+				if(contents && newResultWasFullyParsed(contents)) {
 					contents.start = current.start
 					contents.parent = current.parent
 
-					const newContents = [ ...existing.contents ]
-					newContents[ci] = contents
-					newResult.contents = newContents
+					existing.contents[ci] = contents
 
-					return newResult
+					return existing
 				}
 			}
 		}

@@ -131,8 +131,11 @@ describe('OptionParser', () => {
 	describe('partially parsing changes', () => {
 		interface ExpectedResult { text: string, key: string, value: string, length: number, }
 
-		const [ existingOption, ] = optionParser.parse(null, '123456789012foo = bar', 12, 'foo = bar'.length)
-		existingOption!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
+		const existingOption = () => {
+			const [ e, ] = optionParser.parse(null, '123456789012foo = bar', 12, 'foo = bar'.length)
+			e!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
+			return e!
+		}
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 50, rangeLength: 0, text: 'ignore', range: undefined }, null],
@@ -150,7 +153,8 @@ describe('OptionParser', () => {
 			[{ rangeOffset: 19, rangeLength: 10, text: '', range: undefined }, null],
 		]
 		data.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
-			const result = optionParser.parsePartial(existingOption!, d[0])
+			const existing = existingOption()
+			const result = optionParser.parsePartial(existing, d[0])
 
 			if(d[1] === null) {
 				expect(result).toBeNull()
@@ -159,14 +163,17 @@ describe('OptionParser', () => {
 				expect(result).toHaveProperty('value', d[1].value)
 				expect(result?.contents[0]).toHaveProperty('asText', d[1].text)
 				expect(result?.contents[0]).toHaveProperty('length', d[1].length)
-				expect(result?.contents[0]).toHaveProperty('start', existingOption?.contents[0].start)
-				expect(result?.contents[0]).toHaveProperty('parent', existingOption?.contents[0].parent)
+				expect(result?.contents[0]).toHaveProperty('start', existing?.contents[0].start)
+				expect(result?.contents[0]).toHaveProperty('parent', existing?.contents[0].parent)
 			}
 		}))
 
 		const defaultOptionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
-		const [ existingDefaultOption, ] = defaultOptionParser.parse(null, '123456789012bar', 12, 'bar'.length)
-		existingDefaultOption!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
+		const existingDefaultOption = () => {
+			const [ e, ] = defaultOptionParser.parse(null, '123456789012bar', 12, 'bar'.length)
+			e!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
+			return e!
+		}
 		const defaultOptionData: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
 			[{ rangeOffset: 50, rangeLength: 0, text: 'ignore', range: undefined }, null],
@@ -181,8 +188,8 @@ describe('OptionParser', () => {
 			[{ rangeOffset: 14, rangeLength: 10, text: '', range: undefined }, null],
 		]
 		defaultOptionData.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
-			const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
-			const result = optionParser.parsePartial(existingDefaultOption!, d[0])
+			const existing = existingDefaultOption()
+			const result = defaultOptionParser.parsePartial(existing!, d[0])
 
 			if(d[1] === null) {
 				expect(result).toBeNull()
@@ -191,8 +198,8 @@ describe('OptionParser', () => {
 				expect(result).toHaveProperty('value', d[1].value)
 				expect(result?.contents[0]).toHaveProperty('asText', d[1].text)
 				expect(result?.contents[0]).toHaveProperty('length', d[1].length)
-				expect(result?.contents[0]).toHaveProperty('start', existingDefaultOption?.contents[0].start)
-				expect(result?.contents[0]).toHaveProperty('parent', existingDefaultOption?.contents[0].parent)
+				expect(result?.contents[0]).toHaveProperty('start', existing?.contents[0].start)
+				expect(result?.contents[0]).toHaveProperty('parent', existing?.contents[0].parent)
 			}
 		}))
 	})

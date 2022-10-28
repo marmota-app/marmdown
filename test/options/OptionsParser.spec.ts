@@ -161,9 +161,25 @@ describe('OptionsParser', () => {
 		expect(result?.contents[2]).toHaveProperty('length', thirdParseLength)
 		expect(result?.contents[2]).toHaveProperty('asText', '      k2=v2}')
 	})
-	//FIXME
-	it.skip('does not allow adding another line after the options block was fully parsed', () => {})
-	it.skip('does not allow adding another default option on the second line', () => {})
+	it('does not allow adding another line after the options block was fully parsed', () => {
+		const options = '{ k1 = v1; k2 = v2 }'
+		const secondLine = 'k3 = v3 }'
+
+		let [ result ] = optionsParser.parse(null, options, 0, options.length)
+		result = optionsParser.parse(result, secondLine, 0, secondLine.length)[0]
+
+		expect(result).toBeNull()
+	})
+	it('does not allow adding another default option on the second line', () => {
+		const options = '{ default-value  \n default-2 }'
+		const firstParseLength = '{ default-value  '.length
+		const secondParseStart = firstParseLength+1
+		const secondParseLength = ' default-2 }'.length
+		let [ result, ] = optionsParser.parse(null, options, 0, firstParseLength)
+		result = optionsParser.parse(result, options, secondParseStart, secondParseLength)[0]
+
+		expect(result).toBeNull()
+	})
 
 	describe('partial parsing options', () => {
 		it('updates existing option, partially', () => {
@@ -253,7 +269,7 @@ describe('OptionsParser', () => {
 			expect(result?.asMap).toHaveProperty('k1', 'v1')
 			expect(result?.asMap).toHaveProperty('newKey', 'newValue')
 		})
-		it.skip('updates existing multi-line options block in second line', () => {
+		it('updates existing multi-line options block in second line', () => {
 			const options = '{ default-value  \n k1 = v1 }'
 			const firstParseLength = '{ default-value  '.length
 			const secondParseStart = firstParseLength+1

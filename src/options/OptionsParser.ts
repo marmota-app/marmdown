@@ -25,90 +25,71 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 	}
 
 	parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedOptionsContent | null ] {
-		let i = 0
+		if(!this.canExtendPreviousOptions(previous)) {
+			return [null, null, ]
+		}
 
-		const parsingOption = previous != null?
+		const parsingOptions = previous != null?
 			previous :
 			new UpdatableOptions([], this)
 
-		//FIXME remove all the duplication in this file
-		if(previous != null) {
-			const foundOptions: Option[] = []
-			const foundContents: ParsedDocumentContent<string | Option, unknown>[] = []
-			const whenFound = (l: number, t: string) => { foundContents.push({ start: start+i, length: l, contained: [], asText: t, }), i+=l; }
-	
-			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
-			let nextOption: Option | null
-			let nextContent: ParsedDocumentContent<unknown, unknown> | null
-			do {
-				[ nextOption, nextContent, ] = nextParser.parse(null, text, start+i, length-i)
-				if(nextOption && nextContent) {
-					foundContents.push(nextContent)
-					foundOptions.push(nextOption)
-					i += nextOption.contents[0].length
-				}
-				find(text, ';', start+i, length-i, { whenFound })
-				nextParser = this.parsers.knownParsers()['OptionParser']
-			} while(nextOption != null)
+		const parsedContent = this.parseSingleContent(parsingOptions.contents.length, text, start, length)
 
-			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
-			if(shouldContinue) {
-				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
-				parsingOption.contents.push(content)
-				return [ parsingOption, content, ]
-			}
-			if(find(text, '}', start+i, length-i, { whenFound })) {
-				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
-				parsingOption.contents.push(content)
-				return [ parsingOption, content, ]
-			}
-			return [ null, null, ]
-		}
+		if(parsedContent) {
+			parsingOptions.contents.push(parsedContent)
 
-
-		const foundContents: ParsedDocumentContent<string | Option, unknown>[] = []
-		const whenFound = (l: number, t: string) => { foundContents.push({ start: start+i, length: l, contained: [], asText: t, }), i+=l; }
-		if(find(text, '{', start+i, length-i, { whenFound })) {
-			const foundOptions: Option[] = []
-			let nextParser = this.parsers.knownParsers()['DefaultOptionParser']
-			let nextOption: Option | null
-			let nextContent: ParsedDocumentContent<unknown, unknown> | null
-			do {
-				[ nextOption, nextContent, ] = nextParser.parse(null, text, start+i, length-i)
-				if(nextOption && nextContent) {
-					foundContents.push(nextContent)
-					foundOptions.push(nextOption)
-					i += nextOption.contents[0].length
-				}
-				find(text, ';', start+i, length-i, { whenFound })
-				nextParser = this.parsers.knownParsers()['OptionParser']
-			} while(nextOption != null)
-
-			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
-			if(shouldContinue) {
-				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
-				const option = new UpdatableOptions([content], this)
-				return [ option, content, ]
-			}
-
-			if(find(text, '}', start+i, length-i, { whenFound })) {
-				//FIXME duplication: Creating the updatable options!
-				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
-				const option = new UpdatableOptions(
-					[content],
-					this
-				)
-				return [ option, content, ]
-			}
+			return [ parsingOptions, parsedContent, ]
 		}
 
 		return [ null, null, ]
 	}
 
-	parseSingleContent(contentIndex: number, text: string, start: number, length: number, skipLineStart?: SkipLineStart): [ Options | null, ParsedOptionsContent | null ] {
-		return this.parse(null, text, start, length)
+	parseSingleContent(contentIndex: number, text: string, start: number, length: number): ParsedOptionsContent | null {
+		const foundOptions: Option[] = []
+		const foundContents: ParsedDocumentContent<string | Option, unknown>[] = []
+
+		let i = 0
+		const whenFound = (l: number, t: string) => { foundContents.push({ start: start+i, length: l, contained: [], asText: t, }), i+=l; }
+		if(contentIndex>0 || find(text, '{', start+i, length-i, { whenFound })) {
+			let nextParser = contentIndex==0? this.parsers.knownParsers()['DefaultOptionParser']: this.parsers.knownParsers()['OptionParser']
+			let nextOption: Option | null
+			let nextContent: ParsedDocumentContent<unknown, unknown> | null
+			do {
+				[ nextOption, nextContent, ] = nextParser.parse(null, text, start+i, length-i)
+				if(nextOption && nextContent) {
+					foundContents.push(nextContent)
+					foundOptions.push(nextOption)
+					i += nextOption.contents[0].length
+				}
+				find(text, ';', start+i, length-i, { whenFound })
+				nextParser = this.parsers.knownParsers()['OptionParser']
+			} while(nextOption != null)
+
+			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
+			if(shouldContinue) {
+				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
+				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				return content
+			}
+
+			if(find(text, '}', start+i, length-i, { whenFound })) {
+				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				return content
+			}
+		}
+		return null
 	}
 
+	private canExtendPreviousOptions(previous: Options | null) {
+		if(previous) {
+			//was previous fully parsed or can it be extended?
+			const lastLine = previous.contents[previous.contents.length - 1]
+			const lastContent = lastLine.contained[lastLine.contained.length - 1]
+			if(lastContent && lastContent.asText.endsWith('}')) {
+				//found a closing curly bracket, so the previous option is already completely parsed!
+				return false
+			}
+		}
+		return true
+	}
 }
