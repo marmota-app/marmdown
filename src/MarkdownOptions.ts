@@ -26,7 +26,7 @@ export interface Option extends Updatable<Option, unknown> {
 export type ContentOptions = {
 	[key: string]: string,
 }
-export interface Options extends Updatable<Options, Option>{
+export interface Options extends Updatable<Options, Option, ParsedOptionsContent>{
 	readonly options: Option[],
 	readonly asMap: ContentOptions,
 }
@@ -37,6 +37,9 @@ export class UpdatableOption extends UpdatableElement<Option, unknown> implement
 	) {
 		super([content], parsedWith)
 	}
+}
+export interface ParsedOptionsContent extends ParsedDocumentContent<string | Option, Options> {
+	lineOptions: Option[],
 }
 
 /**
@@ -52,11 +55,14 @@ export class UpdatableOption extends UpdatableElement<Option, unknown> implement
  * Each entry in the `contents` array represent one line from the document where options
  * were parsed.
  */
-export class UpdatableOptions extends UpdatableElement<Options, string | Option> implements Options {
-	constructor(public readonly options: Option[], contents: ParsedDocumentContent<string | Option, Options>[], parsedWith?: OptionsParser) {
+export class UpdatableOptions extends UpdatableElement<Options, string | Option, ParsedOptionsContent> implements Options {
+	constructor(contents: ParsedOptionsContent[], parsedWith?: OptionsParser) {
 		super(contents, parsedWith)
 	}
 
+	get options() {
+		return this.contents.flatMap(c => c.lineOptions)
+	}
 	get asMap() {
 		return this.options.reduce((p, c) => {
 			return { ...p, [c.key]: c.value}

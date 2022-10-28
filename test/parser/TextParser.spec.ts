@@ -105,5 +105,13 @@ describe('TextParser', () => {
 
 			expect(updated).toBeNull()
 		})
+		it('does not update the element when it has a start index < 0', () => {
+			const [ leaf, ] = parser.parse(null, 'foobar', 6, 6)
+			leaf!.contents[0].start = -1
+
+			const updated = parser.parsePartial(leaf!, { rangeOffset: 2, rangeLength: 0, text: ' ', range: undefined })
+
+			expect(updated).toBeNull()
+		})
 	})
 })

@@ -13,23 +13,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { Option, Options, UpdatableOptions } from "$markdown/MarkdownOptions";
+import { Option, Options, ParsedOptionsContent, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { find } from "$markdown/parser/find";
 import { Parsers } from "$markdown/Parsers";
 import { ParsedDocumentContent } from "$markdown/Updatable";
-import { ContainerTextParser, TextParser } from "../parser/TextParser";
+import { ContainerTextParser, SkipLineStart, TextParser } from "../parser/TextParser";
 
-export class OptionsParser extends ContainerTextParser<string | Option, Options> {
+export class OptionsParser extends ContainerTextParser<string | Option, Options, ParsedOptionsContent> {
 	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
 		super()
 	}
 
-	parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedDocumentContent<string | Option, Options> | null ] {
+	parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedOptionsContent | null ] {
 		let i = 0
 
 		const parsingOption = previous != null?
 			previous :
-			new UpdatableOptions([], [], this)
+			new UpdatableOptions([], this)
 
 		//FIXME remove all the duplication in this file
 		if(previous != null) {
@@ -54,15 +54,13 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options>
 			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
 			if(shouldContinue) {
 				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = { start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
 				parsingOption.contents.push(content)
-				parsingOption.options.push(...foundOptions)
 				return [ parsingOption, content, ]
 			}
 			if(find(text, '}', start+i, length-i, { whenFound })) {
-				const content = { start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
 				parsingOption.contents.push(content)
-				parsingOption.options.push(...foundOptions)
 				return [ parsingOption, content, ]
 			}
 			return [ null, null, ]
@@ -90,16 +88,15 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options>
 			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
 			if(shouldContinue) {
 				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = { start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
-				const option = new UpdatableOptions(foundOptions, [content], this)
+				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const option = new UpdatableOptions([content], this)
 				return [ option, content, ]
 			}
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {
 				//FIXME duplication: Creating the updatable options!
-				const content = { start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
 				const option = new UpdatableOptions(
-					foundOptions,
 					[content],
 					this
 				)
@@ -109,4 +106,9 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options>
 
 		return [ null, null, ]
 	}
+
+	parseSingleContent(contentIndex: number, text: string, start: number, length: number, skipLineStart?: SkipLineStart): [ Options | null, ParsedOptionsContent | null ] {
+		return this.parse(null, text, start, length)
+	}
+
 }

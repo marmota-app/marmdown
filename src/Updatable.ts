@@ -24,9 +24,9 @@ export interface ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS> {
 	parent?: ParsedDocumentContent<unknown, unknown>,
 	belongsTo?: Updatable<UPDATABLE_TYPE, CONTENTS>,
 }
-export interface Updatable<UPDATABLE_TYPE, CONTENTS> {
-	contents: ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>[],
-	parsedWith?: TextParser<CONTENTS, Updatable<UPDATABLE_TYPE, CONTENTS>>,
+export interface Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> {
+	contents: DOCUMENT_CONTENT[],
+	parsedWith?: TextParser<CONTENTS, Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT>>,
 }
 
 export type ToUpdatable<UPDATABLE_TYPE, CONTENTS> = UPDATABLE_TYPE extends any? Updatable<UPDATABLE_TYPE, CONTENTS> & UPDATABLE_TYPE : never
