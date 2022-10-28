@@ -15,18 +15,18 @@ import { TextParser } from "./parser/TextParser";
  * asText === contained.map(c => c.asText).join('')
  * ```
  */
-export interface ParsedDocumentContent<T, C> { 
+export interface ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS> { 
 	start: number,
 	length: number,
 	asText: string,
 
-	contained: ParsedDocumentContent<unknown, unknown>[],
+	contained: ParsedDocumentContent<unknown, CONTENTS>[],
 	parent?: ParsedDocumentContent<unknown, unknown>,
-	belongsTo?: Updatable<T, C>,
+	belongsTo?: Updatable<UPDATABLE_TYPE, CONTENTS>,
 }
-export interface Updatable<T, C> {
-	contents: ParsedDocumentContent<T, C>[],
-	parsedWith?: TextParser<C, Updatable<T, C>>,
+export interface Updatable<UPDATABLE_TYPE, CONTENTS> {
+	contents: ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>[],
+	parsedWith?: TextParser<CONTENTS, Updatable<UPDATABLE_TYPE, CONTENTS>>,
 }
 
-export type ToUpdatable<T, C> = T extends any? Updatable<T, C> & T : never
+export type ToUpdatable<UPDATABLE_TYPE, CONTENTS> = UPDATABLE_TYPE extends any? Updatable<UPDATABLE_TYPE, CONTENTS> & UPDATABLE_TYPE : never

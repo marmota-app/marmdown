@@ -14,27 +14,27 @@
    limitations under the License.
 */
 import { ContentChange } from "$markdown/ContentChange";
-import { Updatable } from "$markdown/Updatable";
+import { ParsedDocumentContent, Updatable } from "$markdown/Updatable";
 
 export interface SkipLineStartOptions {
 	whenSkipping: (textToSkip: string) => unknown,
 }
 export type SkipLineStart = (text: string, start: number, length: number, options?: SkipLineStartOptions)=>{ isValidStart: boolean, skipCharacters: number, }
 export const defaultSkipLineStart: SkipLineStart = () => ({ isValidStart: true, skipCharacters: 0, })
-export interface TextParser<C, T extends Updatable<T, C>> {
-	parse(previous: T | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null,
-	couldParse(previous: T | null, text: string, start: number, length: number): boolean,
-	parsePartial(existing: T, change: ContentChange): T | null,
+export interface TextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<UPDATABLE_TYPE, CONTENTS>> {
+	parse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): [UPDATABLE_TYPE | null, ParsedDocumentContent<CONTENTS, UPDATABLE_TYPE> | null],
+	couldParse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): boolean,
+	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): UPDATABLE_TYPE | null,
 }
 
-export abstract class ContainerTextParser<C, T extends Updatable<C, T>> implements TextParser<C, T> {
-	abstract parse(previous: T | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): T | null
+export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<CONTENTS, UPDATABLE_TYPE>> implements TextParser<CONTENTS, UPDATABLE_TYPE> {
+	abstract parse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number, skipLineStart?: SkipLineStart): [UPDATABLE_TYPE | null, ParsedDocumentContent<CONTENTS, UPDATABLE_TYPE> | null]
 
-	couldParse(previous: T | null, text: string, start: number, length: number): boolean {
+	couldParse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): boolean {
 		return this.parse(previous, text, start, length) != null
 	}
 
-	parsePartial(existing: T, change: ContentChange): T | null {
+	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): UPDATABLE_TYPE | null {
 		for(let ci = 0; ci < existing.contents.length; ci++) {
 			const current = existing.contents[ci]
 
@@ -49,15 +49,15 @@ export abstract class ContainerTextParser<C, T extends Updatable<C, T>> implemen
 				const afterChange = current.asText.substring(changeEnd - current.start)
 	
 				const newText = beforeChange + change.text + afterChange
-				const newResult = this.parse(null, newText, 0, newText.length)
-				const newResultWasFullyParsed = (r: T) => r.contents[0].length === newText.length
+				const [newResult, contents] = this.parse(null, newText, 0, newText.length)
+				const newResultWasFullyParsed = (r: UPDATABLE_TYPE) => r.contents[0].length === newText.length
 	
-				if(newResult && newResultWasFullyParsed(newResult)) {
-					newResult.contents[0].start = current.start
-					newResult.contents[0].parent = current.parent
+				if(newResult && contents && newResultWasFullyParsed(newResult)) {
+					contents.start = current.start
+					contents.parent = current.parent
 
 					const newContents = [ ...existing.contents ]
-					newContents[ci] = newResult.contents[0]
+					newContents[ci] = contents
 					newResult.contents = newContents
 
 					return newResult

@@ -17,6 +17,7 @@ import { Option, UpdatableOption } from "$markdown/MarkdownOptions"
 import { find } from "$markdown/parser/find"
 import { ContainerTextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
+import { ParsedDocumentContent } from "$markdown/Updatable"
 
 export interface OptionParserConfig {
 	allowDefault: boolean,
@@ -43,8 +44,8 @@ export class OptionParser extends ContainerTextParser<unknown, Option> {
 		}
 	}
 
-	parse(previous: Option | null, text: string, start: number, length: number): Option | null {
-		if(previous != null) { return null }
+	parse(previous: Option | null, text: string, start: number, length: number): [Option | null, ParsedDocumentContent<unknown, Option> | null] {
+		if(previous != null) { return [ null, null] }
 		
 		let i = 0
 		const parts: string[] = []
@@ -58,21 +59,25 @@ export class OptionParser extends ContainerTextParser<unknown, Option> {
 			if(equals) {
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
-					return new UpdatableOption(
+					const content = { start: start, length: i, contained: [], asText: parts.join('') }
+					const option = new UpdatableOption(
 						ident.foundText, value.foundText.trim(),
-						{ start: start, length: i, contained: [], asText: parts.join('') },
+						content,
 						this,
 					)
+					return [ option, content, ]
 				}
 			} else if(this.config.allowDefault) {
-				return new UpdatableOption(
+				const content = { start: start, length: i, contained:[], asText: parts.join('') }
+				const option = new UpdatableOption(
 					'default', ident.foundText,
-					{ start: start, length: i, contained:[], asText: parts.join('') },
+					content,
 					this,
 				)
+				return [ option, content, ]
 			}
 		}
 
-		return null
+		return [ null, null, ]
 	}
 }

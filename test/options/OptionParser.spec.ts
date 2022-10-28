@@ -25,7 +25,7 @@ describe('OptionParser', () => {
 	it('returns option for correctly parsed option', () => {
 		const option = 'foo = bar'
 
-		const result = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(null, option, 0, option.length)
 
 		expect(result).toHaveProperty('key', 'foo')
 		expect(result).toHaveProperty('value', 'bar')
@@ -38,8 +38,8 @@ describe('OptionParser', () => {
 	it('returns null if it gets supplied a second line (indicated by there being a previous result)', () => {
 		const option = 'foo = bar'
 
-		const previous = optionParser.parse(null, option, 0, option.length)
-		const result = optionParser.parse(previous, option, 0, option.length)
+		const [ previous, ] = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(previous, option, 0, option.length)
 
 		expect(result).toBeNull()
 	})
@@ -47,7 +47,7 @@ describe('OptionParser', () => {
 	it('returns null when option could not be parsed', () => {
 		const option = ''
 
-		const result = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(null, option, 0, option.length)
 
 		expect(result).toBeNull()
 	})
@@ -55,7 +55,7 @@ describe('OptionParser', () => {
 	it('parses a different named option in the middle of the text', () => {
 		const option = 'something. bar = foo'
 
-		const result = optionParser.parse(null, option, 11, option.length-11)
+		const [ result, ] = optionParser.parse(null, option, 11, option.length-11)
 
 		expect(result).toHaveProperty('key', 'bar')
 		expect(result).toHaveProperty('value', 'foo')
@@ -68,7 +68,7 @@ describe('OptionParser', () => {
 		const option = 'bar'
 		const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
 
-		const result = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(null, option, 0, option.length)
 
 		expect(result).toHaveProperty('key', 'default')
 		expect(result).toHaveProperty('value', 'bar')
@@ -81,7 +81,7 @@ describe('OptionParser', () => {
 		const option = 'bar'
 		const optionParser = new OptionParser(NO_PARSERS, { allowDefault: false, })
 
-		const result = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(null, option, 0, option.length)
 
 		expect(result).toBeNull()
 	})
@@ -89,7 +89,7 @@ describe('OptionParser', () => {
 	it('parses an option value that contains spaces', () => {
 		const option = 'foo = some longer\ttext   \t'
 
-		const result = optionParser.parse(null, option, 0, option.length)
+		const [ result, ] = optionParser.parse(null, option, 0, option.length)
 
 		expect(result).toHaveProperty('key', 'foo')
 		expect(result).toHaveProperty('value', 'some longer\ttext')
@@ -108,7 +108,7 @@ describe('OptionParser', () => {
 			const option = `bar${tc[0]}ignoreme`
 			const optionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
 	
-			const result = optionParser.parse(null, option, 0, option.length)
+			const [ result, ] = optionParser.parse(null, option, 0, option.length)
 	
 			expect(result).toHaveProperty('key', 'default')
 			expect(result).toHaveProperty('value', 'bar')
@@ -119,7 +119,7 @@ describe('OptionParser', () => {
 		it('parses named option ended by "="', () => {
 			const option = 'foo=bar'
 	
-			const result = optionParser.parse(null, option, 0, option.length)
+			const [ result, ] = optionParser.parse(null, option, 0, option.length)
 	
 			expect(result).toHaveProperty('key', 'foo')
 			expect(result).toHaveProperty('value', 'bar')
@@ -131,7 +131,7 @@ describe('OptionParser', () => {
 	describe('partially parsing changes', () => {
 		interface ExpectedResult { text: string, key: string, value: string, length: number, }
 
-		const existingOption = optionParser.parse(null, '123456789012foo = bar', 12, 'foo = bar'.length)
+		const [ existingOption, ] = optionParser.parse(null, '123456789012foo = bar', 12, 'foo = bar'.length)
 		existingOption!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],
@@ -165,7 +165,7 @@ describe('OptionParser', () => {
 		}))
 
 		const defaultOptionParser = new OptionParser(NO_PARSERS, { allowDefault: true, })
-		const existingDefaultOption = defaultOptionParser.parse(null, '123456789012bar', 12, 'bar'.length)
+		const [ existingDefaultOption, ] = defaultOptionParser.parse(null, '123456789012bar', 12, 'bar'.length)
 		existingDefaultOption!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
 		const defaultOptionData: [ ContentChange, ExpectedResult | null, ][] = [
 			[{ rangeOffset: 10, rangeLength: 0, text: 'ignore', range: undefined }, null],

@@ -16,9 +16,9 @@
 import { ParsedDocumentContent, Updatable } from "./Updatable";
 import { TextParser } from "./parser/TextParser";
 
-export abstract class UpdatableElement<T, C> implements Updatable<T, C> {
+export abstract class UpdatableElement<UPDATABLE_TYPE, CONTENTS> implements Updatable<UPDATABLE_TYPE, CONTENTS> {
 	constructor(
-		public readonly contents: ParsedDocumentContent<C, T>[], public readonly parsedWith?: TextParser<C, Updatable<T, C>>,
+		public readonly contents: ParsedDocumentContent<CONTENTS, UPDATABLE_TYPE>[], public readonly parsedWith?: TextParser<CONTENTS, Updatable<UPDATABLE_TYPE, CONTENTS>>,
 	) {
 		contents.forEach(content => content.belongsTo = this)
 	}

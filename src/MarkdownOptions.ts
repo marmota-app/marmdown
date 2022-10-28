@@ -39,13 +39,22 @@ export class UpdatableOption extends UpdatableElement<Option, unknown> implement
 	}
 }
 
+/**
+ * The options of another markdown element. 
+ * 
+ * Options are in curly braces and usually come right after the start of an element.
+ * Find out more about how options work from a user's perspective in
+ * [/docs/markdown/options.md](/docs/markdown/options.md).
+ * 
+ * An object of this type contains zero or more `UpdatableOption` objects that represent
+ * each option defined in the options block.
+ * 
+ * Each entry in the `contents` array represent one line from the document where options
+ * were parsed.
+ */
 export class UpdatableOptions extends UpdatableElement<Options, string | Option> implements Options {
-	constructor(contents: ParsedLineContent<string | Option>[], parsedWith?: OptionsParser) {
+	constructor(public readonly options: Option[], contents: ParsedDocumentContent<string | Option, Options>[], parsedWith?: OptionsParser) {
 		super(contents, parsedWith)
-	}
-
-	get options() {
-		return this.parts.filter(v => (typeof v)==='object') as Option[]
 	}
 
 	get asMap() {
