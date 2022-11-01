@@ -13,11 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { Option, Options, ParsedOptionsContent, UpdatableOptions } from "$markdown/MarkdownOptions";
+import { Option, Options, ParsedOptionContent, ParsedOptionsContent, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { find } from "$markdown/parser/find";
 import { Parsers } from "$markdown/Parsers";
 import { ParsedDocumentContent } from "$markdown/Updatable";
 import { ContainerTextParser, } from "../parser/TextParser";
+import { OptionParser } from "./OptionParser";
 
 export class OptionsParser extends ContainerTextParser<string | Option, Options, ParsedOptionsContent> {
 	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
@@ -46,14 +47,16 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 
 	parseSingleContent(contentIndex: number, text: string, start: number, length: number): ParsedOptionsContent | null {
 		const foundOptions: Option[] = []
-		const foundContents: ParsedDocumentContent<string | Option, unknown>[] = []
+		const foundContents: (ParsedOptionContent | ParsedDocumentContent<unknown, unknown>)[] = []
 
 		let i = 0
 		const whenFound = (l: number, t: string) => { foundContents.push({ start: start+i, length: l, contained: [], asText: t, }), i+=l; }
 		if(contentIndex>0 || find(text, '{', start+i, length-i, { whenFound })) {
-			let nextParser = contentIndex==0? this.parsers.knownParsers()['DefaultOptionParser']: this.parsers.knownParsers()['OptionParser']
+			let nextParser = contentIndex==0? 
+				this.parsers.knownParsers()['DefaultOptionParser'] as OptionParser :
+				this.parsers.knownParsers()['OptionParser'] as OptionParser
 			let nextOption: Option | null
-			let nextContent: ParsedDocumentContent<unknown, unknown> | null
+			let nextContent: ParsedOptionContent | null
 			do {
 				[ nextOption, nextContent, ] = nextParser.parse(null, text, start+i, length-i)
 				if(nextOption && nextContent) {
@@ -62,7 +65,7 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 					i += nextOption.contents[0].length
 				}
 				find(text, ';', start+i, length-i, { whenFound })
-				nextParser = this.parsers.knownParsers()['OptionParser']
+				nextParser = this.parsers.knownParsers()['OptionParser'] as OptionParser
 			} while(nextOption != null)
 
 			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)

@@ -20,7 +20,7 @@ export interface ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS> {
 	length: number,
 	asText: string,
 
-	contained: ParsedDocumentContent<unknown, CONTENTS>[],
+	contained: ParsedDocumentContent<CONTENTS, unknown>[],
 	parent?: ParsedDocumentContent<unknown, unknown>,
 	belongsTo?: Updatable<UPDATABLE_TYPE, CONTENTS>,
 }

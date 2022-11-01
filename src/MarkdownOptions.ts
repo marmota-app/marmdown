@@ -23,7 +23,7 @@ export interface ParsedOptionContent extends ParsedDocumentContent<unknown, unkn
 	key: string,
 	value: string,
 }
-export interface ParsedOptionsContent extends ParsedDocumentContent<string | Option, Options> {
+export interface ParsedOptionsContent extends ParsedDocumentContent<Options, string | Option> {
 	lineOptions: Option[],
 }
 
