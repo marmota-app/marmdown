@@ -19,7 +19,7 @@ import { ParsedDocumentContent, Updatable } from "$markdown/Updatable";
 export interface TextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> {
 	parse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): [UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null],
 	couldParse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): boolean,
-	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): UPDATABLE_TYPE | null,
+	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): [ UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null ],
 }
 
 export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<CONTENTS, UPDATABLE_TYPE, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> implements TextParser<CONTENTS, UPDATABLE_TYPE> {
@@ -33,10 +33,10 @@ export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updat
 		return this.parse(null, text, start, length)[1]
 	}
 
-	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): UPDATABLE_TYPE | null {
+	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): [ UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null ] {
 		for(let ci = 0; ci < existing.contents.length; ci++) {
 			const current = existing.contents[ci]
-			if(current.start < 0) { return null }
+			if(current.start < 0) { return [ null, null, ] }
 
 			const changeStart = change.rangeOffset
 			const changeEnd = change.rangeOffset + change.rangeLength
@@ -45,51 +45,53 @@ export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updat
 			const rangeEndsWithinExistingBounds = changeEnd >= current.start && changeEnd <= current.start+current.length
 
 			if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-				const beforeChange = current.asText.substring(0, changeStart - current.start)
-				const afterChange = current.asText.substring(changeEnd - current.start)
-	
-				const newText = beforeChange + change.text + afterChange
-				const contents = this.parseSingleContent(ci, newText, 0, newText.length)
-				const newResultWasFullyParsed = (c: DOCUMENT_CONTENT) => c.length === newText.length
-	
-				if(contents && newResultWasFullyParsed(contents)) {
-					contents.start = current.start
-					contents.parent = current.parent
-
-					existing.contents[ci] = contents
-
-					return existing
+				if(current.contained.length > 0) {
+					return this.parseContentChangeInContained(existing, current, ci, change.text, changeStart, changeEnd, change)
 				}
+				return this.parseContentChangeCompletely(existing, current, ci, change.text, changeStart, changeEnd)
 			}
 		}
-		/*
-		const existingStart = existing.start
-		if(existingStart < 0) {
-			return null
-		}
+		return [ null, null, ]
+	}
 
-		const rangeStartsWithingExistingBounds = changeStart >= existingStart && changeStart <= existingStart+existing.length
-		const rangeEndsWithinExistingBounds = changeEnd >= existingStart && changeEnd <= existingStart+existing.length
-
-		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			for(let i=0; i<existing.parts.length; i++) {
-				const affected = existing.parts[i]
-				if(affected && (affected as unknown as Updatable<any>).asText != null) {
-					const affectedUpdatable = (affected as unknown as Updatable<any>)
-
-					if(affectedUpdatable.parsedWith == null) return null
-
-					const result = affectedUpdatable.parsedWith.parsePartial(affectedUpdatable, change) as P
-					if(result) {
-						existing.parts[i] = result
-						return existing
+	private parseContentChangeInContained(existing: UPDATABLE_TYPE, _current: DOCUMENT_CONTENT, currentIndex: number, changeText: string, changeStart: number, changeEnd: number, change: ContentChange): [ UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null ] {
+		for(let ci = 0; ci < _current.contained.length; ci++) {
+			const contained = _current.contained[ci]
+			if(contained.start >= 0) {
+				const rangeStartsWithingExistingBounds = changeStart >= contained.start && changeStart <= contained.start+contained.length
+				const rangeEndsWithinExistingBounds = changeEnd >= contained.start && changeEnd <= contained.start+contained.length
+	
+				if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds &&
+						contained.belongsTo && contained.belongsTo !== existing && contained.belongsTo.parsedWith) {
+					const [ newUpdatable, newContained ] = contained.belongsTo.parsedWith.parsePartial(contained.belongsTo, change)
+					if(newUpdatable != null && newContained != null) {
+						_current.contained[ci] = newContained
+						return [ existing, _current, ]
 					}
 				}
 			}
-	
-			return super.parsePartial(existing, change)
 		}
-		*/
-		return null
+
+		return this.parseContentChangeCompletely(existing, _current, currentIndex, changeText, changeStart, changeEnd)
+	}
+
+	private parseContentChangeCompletely(existing: UPDATABLE_TYPE, current: DOCUMENT_CONTENT, currentIndex: number, changeText: string, changeStart: number, changeEnd: number): [ UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null ] {
+		const beforeChange = current.asText.substring(0, changeStart - current.start)
+		const afterChange = current.asText.substring(changeEnd - current.start)
+
+		const newText = beforeChange + changeText + afterChange
+		const contents = this.parseSingleContent(currentIndex, newText, 0, newText.length)
+		const newResultWasFullyParsed = (c: DOCUMENT_CONTENT) => c.length === newText.length
+
+		if(contents && newResultWasFullyParsed(contents)) {
+			contents.start = current.start
+			contents.parent = current.parent
+			contents.belongsTo = existing
+
+			existing.contents[currentIndex] = contents
+
+			return [ existing, contents, ]
+		}
+		return [ null, null, ]
 	}
 }

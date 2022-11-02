@@ -133,7 +133,7 @@ describe('OptionParser', () => {
 
 		const existingOption = () => {
 			const [ e, ] = optionParser.parse(null, '123456789012foo = bar', 12, 'foo = bar'.length)
-			e!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar'}
+			e!.contents[0].parent = { contained: [], parent: undefined, start: 0, length: 6, asText: 'foobar' }
 			return e!
 		}
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
@@ -154,7 +154,7 @@ describe('OptionParser', () => {
 		]
 		data.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
 			const existing = existingOption()
-			const result = optionParser.parsePartial(existing, d[0])
+			const [ result, ] = optionParser.parsePartial(existing, d[0])
 
 			if(d[1] === null) {
 				expect(result).toBeNull()
@@ -189,7 +189,7 @@ describe('OptionParser', () => {
 		]
 		defaultOptionData.forEach(d => it(`parses content change ${JSON.stringify(d[0])} as ${JSON.stringify(d[1])}`, () => {
 			const existing = existingDefaultOption()
-			const result = defaultOptionParser.parsePartial(existing!, d[0])
+			const [ result, ] = defaultOptionParser.parsePartial(existing!, d[0])
 
 			if(d[1] === null) {
 				expect(result).toBeNull()

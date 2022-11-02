@@ -19,12 +19,15 @@ import { OptionsParser } from "./options/OptionsParser"
 import { TextParser } from "./parser/TextParser"
 import { UpdatableElement } from "./UpdatableElement"
 
-export interface ParsedOptionContent extends ParsedDocumentContent<unknown, unknown> {
-	key: string,
-	value: string,
+export class ParsedOptionContent extends ParsedDocumentContent<unknown, unknown> {
+	constructor(public key: string, public value: string, start: number, length: number, belongsTo: UpdatableOption, contained: ParsedDocumentContent<unknown, unknown>[]) {
+		super(start, length, belongsTo, contained)
+	}
 }
-export interface ParsedOptionsContent extends ParsedDocumentContent<Options, string | Option> {
-	lineOptions: Option[],
+export class ParsedOptionsContent extends ParsedDocumentContent<Options, string | Option> {
+	constructor(public lineOptions: Option[], start: number, length: number, contained: ParsedDocumentContent<unknown, unknown>[]) {
+		super(start, length, undefined, contained)
+	}
 }
 
 export interface Option extends Updatable<Option, unknown, ParsedOptionContent> {
@@ -41,9 +44,9 @@ export interface Options extends Updatable<Options, Option, ParsedOptionsContent
 
 export class UpdatableOption extends UpdatableElement<Option, unknown, ParsedOptionContent> implements Option {
 	constructor(
-		content: ParsedOptionContent, parsedWith?: TextParser<unknown, Option, ParsedOptionContent>,
+		parsedWith?: TextParser<unknown, Option, ParsedOptionContent>,
 	) {
-		super([content], parsedWith)
+		super(parsedWith)
 	}
 
 	get key() { return this.contents[0].key }
@@ -64,8 +67,8 @@ export class UpdatableOption extends UpdatableElement<Option, unknown, ParsedOpt
  * were parsed.
  */
 export class UpdatableOptions extends UpdatableElement<Options, string | Option, ParsedOptionsContent> implements Options {
-	constructor(contents: ParsedOptionsContent[], parsedWith?: OptionsParser) {
-		super(contents, parsedWith)
+	constructor(parsedWith?: OptionsParser) {
+		super(parsedWith)
 	}
 
 	get options() {

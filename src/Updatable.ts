@@ -15,14 +15,13 @@ import { TextParser } from "./parser/TextParser";
  * asText === contained.map(c => c.asText).join('')
  * ```
  */
-export interface ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS> { 
-	start: number,
-	length: number,
-	asText: string,
+export class ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS> {
+	constructor(public start: number, public length: number, public belongsTo?: Updatable<UPDATABLE_TYPE, CONTENTS>, public contained: ParsedDocumentContent<unknown, unknown>[] = []) {}
+	get asText(): string {
+		return this.contained.map(c => c.asText).join('')
+	}
 
-	contained: ParsedDocumentContent<CONTENTS, unknown>[],
-	parent?: ParsedDocumentContent<unknown, unknown>,
-	belongsTo?: Updatable<UPDATABLE_TYPE, CONTENTS>,
+	public parent?: ParsedDocumentContent<unknown, unknown>
 }
 export interface Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> {
 	contents: DOCUMENT_CONTENT[],
@@ -30,3 +29,11 @@ export interface Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT extends Pa
 }
 
 export type ToUpdatable<UPDATABLE_TYPE, CONTENTS> = UPDATABLE_TYPE extends any? Updatable<UPDATABLE_TYPE, CONTENTS> & UPDATABLE_TYPE : never
+export class StringContent<UPDATABLE_TYPE> extends ParsedDocumentContent<UPDATABLE_TYPE, unknown> {
+	constructor(public text: string, start: number, length: number, belongsTo: Updatable<UPDATABLE_TYPE, unknown>) {
+		super(start, length, belongsTo)
+	}
+	get asText(): string {
+		return this.text
+	}
+}

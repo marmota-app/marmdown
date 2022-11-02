@@ -17,7 +17,7 @@ import { Option, ParsedOptionContent, UpdatableOption } from "$markdown/Markdown
 import { find } from "$markdown/parser/find"
 import { ContainerTextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
-import { ParsedDocumentContent } from "$markdown/Updatable"
+import { StringContent } from "$markdown/Updatable"
 
 export interface OptionParserConfig {
 	allowDefault: boolean,
@@ -44,12 +44,13 @@ export class OptionParser extends ContainerTextParser<unknown, Option, ParsedOpt
 		}
 	}
 
-	parse(previous: Option | null, text: string, start: number, length: number): [Option | null, ParsedOptionContent | null] {
+	override parse(previous: Option | null, text: string, start: number, length: number): [Option | null, ParsedOptionContent | null] {
 		if(previous != null) { return [ null, null] }
 		
 		let i = 0
-		const parts: string[] = []
-		const whenFound = (l: number, text: string) => { i+=l; parts.push(text) }
+		const option = new UpdatableOption(this)
+		const contained: StringContent<UpdatableOption>[] = []
+		const whenFound = (l: number, text: string) => { contained.push(new StringContent<UpdatableOption>(text, i, l, option)); i+=l; }
 
 		const identMatcher = /[^ \n\r\t}=;]+/
 		const valueMatcher = /[^\n\r}=;]+/
@@ -59,19 +60,13 @@ export class OptionParser extends ContainerTextParser<unknown, Option, ParsedOpt
 			if(equals) {
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
-					const content = { key: ident.foundText, value: value.foundText.trim(), start: start, length: i, contained: [], asText: parts.join('') }
-					const option = new UpdatableOption(
-						content,
-						this,
-					)
+					const content = new ParsedOptionContent(ident.foundText, value.foundText.trim(), start, i, option, contained)
+					option.contents.push(content)
 					return [ option, content, ]
 				}
 			} else if(this.config.allowDefault) {
-				const content = { key: 'default', value: ident.foundText, start: start, length: i, contained:[], asText: parts.join('') }
-				const option = new UpdatableOption(
-					content,
-					this,
-				)
+				const content = new ParsedOptionContent('default', ident.foundText, start, i, option, contained)
+				option.contents.push(content)
 				return [ option, content, ]
 			}
 		}

@@ -25,18 +25,19 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 		super()
 	}
 
-	parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedOptionsContent | null ] {
+	override parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedOptionsContent | null ] {
 		if(!this.canExtendPreviousOptions(previous)) {
 			return [null, null, ]
 		}
 
 		const parsingOptions = previous != null?
 			previous :
-			new UpdatableOptions([], this)
+			new UpdatableOptions(this)
 
 		const parsedContent = this.parseSingleContent(parsingOptions.contents.length, text, start, length)
 
 		if(parsedContent) {
+			parsedContent.belongsTo = parsingOptions
 			parsingOptions.contents.push(parsedContent)
 
 			return [ parsingOptions, parsedContent, ]
@@ -45,7 +46,7 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 		return [ null, null, ]
 	}
 
-	parseSingleContent(contentIndex: number, text: string, start: number, length: number): ParsedOptionsContent | null {
+	override parseSingleContent(contentIndex: number, text: string, start: number, length: number): ParsedOptionsContent | null {
 		const foundOptions: Option[] = []
 		const foundContents: (ParsedOptionContent | ParsedDocumentContent<unknown, unknown>)[] = []
 
@@ -71,12 +72,12 @@ export class OptionsParser extends ContainerTextParser<string | Option, Options,
 			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
 			if(shouldContinue) {
 				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = { lineOptions: foundOptions, start: start, length: i+2, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const content = new ParsedOptionsContent(foundOptions, start, i+2, foundContents)
 				return content
 			}
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {
-				const content = { lineOptions: foundOptions, start: start, length: i, contained: foundContents, asText: foundContents.map(c => c.asText).join(''), }
+				const content = new ParsedOptionsContent(foundOptions, start, i, foundContents)
 				return content
 			}
 		}
