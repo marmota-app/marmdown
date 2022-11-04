@@ -14,13 +14,18 @@
    limitations under the License.
 */
 import { TextParser } from "./parser/TextParser"
+import { ParsedDocumentContent, Updatable } from "./Updatable"
 
-export function parsers<NAMES extends string>(all: { [key in NAMES]: TextParser<any, any>}, extract: NAMES[]): TextParser<any, any>[] {
+type GenericContent = ParsedDocumentContent<unknown, unknown>
+type GenericUpdatable = Updatable<unknown, unknown, GenericContent>
+type GenericParser = TextParser<unknown, GenericUpdatable, GenericContent>
+
+export function parsers<NAMES extends string>(all: { [key in NAMES]: GenericParser}, extract: NAMES[]): GenericParser[] {
 	return extract.map(name => all[name])
 }
 
 export interface Parsers<NAMES extends string> {
 	names: () => readonly string[],
-	knownParsers: () => { [key in NAMES]: TextParser<any, any>},
-	toplevel: () => TextParser<any, any>[],
+	knownParsers: () => { [key in NAMES]: GenericParser },
+	toplevel: () => GenericParser[],
 }

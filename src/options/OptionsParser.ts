@@ -20,7 +20,7 @@ import { ParsedDocumentContent } from "$markdown/Updatable";
 import { ContainerTextParser, } from "../parser/TextParser";
 import { OptionParser } from "./OptionParser";
 
-export class OptionsParser extends ContainerTextParser<string | Option, Options, ParsedOptionsContent> {
+export class OptionsParser extends ContainerTextParser<Option, Options, ParsedOptionsContent> {
 	constructor(private parsers: Parsers<'OptionParser' | 'DefaultOptionParser'>) {
 		super()
 	}

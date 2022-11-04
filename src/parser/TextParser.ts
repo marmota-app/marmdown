@@ -16,13 +16,13 @@
 import { ContentChange } from "$markdown/ContentChange";
 import { ParsedDocumentContent, Updatable } from "$markdown/Updatable";
 
-export interface TextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> {
+export interface TextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> {
 	parse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): [UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null],
 	couldParse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): boolean,
 	parsePartial(existing: UPDATABLE_TYPE, change: ContentChange): [ UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null ],
 }
 
-export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<CONTENTS, UPDATABLE_TYPE, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>=ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> implements TextParser<CONTENTS, UPDATABLE_TYPE> {
+export abstract class ContainerTextParser<CONTENTS, UPDATABLE_TYPE extends Updatable<CONTENTS, UPDATABLE_TYPE, DOCUMENT_CONTENT>, DOCUMENT_CONTENT extends ParsedDocumentContent<UPDATABLE_TYPE, CONTENTS>> implements TextParser<CONTENTS, UPDATABLE_TYPE, DOCUMENT_CONTENT> {
 	abstract parse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): [UPDATABLE_TYPE | null, DOCUMENT_CONTENT | null]
 
 	couldParse(previous: UPDATABLE_TYPE | null, text: string, start: number, length: number): boolean {
