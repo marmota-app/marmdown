@@ -15,11 +15,14 @@
 */
 import { Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
 import { find } from "./parser/find";
-import { Parsers } from "./Parsers";
+import { GenericContent, GenericParser, GenericUpdatable, Parsers } from "./Parsers";
 import { MfMParsers } from "./MfMParsers";
 
 export class Marmdown {
 	private _document: MarkdownDocument
+	private startIndex: number = 0
+	private noResultParsed: boolean = true
+	
 
 	constructor(initialText: string, private allParsers: Parsers<'OptionsParser'> = new MfMParsers()) {
 		this._document = this.parseFullDocument(initialText)
@@ -30,10 +33,33 @@ export class Marmdown {
 	}
 
 	private parseFullDocument(text: string): MarkdownDocument {
-		let startIndex = 0;
-		let length = text.length;
 		const content: (Content&DefaultContent)[] = []
 		let options = {}
+
+		this.startIndex = 0
+		let lastResult: [GenericUpdatable | null, GenericParser | null] = [ null, null, ]
+
+		while(this.startIndex < text.length) {
+			const nextNewline = text.indexOf('\n', this.startIndex) //TODO Math.min with \r? -> Test
+			const nextLength = nextNewline<0? text.length-this.startIndex: nextNewline-this.startIndex;
+			this.noResultParsed = true
+
+			if(lastResult[1]) {
+				const currentParser = lastResult[1]
+
+				if(this.tryParse(text, currentParser, lastResult, nextLength, lr => lastResult=lr)) { continue }
+			}
+
+			for(let toplevelParserIndex=0; toplevelParserIndex<this.allParsers.toplevel().length; toplevelParserIndex++) {
+				const currentParser = this.allParsers.toplevel()[toplevelParserIndex]
+				
+				if(this.tryParse(text, currentParser, [null, null], nextLength, lr => lastResult=lr)) { break }
+			}
+
+			if(this.noResultParsed) break;
+		}
+
+		/*
 
 		const currentOptions = this.allParsers.knownParsers()['OptionsParser'].parse(text, startIndex, length)
 		if(currentOptions) {
@@ -68,10 +94,33 @@ export class Marmdown {
 	
 			if(noResultParsed) break;
 		}
-
+		*/
 		return {
 			content,
 			options,
 		}
 	}
-}
+
+	private tryParse(
+		text: string,
+		currentParser: GenericParser,
+		lastResult: [GenericUpdatable | null, GenericParser | null],
+		nextLength: number,
+		setLastResult: (lr: [GenericUpdatable | null, GenericParser | null]) => unknown,
+	): boolean {
+		const currentResult = currentParser.parse(lastResult[0], text, this.startIndex, nextLength)
+
+		if(currentResult[1]) {
+			setLastResult([ currentResult[0], currentParser, ])
+			this.startIndex = currentResult[1].start + currentResult[1].length
+			this.noResultParsed = false;
+	
+			while(text.charAt(this.startIndex)==='\n') { // TODO \r! -> Test
+				this.startIndex++
+			}
+	
+			return true;
+		}
+		return false
+	}
+	}
