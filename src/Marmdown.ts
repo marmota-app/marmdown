@@ -17,6 +17,8 @@ import { Content, DefaultContent, MarkdownDocument } from "./MarkdownDocument";
 import { find } from "./parser/find";
 import { GenericContent, GenericParser, GenericUpdatable, Parsers } from "./Parsers";
 import { MfMParsers } from "./MfMParsers";
+import { UpdatableOptions } from "./MarkdownOptions";
+import { OptionsParser } from "./options/OptionsParser";
 
 export class Marmdown {
 	private _document: MarkdownDocument
@@ -33,11 +35,12 @@ export class Marmdown {
 	}
 
 	private parseFullDocument(text: string): MarkdownDocument {
-		const content: (Content&DefaultContent)[] = []
-		let options = {}
+		const content: GenericUpdatable[] = []
 
 		this.startIndex = 0
 		let lastResult: [GenericUpdatable | null, GenericParser | null] = [ null, null, ]
+
+		const options = this.parseDocumentOptions(text)
 
 		while(this.startIndex < text.length) {
 			const hadEmptyLine = this.skipEmptyLines(text)
@@ -52,7 +55,7 @@ export class Marmdown {
 			if(!hadEmptyLine && lastResult[1]) {
 				const currentParser = lastResult[1]
 
-				if(this.tryParse(text, currentParser, lastResult, nextLength, lr => lastResult=lr)) {
+				if(this.tryParse(text, currentParser, lastResult, nextLength, null, lr => lastResult=lr)) {
 					this.skipLineEnding(text)
 					continue
 				}
@@ -61,7 +64,7 @@ export class Marmdown {
 			for(let toplevelParserIndex=0; toplevelParserIndex<this.allParsers.toplevel().length; toplevelParserIndex++) {
 				const currentParser = this.allParsers.toplevel()[toplevelParserIndex]
 				
-				if(this.tryParse(text, currentParser, [null, null], nextLength, lr => lastResult=lr)) {
+				if(this.tryParse(text, currentParser, [null, null], nextLength, content, lr => lastResult=lr)) {
 					this.skipLineEnding(text)
 					break
 				}
@@ -107,21 +110,67 @@ export class Marmdown {
 		}
 		*/
 		return {
-			content,
-			options,
+			content: content as unknown as (Content&DefaultContent)[],
+			options: options.asMap,
 		}
 	}
 
-	private tryParse(
+	private parseDocumentOptions(text: string): UpdatableOptions {
+		const optionsContent: UpdatableOptions[] = []
+		let lastResult: [GenericUpdatable | null, GenericParser | null] = [ null, null, ]
+		const currentParser = this.allParsers.knownParsers()['OptionsParser'] as OptionsParser
+
+		const hadEmptyLine = this.skipEmptyLines(text)
+
+		const nextNL = text.indexOf('\n', this.startIndex)
+		const nextCR = text.indexOf('\r', this.startIndex)
+		const nextNewline = nextNL < 0? nextCR : ( nextCR < 0? nextNL : Math.min(nextNL, nextCR))
+
+		const nextLength = nextNewline<0? text.length-this.startIndex: nextNewline-this.startIndex;
+		if(this.tryParse(text, currentParser, [null, null], nextLength, optionsContent, lr => lastResult=lr)) {
+			this.skipLineEnding(text)
+		} else {
+			return new UpdatableOptions(currentParser)
+		}
+
+		while(this.startIndex < text.length) {
+			this.noResultParsed = true
+
+			const hadEmptyLine = this.skipEmptyLines(text)
+
+			const nextNL = text.indexOf('\n', this.startIndex)
+			const nextCR = text.indexOf('\r', this.startIndex)
+			const nextNewline = nextNL < 0? nextCR : ( nextCR < 0? nextNL : Math.min(nextNL, nextCR))
+
+			const nextLength = nextNewline<0? text.length-this.startIndex: nextNewline-this.startIndex;
+			this.noResultParsed = true
+
+			if(!hadEmptyLine && lastResult[1]) {
+				const currentParser = lastResult[1]
+
+				if(this.tryParse(text, currentParser, lastResult, nextLength, null, lr => lastResult=lr)) {
+					this.skipLineEnding(text)
+				}
+			}
+
+			if(this.noResultParsed) { break }
+		}
+
+		return optionsContent[0]
+	}
+
+	private tryParse<LR>(
 		text: string,
 		currentParser: GenericParser,
 		lastResult: [GenericUpdatable | null, GenericParser | null],
 		nextLength: number,
+		content: GenericUpdatable[] | null,
 		setLastResult: (lr: [GenericUpdatable | null, GenericParser | null]) => unknown,
 	): boolean {
 		const currentResult = currentParser.parse(lastResult[0], text, this.startIndex, nextLength)
 
-		if(currentResult[1]) {
+		if(currentResult[0] && currentResult[1]) {
+			content?.push(currentResult[0])
 			setLastResult([ currentResult[0], currentParser, ])
 			this.startIndex = currentResult[1].start + currentResult[1].length
 			this.noResultParsed = false;

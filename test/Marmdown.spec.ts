@@ -18,7 +18,7 @@ import { mock, instance, when, verify, anyString, anyNumber, anything, } from 'o
 import { Marmdown } from "$markdown/Marmdown"
 import { TextParser } from "$markdown/parser/TextParser"
 import { AdvancedConent, DefaultContent, Empty } from '$markdown/MarkdownDocument'
-import { ContentOptions, Options, Option, UpdatableOptions, UpdatableOption } from '$markdown/MarkdownOptions'
+import { ContentOptions, Options, Option, UpdatableOptions, UpdatableOption, ParsedOptionsContent } from '$markdown/MarkdownOptions'
 import { OptionParser } from '$markdown/options/OptionParser'
 import { GenericParser, parsers, Parsers } from '$markdown/Parsers'
 import { UpdatableParagraph } from '$markdown/toplevel/ParagraphParser'
@@ -232,6 +232,41 @@ describe('Marmdown', () => {
 		verify(secondTextParserMock)
 	}))
 
+	it('adds parsed content to document content', () => {
+		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
+		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
+
+		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
+		const content = new UpdatableTestContent()
+		when(firstTextParserMock.parse(null, 'the content', 0, 'the content'.length)).return([content, new ParsedTestContent(0, 'the content'.length, []), ]).once()
+		
+		const marmdown = new Marmdown('the content', new TestParsers<'one'>({
+			'OptionsParser': instance(optionsParserMock),
+			'one': instance(firstTextParserMock),
+		}, [ 'one' ]))
+
+		expect(marmdown.document.content).toContain(content)
+	})
+
+	it('parses document options first', () => {
+		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
+		const expectedOptions = new UpdatableOptions()
+		expectedOptions.contents.push(new ParsedOptionsContent([{ key: 'foo', value: 'bar', contents: []}], 0, 3, []))
+		when(optionsParserMock.parse(anything(), anyString(), 0, anyNumber())).return([expectedOptions, new ParsedOptionsContent([], 0, 3, [])])
+		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
+
+		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
+		const content = new UpdatableTestContent()
+		when(firstTextParserMock.parse(null, 'the content', 3, ' content'.length)).return([null, null, ]).once()
+		
+		const marmdown = new Marmdown('the content', new TestParsers<'one'>({
+			'OptionsParser': instance(optionsParserMock),
+			'one': instance(firstTextParserMock),
+		}, [ 'one' ]))
+
+		expect(marmdown.document.options).toEqual(expectedOptions.asMap)
+		verify(firstTextParserMock)
+	})
 })
 
 /*
@@ -239,23 +274,6 @@ describe('Marmdown', () => {
 
 	
 
-
-	it.skip('adds parsed content to document content', () => {
-		const optionsParserMock = mock<TextParser<Options>>('optionsParserMock')
-		when(optionsParserMock.parse(anyString(), anyNumber(), anyNumber())).return(null)
-
-		const parsedContent = new UpdatableHeading(1, new UpdatableOptions([], -1), ['12'], 1, undefined)
-		const firstTextParserMock = mock<TextParser<UpdatableHeading>>('firstTextParserMock')
-		when(firstTextParserMock.parse('the content', 0, 'the content'.length)).return(parsedContent)
-		when(firstTextParserMock.parse('the content', 3, 'the content'.length-3)).return(null)
-
-		const marmdown = new Marmdown('the content', new TestParsers({
-			'OptionsParser': instance(optionsParserMock),
-			'one': instance(firstTextParserMock),
-		}, [ 'one' ]))
-
-		expect(marmdown.document.content).toContain(parsedContent)
-	})
 
 	it.skip('parses document options first', () => {
 		const expectedOptions = new UpdatableOptions([ new UpdatableOption('foo=bar', 'foo', 'bar', -1, -1, new OptionParser(new TestParsers({}, []))) ], -1)
