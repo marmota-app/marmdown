@@ -49,7 +49,18 @@ export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string 
 
 	get hasChanged() { return false }
 
-	get text() { return this.contents.reduce((result: string, content) => result + (content.text ?? ''), '') }
+	get text() { return this.contents.reduce(
+		(result: string, content) => {
+			const space = result.length > 0? ' ': ''
+			return result + space + (content.text? content.text.trim() : '')
+		}, '')
+	}
+
+	get lines() {
+		return this.contents
+			.filter(c => c.text != null)
+			.map(c => c.text? c.text.trim() : '')
+	}
 }
 
 export class HeadingParser extends ContainerTextParser<string | Options, UpdatableHeading, ParsedHeadingContent> {
@@ -59,25 +70,27 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 
 	parse(previous: UpdatableHeading | null, text: string, start: number, length: number): [UpdatableHeading | null, ParsedHeadingContent | null] {
 		let i = 0
-		const heading = new UpdatableHeading(this)
+		const heading = this.canUse(previous)? previous : new UpdatableHeading(this)
 		const content = new ParsedHeadingContent(start, i)
 		const whenFound = (l: number, t: string) => { 
 			content.contained.push(new StringContent<UpdatableHeading>(t, i, l, heading))
 			i+=l
 		}
 
-		for(var h=0; h<headingIdentifiers.length; h++) {
-			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
-				const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
-				if(headingText != null) {
-					content.text = headingText.foundText
+		if(this.canUse(previous)) {
+			return this.createHeadingFrom(text, start, length, i, whenFound,
+				heading, content)
+		} else {
+			for(var h=0; h<headingIdentifiers.length; h++) {
+				if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
+					if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t') {
+						return [ null, null, ]
+					}
+					heading.level = headingIdentifiers[h].level
+
+					return this.createHeadingFrom(text, start, length, i, whenFound,
+						heading, content)
 				}
-
-				content.belongsTo = heading
-				heading.level = headingIdentifiers[h].level
-				heading.contents.push(content)
-
-				return [ heading, content, ]
 			}
 		}
 
@@ -114,5 +127,25 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 			}
 		}
 		*/
+	}
+
+	createHeadingFrom(text: string, start: number, length: number, i: number,
+			whenFound: (l: number, t: string)=>unknown,
+			heading: UpdatableHeading, content: ParsedHeadingContent,
+	): [UpdatableHeading | null, ParsedHeadingContent | null] {
+		const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
+		if(headingText != null) {
+			content.text = headingText.foundText
+		}
+
+		content.belongsTo = heading
+		heading.contents.push(content)
+
+		return [ heading, content, ]
+	}
+
+	canUse(previous: UpdatableHeading | null): previous is UpdatableHeading {
+		return previous != null && 
+			(previous.contents[previous.contents.length-1].text?.endsWith('  ') ?? false)
 	}
 }

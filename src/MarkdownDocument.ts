@@ -34,6 +34,7 @@ export type Heading = {
 	type: 'Heading',
 	level: Level,
 	text: string,
+	lines: string[],
 	options: ContentOptions,
 }
 

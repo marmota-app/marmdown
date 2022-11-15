@@ -49,26 +49,29 @@ describe('HeadingParser', () => {
 	})
 
 	const illegalHeadingStarts = [ '####### foobar', '#foobar']
-	illegalHeadingStarts.forEach(is => it.skip(`does not parse a heading for an illegal heading start "${is}"`, () => {
-		const result = headingParser.parse(null, is, 0, is.length)
+	illegalHeadingStarts.forEach(is => it(`does not parse a heading for an illegal heading start "${is}"`, () => {
+		const result = headingParser.parse(null, is, 0, is.length)[0]
 
 		expect(result).toBeNull()
 	}))
 
-	it.skip(`does not parse a heading for an legal heading start "#"`, () => {
-		const result = headingParser.parse(null, '#', 0, '#'.length)
+	it('does not parse multi-line heading when previous was fully parsed', () => {
+		const markdown = '# Foobar'
 
-		expect(result).not.toBeNull()
+		const previous = headingParser.parse(null, markdown, 0, markdown.length)[0]
+		const result = headingParser.parse(null, 'next line', 0, 'next line'.length)[0]
+
+		expect(result).toBeNull()
 	})
-	it.skip(`does not parse a heading for an legal heading start "#\r"`, () => {
-		const result = headingParser.parse(null, '#', 0, '#'.length)
+	it('does parse multi-line heading when previous was NOT fully parsed', () => {
+		const markdown = '# Foobar  '
+
+		const previous = headingParser.parse(null, markdown, 0, markdown.length)[0]
+		const result = headingParser.parse(previous, 'next line', 0, 'next line'.length)[0]
 
 		expect(result).not.toBeNull()
-	})
-	it.skip(`does not parse a heading for an legal heading start "#\n"`, () => {
-		const result = headingParser.parse(null, '#', 0, '#'.length)
-
-		expect(result).not.toBeNull()
+		expect(result).toHaveProperty('text', 'Foobar next line')
+		expect(result).toHaveProperty('lines', [ 'Foobar', 'next line', ])
 	})
 
 	it.skip('parses heading options', () => {

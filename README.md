@@ -19,6 +19,7 @@ some differences.
 * No [HTML blocks](https://github.github.com/gfm/#html-block)
 * Thematic breaks and headlines end fenced code blocks
 * Block quotes (and asides) do not support [lazyness](https://github.github.com/gfm/#block-quote-marker)
+* Headings can be multi-line when the prevous line ends with a double-space (`  `)
 
 ### Thematic breaks and headlines end fenced code blocks
 
