@@ -40,20 +40,31 @@ export class Marmdown {
 		let lastResult: [GenericUpdatable | null, GenericParser | null] = [ null, null, ]
 
 		while(this.startIndex < text.length) {
-			const nextNewline = text.indexOf('\n', this.startIndex) //TODO Math.min with \r? -> Test
+			const hadEmptyLine = this.skipEmptyLines(text)
+
+			const nextNL = text.indexOf('\n', this.startIndex)
+			const nextCR = text.indexOf('\r', this.startIndex)
+			const nextNewline = nextNL < 0? nextCR : ( nextCR < 0? nextNL : Math.min(nextNL, nextCR))
+
 			const nextLength = nextNewline<0? text.length-this.startIndex: nextNewline-this.startIndex;
 			this.noResultParsed = true
 
-			if(lastResult[1]) {
+			if(!hadEmptyLine && lastResult[1]) {
 				const currentParser = lastResult[1]
 
-				if(this.tryParse(text, currentParser, lastResult, nextLength, lr => lastResult=lr)) { continue }
+				if(this.tryParse(text, currentParser, lastResult, nextLength, lr => lastResult=lr)) {
+					this.skipLineEnding(text)
+					continue
+				}
 			}
 
 			for(let toplevelParserIndex=0; toplevelParserIndex<this.allParsers.toplevel().length; toplevelParserIndex++) {
 				const currentParser = this.allParsers.toplevel()[toplevelParserIndex]
 				
-				if(this.tryParse(text, currentParser, [null, null], nextLength, lr => lastResult=lr)) { break }
+				if(this.tryParse(text, currentParser, [null, null], nextLength, lr => lastResult=lr)) {
+					this.skipLineEnding(text)
+					break
+				}
 			}
 
 			if(this.noResultParsed) break;
@@ -114,13 +125,37 @@ export class Marmdown {
 			setLastResult([ currentResult[0], currentParser, ])
 			this.startIndex = currentResult[1].start + currentResult[1].length
 			this.noResultParsed = false;
-	
-			while(text.charAt(this.startIndex)==='\n') { // TODO \r! -> Test
-				this.startIndex++
-			}
-	
+		
 			return true;
 		}
 		return false
 	}
+	private skipLineEnding(text: string) {
+		const current = text.charAt(this.startIndex)
+		if(current === '\r') {
+			this.startIndex++
+			if(text.charAt(this.startIndex) === '\n') {
+				this.startIndex++
+			}
+		} else if(current === '\n') {
+			this.startIndex++
+		}
 	}
+
+	private skipEmptyLines(text: string): boolean {
+		let result = false
+
+		const emptyLineRegex = /[\t ]*((\r?\n)|(\r))/y
+		emptyLineRegex.lastIndex = this.startIndex
+		let match = emptyLineRegex.exec(text)
+		while(match) {
+			this.startIndex += match[0].length
+			
+			emptyLineRegex.lastIndex = this.startIndex
+			match = emptyLineRegex.exec(text)
+			
+			result = true
+		}
+		return result
+	}
+}

@@ -65,20 +65,22 @@ describe('Marmdown', () => {
 
 		verify(firstTextParserMock)
 	})
-	it('passes first line content to first subparser', () => {
+	
+	const endings = [ '\n', '\r', '\r\n', ]
+	endings.forEach(ending => it(`passes first line (until ${ending.replace('\n', '\\n').replace('\r', '\\r')}) content to first subparser`, () => {
 		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
 		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
 
 		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
 		when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([null,null]).once()
 		
-		const marmdown = new Marmdown('the content\nwith more content', new TestParsers<'one'>({
+		const marmdown = new Marmdown(`the content${ending}with more content`, new TestParsers<'one'>({
 			'OptionsParser': instance(optionsParserMock),
 			'one': instance(firstTextParserMock),
 		}, [ 'one' ]))
 
 		verify(firstTextParserMock)
-	})
+	}))
 
 	it('passes content to next subparser when pervious subparser returns null', () => {
 		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
@@ -98,44 +100,46 @@ describe('Marmdown', () => {
 		verify(secondTextParserMock)
 	})
 
-	it('passes new start index to first subparser when pervious subparser returns result', () => {
-		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
-		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
-
-		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
-		const secondTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('secondTextParserMock')
-		when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([new UpdatableTestContent(), new ParsedTestContent(0, 3, []), ])
-		when(firstTextParserMock.parse(anything(), anyString(), 3, 'the content'.length-3)).return([null, null, ]).atLeastOnce()
-		when(secondTextParserMock.parse(anything(), anyString(), 3, 'the content'.length-3)).return([null, null, ]).atLeastOnce()
-
-		const marmdown = new Marmdown('the content\nmore content', new TestParsers({
-			'OptionsParser': instance(optionsParserMock),
-			'one': instance(firstTextParserMock),
-			'two': instance(secondTextParserMock),
-		}, [ 'one', 'two' ]))
-
-		verify(firstTextParserMock)
-		verify(secondTextParserMock)
-	})
-	it('passes second line to first parser after first line was successfully parsed', () => {
-		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
-		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
-
-		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
-		const secondTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('secondTextParserMock')
-		const previousContent = new UpdatableTestContent()
-		when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([previousContent, new ParsedTestContent(0, 'the content'.length, []), ])
-		when(firstTextParserMock.parse(previousContent, anyString(), 'the content\n'.length, 'more content'.length)).return([previousContent, new ParsedTestContent(12, 'more content'.length, []), ]).once()
-		when(secondTextParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null, ]).anyTimes()
-
-		const marmdown = new Marmdown('the content\nmore content', new TestParsers({
-			'OptionsParser': instance(optionsParserMock),
-			'one': instance(firstTextParserMock),
-			'two': instance(secondTextParserMock),
-		}, [ 'one', 'two' ]))
-
-		verify(firstTextParserMock)
-		verify(secondTextParserMock)
+	endings.forEach(ending => {
+		it(`passes new start index to first subparser when pervious subparser returns result (until ${ending.replace('\n', '\\n').replace('\r', '\\r')})`, () => {
+			const optionsParserMock = mock<OptionsParser>('optionsParserMock')
+			when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
+	
+			const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
+			const secondTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('secondTextParserMock')
+			when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([new UpdatableTestContent(), new ParsedTestContent(0, 3, []), ])
+			when(firstTextParserMock.parse(anything(), anyString(), 3, 'the content'.length-3)).return([null, null, ]).atLeastOnce()
+			when(secondTextParserMock.parse(anything(), anyString(), 3, 'the content'.length-3)).return([null, null, ]).atLeastOnce()
+	
+			const marmdown = new Marmdown(`the content${ending}more content`, new TestParsers({
+				'OptionsParser': instance(optionsParserMock),
+				'one': instance(firstTextParserMock),
+				'two': instance(secondTextParserMock),
+			}, [ 'one', 'two' ]))
+	
+			verify(firstTextParserMock)
+			verify(secondTextParserMock)
+		})
+		it(`passes second line to first parser after first line was successfully parsed (until ${ending.replace('\n', '\\n').replace('\r', '\\r')})`, () => {
+			const optionsParserMock = mock<OptionsParser>('optionsParserMock')
+			when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
+	
+			const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
+			const secondTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('secondTextParserMock')
+			const previousContent = new UpdatableTestContent()
+			when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([previousContent, new ParsedTestContent(0, 'the content'.length, []), ])
+			when(firstTextParserMock.parse(previousContent, anyString(), `the content${ending}`.length, 'more content'.length)).return([previousContent, new ParsedTestContent(`the content${ending}`.length, 'more content'.length, []), ]).once()
+			when(secondTextParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null, ]).anyTimes()
+	
+			const marmdown = new Marmdown(`the content${ending}more content`, new TestParsers({
+				'OptionsParser': instance(optionsParserMock),
+				'one': instance(firstTextParserMock),
+				'two': instance(secondTextParserMock),
+			}, [ 'one', 'two' ]))
+	
+			verify(firstTextParserMock)
+			verify(secondTextParserMock)
+		})	
 	})
 	it('passes second line to previous parser first', () => {
 		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
@@ -203,6 +207,30 @@ describe('Marmdown', () => {
 		verify(firstTextParserMock)
 		verify(secondTextParserMock)
 	})
+
+	const emptyLines = [ '\n', '\r\n', '   \r', '\t   \r\n', ]
+	emptyLines.forEach(el => it(`does not pass second line to previous parser first when ther was empty line "${el.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')}" -- it ENDS the block`, () => {
+		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
+		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
+
+		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')
+		const secondTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('secondTextParserMock')
+		const previousContent = new UpdatableTestContent()
+		when(secondTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([previousContent, new ParsedTestContent(0, 'the content'.length, []), ])
+		when(firstTextParserMock.parse(null, anyString(), `the content\n${el}`.length, 'more content'.length)).return([previousContent, new ParsedTestContent(`the content\n${el}`.length, 'more content'.length, []), ]).once()
+		when(secondTextParserMock.parse(previousContent, anyString(), anyNumber(), anyNumber())).return([null, null, ]).never()
+		when(firstTextParserMock.parse(null, anyString(), 0, 'the content'.length)).return([null, null, ]).anyTimes()
+		when(firstTextParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null, ]).never()
+
+		const marmdown = new Marmdown(`the content\n${el}more content`, new TestParsers({
+			'OptionsParser': instance(optionsParserMock),
+			'one': instance(firstTextParserMock),
+			'two': instance(secondTextParserMock),
+		}, [ 'one', 'two' ]))
+
+		verify(firstTextParserMock)
+		verify(secondTextParserMock)
+	}))
 
 })
 
