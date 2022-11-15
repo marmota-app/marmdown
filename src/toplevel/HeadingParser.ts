@@ -14,13 +14,14 @@
    limitations under the License.
 */
 import { ContentChange } from "$markdown/ContentChange";
-import { AdvancedConent, DefaultContent, Heading, Level as HeadingLevel } from "$markdown/MarkdownDocument";
+import { AdvancedConent, DefaultContent, Heading, Level as HeadingLevel, Level } from "$markdown/MarkdownDocument";
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { OptionsParser } from "$markdown/options/OptionsParser";
 import { find, skipSpaces } from "$markdown/parser/find";
-import { ContainerTextParser, TextParser, defaultSkipLineStart } from "$markdown/parser/TextParser";
+import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
-import { UpdatableContainerElement } from "$markdown/UpdatableElement";
+import { ParsedDocumentContent, StringContent, Updatable } from "$markdown/Updatable";
+import { UpdatableElement } from "$markdown/UpdatableElement";
 
 const headingIdentifiers = [ 
 	{ text: '######', level: 6},
@@ -34,24 +35,55 @@ const headingIdentifiers = [
 export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 }
 
-export class UpdatableHeading extends UpdatableContainerElement<UpdatableHeading, string | Options> implements MdHeading {
-	readonly type = 'Heading' as const
-
-	constructor(public readonly level: HeadingLevel, public readonly allOptions: Options, _parts: (string | Options)[], _start: number, parsedWith: HeadingParser | undefined) {
-		super(_parts, _start, parsedWith)
-	}
-
-	get options() { return this.allOptions.asMap }
-	get hasChanged() { return false }
-	get text() { return this.parts[this.parts.length-1] as string }
+class ParsedHeadingContent extends ParsedDocumentContent<UpdatableHeading, string | Options> {
+	public text: string | undefined
 }
 
-export class HeadingParser extends ContainerTextParser<UpdatableHeading, string | Options> implements TextParser<UpdatableHeading> {
+export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string | Options, ParsedHeadingContent> implements MdHeading {
+	readonly type = 'Heading' as const
+	public level: Level = 1
+
+	constructor(parsedWith: HeadingParser | undefined) {
+		super(parsedWith)
+	}
+
+	get hasChanged() { return false }
+
+	get text() { return this.contents.reduce((result: string, content) => result + (content.text ?? ''), '') }
+}
+
+export class HeadingParser extends ContainerTextParser<string | Options, UpdatableHeading, ParsedHeadingContent> {
 	constructor(private parsers: Parsers<'OptionsParser'>) {
 		super()
 	}
 
-	parse(text: string, start: number, length: number, skipLineStart = defaultSkipLineStart): UpdatableHeading | null {
+	parse(previous: UpdatableHeading | null, text: string, start: number, length: number): [UpdatableHeading | null, ParsedHeadingContent | null] {
+		let i = 0
+		const heading = new UpdatableHeading(this)
+		const content = new ParsedHeadingContent(start, i)
+		const whenFound = (l: number, t: string) => { 
+			content.contained.push(new StringContent<UpdatableHeading>(t, i, l, heading))
+			i+=l
+		}
+
+		for(var h=0; h<headingIdentifiers.length; h++) {
+			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
+				const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
+				if(headingText != null) {
+					content.text = headingText.foundText
+				}
+
+				content.belongsTo = heading
+				heading.level = headingIdentifiers[h].level
+				heading.contents.push(content)
+
+				return [ heading, content, ]
+			}
+		}
+
+		return [ null, null, ]
+
+		/*
 		let i = 0
 		const parts: (string | Options)[] = []
 		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
@@ -81,7 +113,6 @@ export class HeadingParser extends ContainerTextParser<UpdatableHeading, string 
 				return new UpdatableHeading(headingIdentifiers[h].level, options, parts, start, this)
 			}
 		}
-
-		return null
+		*/
 	}
 }

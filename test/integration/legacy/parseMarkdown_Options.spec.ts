@@ -18,6 +18,15 @@ import { ContentOptions } from "$markdown/MarkdownOptions"
 import { parseMarkdown } from "$markdown/parseMarkdown"
 
 describe('parseMarkdown: Options with curly braces', () => {
+	it('supports options on the markdown document itself', () => {
+		const markdown = '{ defaultOption }\n'
+
+		const result = parseMarkdown(markdown)
+
+		const options = result.options
+		expect(options).toHaveProperty('default', 'defaultOption')
+	})
+
 	it.skip('supports options on code blocks', () => {
 		const markdown = '```{ javascript }\n```'
 

@@ -17,7 +17,6 @@ import { ContentChange } from "$markdown/ContentChange"
 import { Level } from "$markdown/MarkdownDocument"
 import { ContentOptions, Options } from "$markdown/MarkdownOptions"
 import { MfMParsers } from "$markdown/MfMParsers"
-import { SkipLineStart, SkipLineStartOptions } from "$markdown/parser/TextParser"
 import { HeadingParser, UpdatableHeading } from "$markdown/toplevel/HeadingParser"
 
 describe('HeadingParser', () => {
@@ -25,49 +24,49 @@ describe('HeadingParser', () => {
 
 	const headingIdentifiers: string[] = [ '#', '##', '###', '####', '#####', '######', ]
 	headingIdentifiers.forEach((h: string) => {
-		it.skip(`heading level ${h.length} creates Headline`, () => {
+		it(`heading level ${h.length} creates Headline`, () => {
 			const markdown = h + ' Foobar\n'
 
-			const result = headingParser.parse(markdown, 0, markdown.length)
+			const result = headingParser.parse(null, markdown, 0, markdown.length)[0]
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'Heading')
 			expect(result).toHaveProperty('level', h.length)
 			expect(result).toHaveProperty('text', 'Foobar')
-			expect(result?.length).toEqual(markdown.length - '\n'.length)
+			//FIXME needed? expect(result?.length).toEqual(markdown.length - '\n'.length)
 		})
 
-		it.skip(`creates empty heading for single ${h}`, () => {
+		it(`creates empty heading for single ${h}`, () => {
 			const markdown = h
 
-			const result = headingParser.parse(markdown, 0, markdown.length)
+			const result = headingParser.parse(null, markdown, 0, markdown.length)[0]
 
 			expect(result).toHaveProperty('type', 'Heading')
 			expect(result).toHaveProperty('level', h.length)
 			expect(result).toHaveProperty('text', '')
-			expect(result?.length).toEqual(markdown.length)
+			//FIXME needed? expect(result?.length).toEqual(markdown.length)
 		})
 	})
 
 	const illegalHeadingStarts = [ '####### foobar', '#foobar']
 	illegalHeadingStarts.forEach(is => it.skip(`does not parse a heading for an illegal heading start "${is}"`, () => {
-		const result = headingParser.parse(is, 0, is.length)
+		const result = headingParser.parse(null, is, 0, is.length)
 
 		expect(result).toBeNull()
 	}))
 
 	it.skip(`does not parse a heading for an legal heading start "#"`, () => {
-		const result = headingParser.parse('#', 0, '#'.length)
+		const result = headingParser.parse(null, '#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
 	it.skip(`does not parse a heading for an legal heading start "#\r"`, () => {
-		const result = headingParser.parse('#', 0, '#'.length)
+		const result = headingParser.parse(null, '#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
 	it.skip(`does not parse a heading for an legal heading start "#\n"`, () => {
-		const result = headingParser.parse('#', 0, '#'.length)
+		const result = headingParser.parse(null, '#', 0, '#'.length)
 
 		expect(result).not.toBeNull()
 	})
@@ -75,7 +74,7 @@ describe('HeadingParser', () => {
 	it.skip('parses heading options', () => {
 		const markdown = '#{ foo = bar } Foobar\n'
 
-		const result = headingParser.parse(markdown, 0, markdown.length)
+		const result = headingParser.parse(null, markdown, 0, markdown.length)
 
 		expect(result?.options).toHaveProperty('foo', 'bar')
 	})
@@ -85,7 +84,7 @@ describe('HeadingParser', () => {
 
 		const markdown = '      \n#{ option } The Heading'
 		const existingHeading = () => {
-			return headingParser.parse(markdown, 7, markdown.length)
+			return headingParser.parse(null, markdown, 7, markdown.length)
 		}
 
 		const data: [ ContentChange, ExpectedResult | null, ][] = [
@@ -118,35 +117,6 @@ describe('HeadingParser', () => {
 		}))
 	})
 
-	describe('skipping line start', () => {
-		it.skip('skips text at the start skipText is passed', () => {
-			const markdown = `>@! # the heading`
-			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
-				options.whenSkipping('>@! ')
-				return {
-					isValidStart: true,
-					skipCharacters: 4,
-				}
-			}
-	
-			const result = headingParser.parse(markdown, 0, markdown.length, skipLineStart)
-	
-			expect(result).toHaveProperty('text', 'the heading')
-		})
-
-		it.skip('adds skipped characters to the text representation', () => {
-			const markdown = `>@! # heading`
-			const skipLineStart: SkipLineStart = (_: string, __: number, ___: number, options: SkipLineStartOptions = { whenSkipping: ()=>{}}) => {
-				options.whenSkipping('>@! ')
-				return {
-					isValidStart: true,
-					skipCharacters: 4,
-				}
-			}
-	
-			const result = headingParser.parse(markdown, 0, markdown.length, skipLineStart) as UpdatableHeading
-
-			expect(result.asText).toEqual(markdown)
-		})
+	describe('parsing multi-line headings', () => {
 	})
 })
