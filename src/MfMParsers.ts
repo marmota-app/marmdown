@@ -16,7 +16,7 @@ export const ParserNames = [
 	'OptionParser',
 	'DefaultOptionParser',
 
-	//'HeadingParser',
+	'HeadingParser',
 	//'ThematicBreakParser',
 	//'FencedCodeBlockParser',
 	//'ParagraphParser',
@@ -40,7 +40,7 @@ export class MfMParsers implements Parsers<ParserName> {
 				'OptionParser': new OptionParser(this),
 				'DefaultOptionParser': new OptionParser(this, { allowDefault: true, }),
 
-				//'HeadingParser': new HeadingParser(this),
+				'HeadingParser': new HeadingParser(this),
 				//'ThematicBreakParser': new ThematicBreakParser(this),
 				//'FencedCodeBlockParser': new FencedCodeBlockParser(this),
 				//'ParagraphParser': new ParagraphParser(this),
@@ -57,7 +57,7 @@ export class MfMParsers implements Parsers<ParserName> {
 		if(!this._toplevel) {
 			this._toplevel = parsers<ParserName>(this.knownParsers(), 
 				[ 
-					//'HeadingParser',
+					'HeadingParser',
 					//'ThematicBreakParser',
 					//'FencedCodeBlockParser',
 					//'AsideParser',

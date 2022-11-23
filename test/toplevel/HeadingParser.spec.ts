@@ -33,7 +33,6 @@ describe('HeadingParser', () => {
 			expect(result).toHaveProperty('type', 'Heading')
 			expect(result).toHaveProperty('level', h.length)
 			expect(result).toHaveProperty('text', 'Foobar')
-			//FIXME needed? expect(result?.length).toEqual(markdown.length - '\n'.length)
 		})
 
 		it(`creates empty heading for single ${h}`, () => {
@@ -44,7 +43,16 @@ describe('HeadingParser', () => {
 			expect(result).toHaveProperty('type', 'Heading')
 			expect(result).toHaveProperty('level', h.length)
 			expect(result).toHaveProperty('text', '')
-			//FIXME needed? expect(result?.length).toEqual(markdown.length)
+		})
+
+		it('returns content with correct start index and length', () => {
+			const markdown = 'whatever' + h + ' Foobar\nand more content'
+
+			const result = headingParser.parse(null, markdown, 'whatever'.length, (h + ' Foobar').length)[1]
+
+			expect(result).not.toBeNull()
+			expect(result?.start).toEqual('whatever'.length)
+			expect(result?.length).toEqual((h + ' Foobar').length)
 		})
 	})
 
@@ -72,6 +80,14 @@ describe('HeadingParser', () => {
 		expect(result).not.toBeNull()
 		expect(result).toHaveProperty('text', 'Foobar next line')
 		expect(result).toHaveProperty('lines', [ 'Foobar', 'next line', ])
+	})
+	it('does not parse heading itself when previous is available and was fully parsed', () => {
+		const markdown = '# Foobar'
+
+		const previous = headingParser.parse(null, markdown, 0, markdown.length)[0]
+		const result = headingParser.parse(previous, '# next line', 0, '# next line'.length)[0]
+
+		expect(result).toBeNull()
 	})
 
 	it('parses heading options', () => {
@@ -134,8 +150,5 @@ describe('HeadingParser', () => {
 				expect(result).toBeNull()
 			}
 		}))
-	})
-
-	describe('parsing multi-line headings', () => {
 	})
 })

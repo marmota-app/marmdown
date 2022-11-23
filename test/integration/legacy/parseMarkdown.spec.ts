@@ -37,7 +37,7 @@ describe('parseMarkdown', () => {
 	describe('parse headings', () => {
 		const headlines: string[] = [ '#', '##', '###', '####', ]
 		headlines.forEach((h: string) => {
-			it.skip(`heading level ${h.length} creates Headline`, () => {
+			it(`heading level ${h.length} creates Headline`, () => {
 				const markdown = h + ' Foobar\n'
 
 				const result = parseMarkdown(markdown)
@@ -48,7 +48,7 @@ describe('parseMarkdown', () => {
 				expect(result.content[0]).toHaveProperty('text', 'Foobar')
 			})
 
-			it.skip(`creates empty heading fro single ${h}`, () => {
+			it(`creates empty heading fro single ${h}`, () => {
 				const markdown = h
 
 				const result = parseMarkdown(markdown)
@@ -62,7 +62,7 @@ describe('parseMarkdown', () => {
 
 		const texts: string[] = [ 'Foobar\n', 'Foobar', 'Foo bar', 'Foo\r\n', 'Foo\n\r', 'foo # foobar', ]
 		texts.forEach((text: string) => {
-			it.skip(`heading create Headling with text ${text}`, () => {
+			it(`heading create Headling with text ${text}`, () => {
 				const markdown = '# ' + text
 
 				const result = parseMarkdown(markdown)
@@ -76,7 +76,7 @@ describe('parseMarkdown', () => {
 		})
 
 
-		it.skip('parses two headings into multiple heading', () => {
+		it('parses two headings into multiple heading', () => {
 			const markdown = '# foo\n# bar'
 
 			const result = parseMarkdown(markdown)

@@ -7,7 +7,7 @@ describe('TextParser', () => {
 		text: string,
 	}
 	class LeafContent extends ParsedDocumentContent<Leaf, unknown> {
-		constructor(public text: string, start: number, length: number, belongsTo: Updatable<Leaf, unknown>) {
+		constructor(public text: string, start: number, length: number, belongsTo: Updatable<Leaf, unknown, ParsedDocumentContent<unknown, unknown>>) {
 			super(start, length, belongsTo)
 		}
 		get asText() {
@@ -20,6 +20,10 @@ describe('TextParser', () => {
 		}
 
 		get text() { return this.contents[0].text }
+
+		get isFullyParsed(): boolean {
+			return true
+		}
 	}
 
 	class TestLeafTextParser extends ContainerTextParser<unknown, Leaf, LeafContent> {
@@ -140,6 +144,9 @@ describe('TextParser', () => {
 		class UpdatableContainer extends UpdatableElement<Container, string | Leaf, ContainerContent> {
 			constructor(contents: ContainerContent[], parsedWith?: TextParser<string | Leaf, Updatable<Container, string | Leaf, ContainerContent>, ContainerContent>) {
 				super(parsedWith)
+			}
+			get isFullyParsed(): boolean {
+				return true
 			}
 		}
 

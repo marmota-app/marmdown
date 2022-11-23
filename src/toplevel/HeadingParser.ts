@@ -36,7 +36,14 @@ export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 }
 
 class ParsedHeadingContent extends ParsedDocumentContent<UpdatableHeading, string | Options> {
+	constructor(start: number) { super(start, 0) }
+
 	public text: string | undefined
+
+	push(toPush: ParsedDocumentContent<unknown, unknown>) {
+		this.contained.push(toPush)
+		this.length += toPush.length
+	}
 }
 
 export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string | Options, ParsedHeadingContent> implements MdHeading {
@@ -81,40 +88,52 @@ export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string 
 }
 
 export class HeadingParser extends ContainerTextParser<string | Options, UpdatableHeading, ParsedHeadingContent> {
-	private optionsParser: OptionsParser
+	private get optionsParser(): OptionsParser {
+		return this.parsers.knownParsers()['OptionsParser'] as OptionsParser
+	}
 	constructor(private parsers: Parsers<'OptionsParser'>) {
 		super()
-		this.optionsParser = this.parsers.knownParsers()['OptionsParser'] as OptionsParser
 	}
 
 	parse(previous: UpdatableHeading | null, text: string, start: number, length: number): [UpdatableHeading | null, ParsedHeadingContent | null] {
 		let i = 0
-		const heading = this.canUse(previous)? previous : new UpdatableHeading(this)
-		const content = new ParsedHeadingContent(start, i)
-		const whenFound = (l: number, t: string) => { 
-			content.contained.push(new StringContent<UpdatableHeading>(t, i, l, heading))
-			i+=l
-		}
+		const content = new ParsedHeadingContent(start)
 
-		if(this.canUse(previous)) {
-			if(!previous.allOptions.isFullyParsed) {
-				const updatedOptions = this.optionsParser.parse(previous.allOptions, text, start+i, length-i)
-				if(updatedOptions[0] && updatedOptions[1]) {
-					content.contained.push(updatedOptions[1])
-					i += updatedOptions[1].length
-					if(i >= length) {
-						return [ heading, content, ]
+		if(previous) {
+			if(this.canUse(previous)) {
+				const heading = previous
+				const whenFound = (l: number, t: string) => { 
+					content.push(new StringContent<UpdatableHeading>(t, i, l, heading))
+					i+=l
+				}
+
+				if(!previous.allOptions.isFullyParsed) {
+					const updatedOptions = this.optionsParser.parse(previous.allOptions, text, start+i, length-i)
+					if(updatedOptions[0] && updatedOptions[1]) {
+						content.push(updatedOptions[1])
+						i += updatedOptions[1].length
+						if(i >= length) {
+							return [ heading, content, ]
+						}
 					}
 				}
+				return this.createHeadingFrom(text, start, length, i, whenFound,
+					heading, content)
 			}
-			return this.createHeadingFrom(text, start, length, i, whenFound,
-				heading, content)
+			return [ null, null, ]
 		} else {
+			const heading = new UpdatableHeading(this)
+
+			const whenFound = (l: number, t: string) => { 
+				content.push(new StringContent<UpdatableHeading>(t, i, l, heading))
+				i+=l
+			}
+	
 			for(var h=0; h<headingIdentifiers.length; h++) {
 				if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
 					const optionsResult = this.optionsParser.parse(null, text, start+i, length-i)
 					if(optionsResult[0] && optionsResult[1]) {
-						content.contained.push(optionsResult[1])
+						content.push(optionsResult[1])
 						i += optionsResult[1].length
 						heading.allOptions = optionsResult[0] as UpdatableOptions
 						if(i >= length) {

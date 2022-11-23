@@ -89,8 +89,9 @@ export class UpdatableOptions extends UpdatableElement<Options, string | Option,
 				//found a closing curly bracket, so the previous option is already completely parsed!
 				return true
 			}
+			return false
 		}
-		return false
+		return true
 	}
 }
 
