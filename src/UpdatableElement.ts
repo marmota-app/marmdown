@@ -21,4 +21,6 @@ export abstract class UpdatableElement<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTEN
 	constructor(
 		public readonly parsedWith?: TextParser<CONTENTS, Updatable<UPDATABLE_TYPE, CONTENTS, DOCUMENT_CONTENT>, DOCUMENT_CONTENT>,
 	) {}
+
+	public abstract get isFullyParsed(): boolean
 }

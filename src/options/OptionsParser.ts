@@ -26,7 +26,7 @@ export class OptionsParser extends ContainerTextParser<Option, Options, ParsedOp
 	}
 
 	override parse(previous: Options | null, text: string, start: number, length: number): [ Options | null, ParsedOptionsContent | null ] {
-		if(!this.canExtendPreviousOptions(previous)) {
+		if(!this.canExtendPreviousOptions(previous as UpdatableOptions)) {
 			return [null, null, ]
 		}
 
@@ -84,15 +84,9 @@ export class OptionsParser extends ContainerTextParser<Option, Options, ParsedOp
 		return null
 	}
 
-	private canExtendPreviousOptions(previous: Options | null) {
+	private canExtendPreviousOptions(previous: UpdatableOptions | null) {
 		if(previous) {
-			//was previous fully parsed or can it be extended?
-			const lastLine = previous.contents[previous.contents.length - 1]
-			const lastContent = lastLine.contained[lastLine.contained.length - 1]
-			if(lastContent && lastContent.asText.endsWith('}')) {
-				//found a closing curly bracket, so the previous option is already completely parsed!
-				return false
-			}
+			return !previous.isFullyParsed
 		}
 		return true
 	}

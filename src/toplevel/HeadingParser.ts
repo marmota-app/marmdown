@@ -42,6 +42,7 @@ class ParsedHeadingContent extends ParsedDocumentContent<UpdatableHeading, strin
 export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string | Options, ParsedHeadingContent> implements MdHeading {
 	readonly type = 'Heading' as const
 	public level: Level = 1
+	public allOptions = new UpdatableOptions()
 
 	constructor(parsedWith: HeadingParser | undefined) {
 		super(parsedWith)
@@ -58,14 +59,32 @@ export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string 
 
 	get lines() {
 		return this.contents
-			.filter(c => c.text != null)
+			.filter(c => c.text != null && c.text.trim() != '')
 			.map(c => c.text? c.text.trim() : '')
+	}
+
+	get options() {
+		return this.allOptions.asMap
+	}
+
+	get isFullyParsed(): boolean {
+		//This function is not written as a single return with boolean operators because I found
+		//that to be hard to read at the time I wrote it.
+		if(!this.allOptions.isFullyParsed) {
+			return false
+		}
+		if(this.contents[this.contents.length-1].text?.endsWith('  ')) {
+			return false
+		}
+		return true
 	}
 }
 
 export class HeadingParser extends ContainerTextParser<string | Options, UpdatableHeading, ParsedHeadingContent> {
+	private optionsParser: OptionsParser
 	constructor(private parsers: Parsers<'OptionsParser'>) {
 		super()
+		this.optionsParser = this.parsers.knownParsers()['OptionsParser'] as OptionsParser
 	}
 
 	parse(previous: UpdatableHeading | null, text: string, start: number, length: number): [UpdatableHeading | null, ParsedHeadingContent | null] {
@@ -78,11 +97,30 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 		}
 
 		if(this.canUse(previous)) {
+			if(!previous.allOptions.isFullyParsed) {
+				const updatedOptions = this.optionsParser.parse(previous.allOptions, text, start+i, length-i)
+				if(updatedOptions[0] && updatedOptions[1]) {
+					content.contained.push(updatedOptions[1])
+					i += updatedOptions[1].length
+					if(i >= length) {
+						return [ heading, content, ]
+					}
+				}
+			}
 			return this.createHeadingFrom(text, start, length, i, whenFound,
 				heading, content)
 		} else {
 			for(var h=0; h<headingIdentifiers.length; h++) {
 				if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
+					const optionsResult = this.optionsParser.parse(null, text, start+i, length-i)
+					if(optionsResult[0] && optionsResult[1]) {
+						content.contained.push(optionsResult[1])
+						i += optionsResult[1].length
+						heading.allOptions = optionsResult[0] as UpdatableOptions
+						if(i >= length) {
+							return [ heading, content, ]
+						}
+					}
 					if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t') {
 						return [ null, null, ]
 					}
@@ -95,47 +133,22 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 		}
 
 		return [ null, null, ]
-
-		/*
-		let i = 0
-		const parts: (string | Options)[] = []
-		const whenFound = (l: number, t: string) => { i+=l; parts.push(t) }
-
-		const skip = skipLineStart(text, start+i, length-1, { whenSkipping: (text)=>parts.push(text) })
-		if(!skip.isValidStart) { return null };
-		i += skip.skipCharacters
-
-		for(var h=0; h<headingIdentifiers.length; h++) {
-			if(find(text, headingIdentifiers[h].text, start+i, length-i, { whenFound })) {
-				let options: Options = new UpdatableOptions([], -1)
-				const optionsResult = this.parsers.knownParsers()['OptionsParser'].parse(text, start+i, length-i)
-				if(optionsResult) {
-					i += optionsResult.length
-					options = optionsResult
-					parts.push(options)
-				} else if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t' && text.charAt(start+i)!='{' && text.charAt(start+i)!='\n' && text.charAt(start+i)!='\r') {
-					return null
-				}
-				
-				skipSpaces(text, start+i, length-i, { whenFound })
-				const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
-				if(headingText == null) {
-					parts.push('')
-				}
-
-				return new UpdatableHeading(headingIdentifiers[h].level, options, parts, start, this)
-			}
-		}
-		*/
 	}
 
 	createHeadingFrom(text: string, start: number, length: number, i: number,
 			whenFound: (l: number, t: string)=>unknown,
 			heading: UpdatableHeading, content: ParsedHeadingContent,
 	): [UpdatableHeading | null, ParsedHeadingContent | null] {
-		const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
-		if(headingText != null) {
-			content.text = headingText.foundText
+		const whitespaceMatcher = /[ \t]+/y
+		whitespaceMatcher.lastIndex = start+i
+		const foundWhitespace = whitespaceMatcher.exec(text)
+		if(foundWhitespace && foundWhitespace[0].length===(length-i) && foundWhitespace[0].endsWith('  ')) {
+			content.text = foundWhitespace[0]
+		} else {
+			const headingText = find(text, /[^\r\n]+/, start+i, length-i, { whenFound })
+			if(headingText != null) {
+				content.text = headingText.foundText
+			}	
 		}
 
 		content.belongsTo = heading
@@ -146,6 +159,6 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 
 	canUse(previous: UpdatableHeading | null): previous is UpdatableHeading {
 		return previous != null && 
-			(previous.contents[previous.contents.length-1].text?.endsWith('  ') ?? false)
+			!previous.isFullyParsed
 	}
 }

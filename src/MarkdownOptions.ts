@@ -51,6 +51,7 @@ export class UpdatableOption extends UpdatableElement<Option, unknown, ParsedOpt
 
 	get key() { return this.contents[0].key }
 	get value() { return this.contents[0].value }
+	get isFullyParsed() { return true }
 }
 
 /**
@@ -78,6 +79,18 @@ export class UpdatableOptions extends UpdatableElement<Options, string | Option,
 		return this.options.reduce((p, c) => {
 			return { ...p, [c.key]: c.value}
 		}, {} as ContentOptions)
+	}
+	//was previous fully parsed or can it be extended?
+	get isFullyParsed() {
+		if(this.contents.length > 0) {
+			const lastLine = this.contents[this.contents.length - 1]
+			const lastContent = lastLine.contained[lastLine.contained.length - 1]
+			if(lastContent && lastContent.asText.endsWith('}')) {
+				//found a closing curly bracket, so the previous option is already completely parsed!
+				return true
+			}
+		}
+		return false
 	}
 }
 

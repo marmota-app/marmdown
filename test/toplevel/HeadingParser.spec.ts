@@ -74,12 +74,28 @@ describe('HeadingParser', () => {
 		expect(result).toHaveProperty('lines', [ 'Foobar', 'next line', ])
 	})
 
-	it.skip('parses heading options', () => {
+	it('parses heading options', () => {
 		const markdown = '#{ foo = bar } Foobar\n'
 
-		const result = headingParser.parse(null, markdown, 0, markdown.length)
+		const result = headingParser.parse(null, markdown, 0, markdown.length)[0]
 
-		expect(result?.options).toHaveProperty('foo', 'bar')
+		expect(result!.options).toHaveProperty('foo', 'bar')
+	})
+
+	it('parses multiline heading with multiline options', () => {
+		const markdown = '#{ defaultValue;  \nfoo = bar }   \nFoo  \nbar\n'
+
+		let result = headingParser.parse(null, '#{ defaultValue;  ', 0, '#{ defaultValue;  '.length)
+		result = headingParser.parse(result[0], 'foo = bar }\t  ', 0, 'foo = bar }\t  '.length)
+		result = headingParser.parse(result[0], 'Foo  ', 0, 'Foo  '.length)
+		result = headingParser.parse(result[0], 'bar', 0, 'bar'.length)
+
+		expect(result[0]).not.toBeNull()
+		expect(result[0]!.options).toHaveProperty('default', 'defaultValue')
+		expect(result[0]!.options).toHaveProperty('foo', 'bar')
+
+		expect(result[0]).toHaveProperty('text', 'Foo bar')
+		expect(result[0]).toHaveProperty('lines', [ 'Foo', 'bar', ])
 	})
 
 	describe('partial parsing of headings', () => {
