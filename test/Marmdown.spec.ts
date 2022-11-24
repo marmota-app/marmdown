@@ -25,7 +25,7 @@ import { UpdatableParagraph } from '$markdown/toplevel/ParagraphParser'
 import { HeadingParser, UpdatableHeading } from '$markdown/toplevel/HeadingParser'
 import { OptionsParser } from '$markdown/options/OptionsParser'
 import { UpdatableElement } from '$markdown/UpdatableElement'
-import { ParsedDocumentContent, Updatable } from '$markdown/Updatable'
+import { ParsedDocumentContent, StringContent, Updatable } from '$markdown/Updatable'
 
 class TestParsers<T extends string> implements Parsers<'OptionsParser' | T> {
 	constructor(private _knownParsers: {[key in 'OptionsParser' | T]: GenericParser }, private _toplevel: string[]) {}
@@ -35,13 +35,19 @@ class TestParsers<T extends string> implements Parsers<'OptionsParser' | T> {
 }
 
 class ParsedTestContent extends ParsedDocumentContent<ParsedTestContent, unknown> {
-	constructor(start: number, length: number, contained: ParsedDocumentContent<unknown, unknown>[]) {
-		super(start, length, undefined, contained)
+	constructor(start: number, private _length: number, contained: ParsedDocumentContent<unknown, unknown>[]) {
+		super(start, undefined, contained)
+	}
+	override get length(): number {
+		return this._length
 	}
 }
 interface TestContent extends Updatable<TestContent, unknown, ParsedTestContent> {
 }
 class UpdatableTestContent extends UpdatableElement<TestContent, unknown, ParsedTestContent> {
+	public get isFullyParsed(): boolean {
+		return true
+	}
 }
 
 describe('Marmdown', () => {
@@ -251,8 +257,8 @@ describe('Marmdown', () => {
 	it('parses document options first', () => {
 		const optionsParserMock = mock<OptionsParser>('optionsParserMock')
 		const expectedOptions = new UpdatableOptions()
-		expectedOptions.contents.push(new ParsedOptionsContent([{ key: 'foo', value: 'bar', contents: []}], 0, 3, []))
-		when(optionsParserMock.parse(anything(), anyString(), 0, anyNumber())).return([expectedOptions, new ParsedOptionsContent([], 0, 3, [])])
+		expectedOptions.contents.push(new ParsedOptionsContent([{ key: 'foo', value: 'bar', contents: []}], 0, [ new StringContent('foo', 0, undefined) ]))
+		when(optionsParserMock.parse(anything(), anyString(), 0, anyNumber())).return([expectedOptions, new ParsedOptionsContent([], 0, [ new StringContent('foo', 0, undefined) ])])
 		when(optionsParserMock.parse(anything(), anyString(), anyNumber(), anyNumber())).return([null, null])
 
 		const firstTextParserMock = mock<TextParser<unknown, TestContent, ParsedTestContent>>('firstTextParserMock')

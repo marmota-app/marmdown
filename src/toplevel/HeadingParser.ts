@@ -36,19 +36,17 @@ export interface MdHeading extends Heading, DefaultContent, AdvancedConent {
 }
 
 class ParsedHeadingContent extends ParsedDocumentContent<UpdatableHeading, string | Options> {
-	constructor(start: number) { super(start, 0) }
+	constructor(start: number) { super(start) }
 
 	public text: string | undefined
 
 	push(toPush: ParsedDocumentContent<unknown, unknown>) {
 		this.contained.push(toPush)
-		this.length += toPush.length
 	}
 }
 
 export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string | Options, ParsedHeadingContent> implements MdHeading {
 	readonly type = 'Heading' as const
-	public level: Level = 1
 	public allOptions = new UpdatableOptions()
 
 	constructor(parsedWith: HeadingParser | undefined) {
@@ -57,6 +55,9 @@ export class UpdatableHeading extends UpdatableElement<UpdatableHeading, string 
 
 	get hasChanged() { return false }
 
+	get level(): Level {
+		return this.contents[0]?.contained[0]?.asText?.length as Level ?? 1
+	}
 	get text() { return this.contents.reduce(
 		(result: string, content) => {
 			const space = result.length > 0? ' ': ''
@@ -103,7 +104,7 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 			if(this.canUse(previous)) {
 				const heading = previous
 				const whenFound = (l: number, t: string) => { 
-					content.push(new StringContent<UpdatableHeading>(t, i, l, heading))
+					content.push(new StringContent<UpdatableHeading>(t, i, heading))
 					i+=l
 				}
 
@@ -125,7 +126,7 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 			const heading = new UpdatableHeading(this)
 
 			const whenFound = (l: number, t: string) => { 
-				content.push(new StringContent<UpdatableHeading>(t, i, l, heading))
+				content.push(new StringContent<UpdatableHeading>(t, start+i, heading))
 				i+=l
 			}
 	
@@ -143,7 +144,6 @@ export class HeadingParser extends ContainerTextParser<string | Options, Updatab
 					if(i<length && text.charAt(start+i)!=' ' && text.charAt(start+i)!='\t') {
 						return [ null, null, ]
 					}
-					heading.level = headingIdentifiers[h].level
 
 					return this.createHeadingFrom(text, start, length, i, whenFound,
 						heading, content)

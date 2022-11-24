@@ -20,13 +20,13 @@ import { TextParser } from "./parser/TextParser"
 import { UpdatableElement } from "./UpdatableElement"
 
 export class ParsedOptionContent extends ParsedDocumentContent<unknown, unknown> {
-	constructor(public key: string, public value: string, start: number, length: number, belongsTo: UpdatableOption, contained: ParsedDocumentContent<unknown, unknown>[]) {
-		super(start, length, belongsTo, contained)
+	constructor(public key: string, public value: string, start: number, belongsTo: UpdatableOption, contained: ParsedDocumentContent<unknown, unknown>[]) {
+		super(start, belongsTo, contained)
 	}
 }
 export class ParsedOptionsContent extends ParsedDocumentContent<Options, string | Option> {
-	constructor(public lineOptions: Option[], start: number, length: number, contained: ParsedDocumentContent<unknown, unknown>[]) {
-		super(start, length, undefined, contained)
+	constructor(public lineOptions: Option[], start: number, contained: ParsedDocumentContent<unknown, unknown>[]) {
+		super(start, undefined, contained)
 	}
 }
 

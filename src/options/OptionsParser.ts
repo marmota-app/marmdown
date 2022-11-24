@@ -72,12 +72,12 @@ export class OptionsParser extends ContainerTextParser<Option, Options, ParsedOp
 			const shouldContinue =   i == length-2 && text.startsWith('  ', start+i)
 			if(shouldContinue) {
 				foundContents.push({ start: start+i, length: 2, contained: [], asText: '  ', })
-				const content = new ParsedOptionsContent(foundOptions, start, i+2, foundContents)
+				const content = new ParsedOptionsContent(foundOptions, start, foundContents)
 				return content
 			}
 
 			if(find(text, '}', start+i, length-i, { whenFound })) {
-				const content = new ParsedOptionsContent(foundOptions, start, i, foundContents)
+				const content = new ParsedOptionsContent(foundOptions, start, foundContents)
 				return content
 			}
 		}

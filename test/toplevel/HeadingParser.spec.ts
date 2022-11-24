@@ -117,7 +117,7 @@ describe('HeadingParser', () => {
 	describe('partial parsing of headings', () => {
 		interface ExpectedResult { level: Level, heading: string, options: ContentOptions, completeText: string }
 
-		const markdown = '      \n#{ option } The Heading'
+		const markdown = '      \n##{ option } The Heading'
 		const existingHeading = () => {
 			return headingParser.parse(null, markdown, 7, markdown.length)
 		}
@@ -127,27 +127,28 @@ describe('HeadingParser', () => {
 			[ { rangeOffset: 4, rangeLength: 10, text: 'ignore', range: undefined }, null ],
 			[ { rangeOffset: 100, rangeLength: 0, text: 'ignore', range: undefined }, null ],
 			[ { rangeOffset: 9, rangeLength: 100, text: 'ignore', range: undefined }, null ],
-			[ { rangeOffset: 7, rangeLength: 0, text: '#', range: undefined }, { level: 2, heading: 'The Heading', options: { default: 'option' }, completeText: '##{ option } The Heading', } ],
-			[ { rangeOffset: 7, rangeLength: 1, text: '###', range: undefined }, { level: 3, heading: 'The Heading', options: { default: 'option' }, completeText: '###{ option } The Heading', } ],
-			[ { rangeOffset: 7+'#{ '.length, rangeLength: 0, text: '_', range: undefined }, { level: 1, heading: 'The Heading', options: { default: '_option' }, completeText: '#{ _option } The Heading', } ],
-			[ { rangeOffset: 7+'#{ option } '.length, rangeLength: 0, text: 'Wow, ', range: undefined }, { level: 1, heading: 'Wow, The Heading', options: { default: 'option' }, completeText: '#{ option } Wow, The Heading', } ],
-			[ { rangeOffset: 7+'#{ option } The '.length, rangeLength: 'Heading'.length, text: 'Überschrift', range: undefined }, { level: 1, heading: 'The Überschrift', options: { default: 'option' }, completeText: '#{ option } The Überschrift', } ],
-			[ { rangeOffset: 7+'#{ option } The Heading'.length, rangeLength: 0, text: 's', range: undefined }, { level: 1, heading: 'The Headings', options: { default: 'option' }, completeText: '#{ option } The Headings', } ],
+			[ { rangeOffset: 7, rangeLength: 0, text: '#', range: undefined }, { level: 3, heading: 'The Heading', options: { default: 'option' }, completeText: '###{ option } The Heading', } ],
+			[ { rangeOffset: 7, rangeLength: 2, text: '###', range: undefined }, { level: 3, heading: 'The Heading', options: { default: 'option' }, completeText: '###{ option } The Heading', } ],
+			[ { rangeOffset: 7, rangeLength: 1, text: '', range: undefined }, { level: 1, heading: 'The Heading', options: { default: 'option' }, completeText: '#{ option } The Heading', } ],
+			[ { rangeOffset: 7+'##{ '.length, rangeLength: 0, text: '_', range: undefined }, { level: 2, heading: 'The Heading', options: { default: '_option' }, completeText: '##{ _option } The Heading', } ],
+			[ { rangeOffset: 7+'##{ option } '.length, rangeLength: 0, text: 'Wow, ', range: undefined }, { level: 2, heading: 'Wow, The Heading', options: { default: 'option' }, completeText: '##{ option } Wow, The Heading', } ],
+			[ { rangeOffset: 7+'##{ option } The '.length, rangeLength: 'Heading'.length, text: 'Überschrift', range: undefined }, { level: 2, heading: 'The Überschrift', options: { default: 'option' }, completeText: '##{ option } The Überschrift', } ],
+			[ { rangeOffset: 7+'##{ option } The Heading'.length, rangeLength: 0, text: 's', range: undefined }, { level: 2, heading: 'The Headings', options: { default: 'option' }, completeText: '##{ option } The Headings', } ],
 		]
-		data.forEach(td => it.skip(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
-			const existing = existingHeading()!
-			const result = existing.parsedWith!.parsePartial(existing, td[0])
+		data.forEach(td => it(`parses ${JSON.stringify(td[0])} as ${JSON.stringify(td[1])}`, () => {
+			const existing = existingHeading()
+			const result = existing[0]!.parsedWith!.parsePartial(existing[0]!, td[0])
 
 			if(td[1]) {
-				expect(result?.start).toEqual(existing.start)
-				expect(result?.length).toEqual(td[1].completeText.length)
+				expect(result[1]?.start).toEqual(existing[1]!.start)
+				expect(result[1]?.length).toEqual(td[1].completeText.length)
 
-				expect(result).toHaveProperty('text', td[1].heading)
-				expect(result).toHaveProperty('asText', td[1].completeText)
-				expect(result).toHaveProperty('level', td[1].level)
-				expect(result).toHaveProperty('options', td[1].options)
+				expect(result[0]).toHaveProperty('text', td[1].heading)
+				expect(result[1]).toHaveProperty('asText', td[1].completeText)
+				expect(result[0]).toHaveProperty('level', td[1].level)
+				expect(result[0]).toHaveProperty('options', td[1].options)
 			} else {
-				expect(result).toBeNull()
+				expect(result[0]).toBeNull()
 			}
 		}))
 	})

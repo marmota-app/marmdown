@@ -7,11 +7,14 @@ describe('TextParser', () => {
 		text: string,
 	}
 	class LeafContent extends ParsedDocumentContent<Leaf, unknown> {
-		constructor(public text: string, start: number, length: number, belongsTo: Updatable<Leaf, unknown, ParsedDocumentContent<unknown, unknown>>) {
-			super(start, length, belongsTo)
+		constructor(public text: string, start: number, private _length: number, belongsTo: Updatable<Leaf, unknown, ParsedDocumentContent<unknown, unknown>>) {
+			super(start, belongsTo)
 		}
 		get asText() {
 			return this.text
+		}
+		override get length(): number {
+			return this._length
 		}
 	}
 	class UpdatableLeaf extends UpdatableElement<Leaf, unknown, LeafContent> {
@@ -137,9 +140,10 @@ describe('TextParser', () => {
 		interface Container extends Updatable<Container, string | Leaf, ContainerContent> {
 		}
 		class ContainerContent extends ParsedDocumentContent<Container, string | Leaf> {
-			constructor(public leaves: Leaf[], start: number, length: number, belongsTo: UpdatableContainer, contained: ParsedDocumentContent<unknown, string | Leaf>[]) {
-				super(start, length, belongsTo, contained)
+			constructor(public leaves: Leaf[], start: number, private _length: number, belongsTo: UpdatableContainer, contained: ParsedDocumentContent<unknown, string | Leaf>[]) {
+				super(start, belongsTo, contained)
 			}
+			override get length(): number { return this._length }
 		}
 		class UpdatableContainer extends UpdatableElement<Container, string | Leaf, ContainerContent> {
 			constructor(contents: ContainerContent[], parsedWith?: TextParser<string | Leaf, Updatable<Container, string | Leaf, ContainerContent>, ContainerContent>) {
@@ -163,7 +167,7 @@ describe('TextParser', () => {
 					const [ leaf, content, ] = leafParser.parse(null, text, lastIndex, nextIndex-lastIndex)
 					contained.push(content!)
 					leaves.push(leaf!)
-					contained.push(new StringContent('#', nextIndex, 1, container))
+					contained.push(new StringContent('#', nextIndex, container))
 					lastIndex = nextIndex+1
 					nextIndex = text.indexOf('#', lastIndex)
 				}

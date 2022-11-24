@@ -50,7 +50,7 @@ export class OptionParser extends ContainerTextParser<unknown, Option, ParsedOpt
 		let i = 0
 		const option = new UpdatableOption(this)
 		const contained: StringContent<UpdatableOption>[] = []
-		const whenFound = (l: number, text: string) => { contained.push(new StringContent<UpdatableOption>(text, i, l, option)); i+=l; }
+		const whenFound = (l: number, text: string) => { contained.push(new StringContent<UpdatableOption>(text, i, option)); i+=l; }
 
 		const identMatcher = /[^ \n\r\t}=;]+/
 		const valueMatcher = /[^\n\r}=;]+/
@@ -60,12 +60,12 @@ export class OptionParser extends ContainerTextParser<unknown, Option, ParsedOpt
 			if(equals) {
 				const value = find(text, valueMatcher, start+i, length-i, { whenFound })
 				if(value) {
-					const content = new ParsedOptionContent(ident.foundText, value.foundText.trim(), start, i, option, contained)
+					const content = new ParsedOptionContent(ident.foundText, value.foundText.trim(), start, option, contained)
 					option.contents.push(content)
 					return [ option, content, ]
 				}
 			} else if(this.config.allowDefault) {
-				const content = new ParsedOptionContent('default', ident.foundText, start, i, option, contained)
+				const content = new ParsedOptionContent('default', ident.foundText, start, option, contained)
 				option.contents.push(content)
 				return [ option, content, ]
 			}
