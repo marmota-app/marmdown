@@ -22,10 +22,9 @@ describe('ParagraphParser', () => {
 		return paragraphParser.parse(null, md, start, md.length-start)
 	}
 
-	it.skip('parses single line of text as paragraph', () => {
+	it('parses single line of text as paragraph', () => {
 		const result = parse('text content')[0]
 
-		expect(result).toHaveProperty('start', 0)
 		expect(result).toHaveProperty('content')
 		expect(result?.content).toHaveLength(1)
 		expect(result?.content[0]).toHaveProperty('type', 'Text')
@@ -88,6 +87,10 @@ describe('ParagraphParser', () => {
 		expect(result?.content[1]).toHaveProperty('type', 'Newline')
 	})
 
+	describe('options for paragraphs', () => {
+	})
+	describe('properties of ParsedParagraphContent returned in different cases', () => {
+	})
 	describe('partial parsing of paragraphs', () => {
 		//TODO add tests
 	})

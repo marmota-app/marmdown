@@ -17,7 +17,7 @@ import { AdvancedConent, DefaultContent, Paragraph, ParagraphContent, TextConten
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
 import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
-import { ParsedDocumentContent } from "$markdown/Updatable";
+import { ParsedDocumentContent, StringContent } from "$markdown/Updatable";
 import { UpdatableElement } from "$markdown/UpdatableElement";
 
 
@@ -26,6 +26,20 @@ export interface MdParagraph extends Paragraph, DefaultContent, AdvancedConent {
 type ParaContent = string | Options
 
 class ParsedParagraphContent extends ParsedDocumentContent<UpdatableParagraph, ParaContent> {
+}
+class ParsedTextContent extends ParsedDocumentContent<UpdatableParagraph, unknown> implements TextContent {
+	public readonly type = 'Text'
+
+	constructor(public text: string, start: number, private _length: number, belongsTo: UpdatableParagraph) {
+		super(start, belongsTo)
+	}
+	override get length(): number {
+		return this._length
+	}
+
+	public get content() {
+		return this.text.substring(this.start, this._length)
+	}
 }
 
 export class UpdatableParagraph extends UpdatableElement<UpdatableParagraph, ParaContent, ParsedParagraphContent> implements MdParagraph {
@@ -37,7 +51,9 @@ export class UpdatableParagraph extends UpdatableElement<UpdatableParagraph, Par
 	}
 
 	get hasChanged() { return false }
-	get content(): ParagraphContent[] { return [] }
+	get content(): ParagraphContent[] { return this.contents
+		.flatMap(c => c.contained as unknown as ParagraphContent)
+	}
 	get isFullyParsed(): boolean { return true }
 }
 
@@ -56,7 +72,14 @@ export class ParagraphParser extends ContainerTextParser<ParaContent, UpdatableP
 	}
 
 	parse(previous: UpdatableParagraph | null, text: string, start: number, length: number): [UpdatableParagraph | null, ParsedParagraphContent | null, ] {
-		return [ null, null, ]
+		const paragraph = new UpdatableParagraph(this)
+
+		const content = new ParsedParagraphContent(start)
+		content.belongsTo = paragraph
+		content.contained.push(new ParsedTextContent(text, start, length, paragraph))
+		paragraph.contents.push(content)
+
+		return [ paragraph, content, ]
 		/*
 		let i = 0
 		const parts: (UpdatableLineContent | string)[] = []
