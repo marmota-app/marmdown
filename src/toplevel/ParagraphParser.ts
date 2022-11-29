@@ -15,6 +15,7 @@
 */
 import { AdvancedConent, DefaultContent, Paragraph, ParagraphContent, TextContent } from "$markdown/MarkdownDocument";
 import { Options, UpdatableOptions } from "$markdown/MarkdownOptions";
+import { LineContentParser, ParsedLineContent } from "$markdown/paragraph/LineContentParser";
 import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser";
 import { Parsers } from "$markdown/Parsers";
 import { ParsedDocumentContent, StringContent } from "$markdown/Updatable";
@@ -25,24 +26,7 @@ export interface MdParagraph extends Paragraph, DefaultContent, AdvancedConent {
 }
 type ParaContent = string | Options
 
-class ParsedParagraphContent extends ParsedDocumentContent<UpdatableParagraph, ParaContent> {
-}
-class ParsedTextContent extends ParsedDocumentContent<UpdatableParagraph, unknown> implements TextContent {
-	public readonly type = 'Text'
-
-	constructor(public text: string, start: number, private _length: number, belongsTo: UpdatableParagraph) {
-		super(start, belongsTo)
-	}
-	override get length(): number {
-		return this._length
-	}
-
-	public get content() {
-		return this.text.substring(this.start, this._length)
-	}
-}
-
-export class UpdatableParagraph extends UpdatableElement<UpdatableParagraph, ParaContent, ParsedParagraphContent> implements MdParagraph {
+export class UpdatableParagraph extends UpdatableElement<UpdatableParagraph, ParaContent, ParsedLineContent> implements MdParagraph {
 	readonly type = 'Paragraph' as const
 	public allOptions = new UpdatableOptions()
 	
@@ -64,9 +48,12 @@ const emptyLineDelimiters = [
 	/([^\n]*)(\r\n[ \t]*\n)/,
 ]
 
-export class ParagraphParser extends ContainerTextParser<ParaContent, UpdatableParagraph, ParsedParagraphContent> {
+export class ParagraphParser extends ContainerTextParser<ParaContent, UpdatableParagraph, ParsedLineContent> {
+	private get lineContentParser() {
+		return this.parsers.knownParsers()['LineContentParser'] as LineContentParser
+	}
 	constructor(
-		private parsers: Parsers<'OptionsParser' /*| 'LineContentParser'*/>
+		private parsers: Parsers<'OptionsParser' | 'LineContentParser'>
 	) {
 		super()
 	}
@@ -74,12 +61,13 @@ export class ParagraphParser extends ContainerTextParser<ParaContent, UpdatableP
 	parse(previous: UpdatableParagraph | null, text: string, start: number, length: number): [UpdatableParagraph | null, ParsedParagraphContent | null, ] {
 		const paragraph = new UpdatableParagraph(this)
 
-		const content = new ParsedParagraphContent(start)
-		content.belongsTo = paragraph
-		content.contained.push(new ParsedTextContent(text, start, length, paragraph))
-		paragraph.contents.push(content)
+		const lineContent = this.lineContentParser.parse(null, text, start, length)
+		if(lineContent[1]) {
+			lineContent[1].belongsTo = paragraph
+			paragraph.contents.push(lineContent[1])
+		}
 
-		return [ paragraph, content, ]
+		return [ paragraph, lineContent[1], ]
 		/*
 		let i = 0
 		const parts: (UpdatableLineContent | string)[] = []

@@ -16,26 +16,38 @@
 import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser"
 import { find } from "$markdown/parser/find"
 import { Parsers } from "$markdown/Parsers"
-import { UpdatableParagraphContent } from "$markdown/toplevel/ParagraphParser"
-import { UpdatableContainerElement } from "$markdown/UpdatableElement"
+import { UpdatableElement } from "$markdown/UpdatableElement"
+import { ParsedDocumentContent } from "$markdown/Updatable"
+import { TextContentParser } from "./TextContentParser"
 
-export class UpdatableLineContent extends UpdatableContainerElement<UpdatableLineContent, UpdatableParagraphContent> {
-	constructor(parts: UpdatableParagraphContent[], _start: number, parsedWith: LineContentParser) {
-		super(parts, _start, parsedWith)
+export class ParsedLineContent extends ParsedDocumentContent<UpdatableLine, unknown> {}
+export class UpdatableLine extends UpdatableElement<UpdatableLine, unknown, ParsedLineContent> {
+	public get isFullyParsed(): boolean {
+		return true
 	}
-
-	get hasChanged() { return false }
-	get content() { return this.parts }
 }
 
 export const NEW_LINE_CHARS = [ '\r', '\n', '\r\n' ]
-export class LineContentParser extends ContainerTextParser<UpdatableLineContent, UpdatableParagraphContent> implements TextParser<UpdatableLineContent> {
+export class LineContentParser extends ContainerTextParser<unknown, UpdatableLine, ParsedLineContent> {
+	private get textParser() {
+		return this.parsers.knownParsers()['TextContentParser'] as TextContentParser
+	}
 
-	constructor(private parsers: Parsers<'TextContentParser' | 'NewLineParser'>) {
+	constructor(private parsers: Parsers<'TextContentParser'>) {
 		super()
 	}
 
-	parse(text: string, start: number, length: number): UpdatableLineContent | null {
+	parse(previous: UpdatableLine | null, text: string, start: number, length: number): [ UpdatableLine | null, ParsedLineContent | null, ] {
+		const parsedLine = new ParsedLineContent(start)
+		//TODO belongsTo, return value
+
+		const parsedText = this.textParser.parse(null, text, start, length)
+		if(parsedText[1]) {
+			parsedLine.contained.push(parsedText[1])
+		}
+		return [ null, parsedLine, ]
+
+		/*
 		const parts: UpdatableParagraphContent[] = []
 		let i = 0
 		const incrementIndex = (l: number) => i+=l
@@ -71,5 +83,6 @@ export class LineContentParser extends ContainerTextParser<UpdatableLineContent,
 		}
 
 		return new UpdatableLineContent(parts, start, this)
+		*/
 	}
 }

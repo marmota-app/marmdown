@@ -14,27 +14,42 @@
    limitations under the License.
 */
 import {  DefaultContent, TextContent } from "$markdown/MarkdownDocument"
-import { LeafTextParser, TextParser } from "$markdown/parser/TextParser"
+import { ContainerTextParser, TextParser } from "$markdown/parser/TextParser"
 import { Parsers } from "$markdown/Parsers"
+import { ParsedDocumentContent } from "$markdown/Updatable"
 import { UpdatableElement } from "$markdown/UpdatableElement"
 
-export class UpdatableTextContent extends UpdatableElement<UpdatableTextContent> implements TextContent, DefaultContent {
+export class ParsedText extends ParsedDocumentContent<UpdatableText, unknown> implements TextContent, DefaultContent {
 	readonly type = 'Text' as const
 
-	constructor(private _content: string, _start: number, _length: number, parsedWith: TextContentParser) {
-		super(_start, _length, parsedWith)
+	constructor(public text: string, start: number, private _length: number) {
+		super(start)
 	}
 
 	get hasChanged() { return false }
-	get content() { return this._content }
-	get asText() { return this._content }
+	get content() { return this.text.substring(this.start, this.start+this._length) }
+	override get length(): number {
+		return this._length
+	}
+}
+export class UpdatableText extends UpdatableElement<UpdatableText, unknown, ParsedText> {
+
+	constructor(private text: string, start: number, private _length: number, parsedWith: TextContentParser) {
+		super()
+	}
+
+	public get isFullyParsed(): boolean {
+		return true
+	}
 }
 
-export class TextContentParser extends LeafTextParser<UpdatableTextContent> implements TextParser<UpdatableTextContent> {
+export class TextContentParser extends ContainerTextParser<unknown, UpdatableText, ParsedText> {
 	constructor(_: Parsers<never>) {
 		super()
 	}
-	parse(text: string, start: number, length: number): UpdatableTextContent | null {
-		return new UpdatableTextContent(text.substring(start, start + length), start, length, this)
+	parse(previous: UpdatableText | null, text: string, start: number, length: number): [ UpdatableText | null, ParsedText | null] {
+		//TODO belongsTo, return value
+
+		return [null, new ParsedText(text, start, length)]
 	}
 }

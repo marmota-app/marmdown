@@ -22,12 +22,12 @@ describe('TextContentParser', () => {
 		const startIndex = 'ignore me;'.length
 		const length = 'this is the text'.length
 
-		const result = new TextContentParser(new MfMParsers()).parse(markdown, startIndex, length)
+		const result = new TextContentParser(new MfMParsers()).parse(null, markdown, startIndex, length)
 
-		expect(result).toHaveProperty('type', 'Text')
-		expect(result).toHaveProperty('content', 'this is the text')
-		expect(result).toHaveProperty('asText', 'this is the text')
-		expect(result).toHaveProperty('start', startIndex)
-		expect(result).toHaveProperty('length', length)
+		expect(result[0]).toHaveProperty('type', 'Text')
+		expect(result[0]).toHaveProperty('content', 'this is the text')
+		expect(result[0]).toHaveProperty('asText', 'this is the text')
+		expect(result[0]).toHaveProperty('start', startIndex)
+		expect(result[0]).toHaveProperty('length', length)
 	})
 })
