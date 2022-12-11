@@ -3,7 +3,8 @@
 ## Blocks and Inlines
 
 A Markdown Document [consists of blocks](https://github.github.com/gfm/#blocks-and-inlines), 
-and those _blocks_ can contain other blocks and _inlines_.
+and those _blocks_ can contain other blocks and _inlines_. We call both blocks
+and inlines {@link $element.Element}.
 
 A block can span multiple lines, and it can contain blocks that, again, span
 multiple lines. Here's an aside that contains a block quote and a paragraph.
@@ -43,7 +44,7 @@ first paragraph that is inside an aside **and** a block quote).
 How exactly blocks of text are parsed and the resulting data structures
 also depends on how updates are processed by the parser - see below.
 
-[Read more about blocks-of-text parsing](./blocks-of-text-parsing.md)
+[Read more about blocks-of-text parsing]{@tutorial blocks-of-text-parsing}
 
 ## Parsing Updates
 
@@ -65,4 +66,4 @@ by the update. If re-parsing that element returns a valid result **and** the
 changed text could be parsed completely, the parsing stops there. Otherwise,
 it tries to parse the parent element.
 
-[Read more about parsing updates](./parsing-updates.md)
+[Read more about parsing updates]{@tutorial parsing-updates}

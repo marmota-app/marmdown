@@ -15,6 +15,8 @@
 */
 
 /**
+ * A marmdown document consists of `Element`s, and they can either be blocks
+ * or inlines. 
  * 
  * Consider the following text content:
  * 
@@ -60,22 +62,60 @@
  * - the lines know the element they _belong to_
  * - the lines hold the actual text conten of the document, but they refer to
  *   line content further down the tree for inner content
+ * 
+ * @memberOf $element
  */
 export interface Element<THIS extends Element<THIS, CONTENT>, CONTENT extends Element<any, unknown> | never | unknown> {
-	id: string,
+	/**
+	 * Unique identifier for this instance of the element. 
+	 * 
+	 * The ID is created when the element is created. When parsing an _update_
+	 * keeps the element intact and changes only its content, the ID must stay 
+	 * the same. When parsing an update changes the document structure at
+	 * this point, the element is discarded and a new Element with a new,
+	 * unique ID is created.
+	 * 
+	 * This feature allows users of the element tree to determine which
+	 * elements were changed by an update.
+	 */
+	readonly id: string,
 	content: CONTENT[],
 	lines: LineContent<THIS>[],
 }
+
+/**
+ * Stores the content of the original document in a data structure based on lines,
+ * and the `Element`s must get their current content from this data structure. 
+ * 
+ * The data structure formed by `LineContent` contains the original document
+ * that was initially parsed _or_ the current state of the original document
+ * in case there were _updates_.
+ * 
+ * `Element`s must rely on the `LineContent` data structure to receive their
+ * data; otherwise the data will be wrong after parsing updates.
+ * 
+ * @memberOf $element
+ */
 export interface LineContent<BELONGS_TO extends Element<any, unknown> | unknown> {
 	belongsTo: BELONGS_TO,
 	content: LineContent<Element<any, unknown>>[]
 	asText: string,
 }
 
+/**
+ * Text content in a `LineContent` data structure (See {@link LineContent}). 
+ * 
+ * @memberOf $element
+ */
 export class StringLineContent<BELONGS_TO extends Element<any, unknown>> implements LineContent<BELONGS_TO> {
 	content: never[] = []
 	constructor(public asText: string, public belongsTo: BELONGS_TO) {}
 }
+/**
+ * Generic, nestable content in a `LineContent` data structure (See {@link LineContent}). 
+ * 
+ * @memberOf $element
+ */
 export class GenericLineContent<BELONGS_TO extends Element<any, unknown>> implements LineContent<BELONGS_TO> {
 	content: LineContent<Element<any, unknown>>[] = []
 	constructor(public belongsTo: BELONGS_TO) {}

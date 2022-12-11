@@ -1,6 +1,6 @@
 # Parsing Updates
 
-From the chapter [blocks-of-text parsing](./blocks-of-text-parsing.md), we know
+From the chapter [blocks-of-text parsing]{@tutorial blocks-of-text-parsing}, we know
 that every block can contain multiple lines, while inline content does not
 contain any lines (because it cannot span multiple lines).
 
@@ -9,8 +9,8 @@ blocks. We must take that into consideration when parsing updates.
 
 ## Parsing Updates and Copying Values
 
-During a complete re-parse of the document, the [non-copying parsing](./non-copying-parsing.md)
-makes sure that all [blocks of text](./blocks-of-text-parsing.md) use the
+During a complete re-parse of the document, the [non-copying parsing]{@tutorial non-copying-parsing}
+makes sure that all [blocks of text]{@tutorial blocks-of-text-parsing} use the
 same reference to the whole text and split the document only by remembering
 the indexes of their respective content.
 
@@ -165,7 +165,7 @@ the block that processes the changes, the previous or next block could be
 affected too.
 
 Because of that, `Marmdown` **always** processes changes to the line structure
-**at the toplevel [section structure](./headings-and-sections.md)**, but
+**at the toplevel [section structure]{@tutorial headings-and-sections}**, but
 when simple cases at the section structure fail, it will trigger a complete
 re-parse of the document. In other words, adding or deleting line breaks
 always triggers a complete re-parse of either one of the toplevel sections

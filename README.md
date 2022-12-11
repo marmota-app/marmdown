@@ -15,7 +15,7 @@ most basic features.
 Marmota-flavored-markdown was inspired by, and tries to be mostly compatible to,
 [GitHub Flavored Markdown (GfM)](https://github.github.com/gfm/)
 
-Find out more about the specialities and compatibility [here](docs/mfm.md)
+Find out more about the specialities and compatibility [here]{@tutorial mfm}
 
 ## Design Goals
 
@@ -30,7 +30,7 @@ marmdown must be able to
 Full compatibility with the first markdown parser is **not a design goal** - 
 This will not be a drop-in replacement
 
-[Read more about the design of marmdown](docs/design.md)
+[Read more about the design of marmdown]{@tutorial design}
 
 ## License
 

@@ -3,13 +3,13 @@
 **TODO Continuous Blocks** might not be needed in the code. If that turns out
 to be true, remove them from here.
 
-_Everything in this document is slightly simplified because it does not yet consider [options parsing](options.md)_
+_Everything in this document is slightly simplified because it does not yet consider [options parsing]{@tutorial options.md}_
 
 `Marmdown` itself splits the original text into lines. To do this, it splits
 the lines at _line endings_ where a _line ending_ can be either `\r`, `\n`
 or `\r\n`. (Actually, `Marmdown` does not **split** the text&mdash;it does
 not technically create substrings from the text&mdash;it only finds the start
-and end of lines. Read more in [non-copying parsing](./non-copying-parsing.md))
+and end of lines. Read more in [non-copying parsing]{@tutorial non-copying-parsing})
 
 It knows all the block parsers that could potentially parse toplevel content
 and passes the current content to all of them, until one of them returns a result.
@@ -223,5 +223,5 @@ The parser must differentiate between container inline content and leaf
 inline content.
 
 Next, see how this data structure is created during
-[non-copying parsing](./non-copying-parsing.md) and supports
-[parsing updates](./parsing-updates.md).
+[non-copying parsing]{@tutorial non-copying-parsing} and supports
+[parsing updates]{@tutorial parsing-updates.md}.
