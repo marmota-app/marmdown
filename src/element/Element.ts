@@ -1,17 +1,17 @@
 /*
-   Copyright [2020-2022] [David Tanzer - @dtanzer@social.devteams.at]
+Copyright [2020-2022] [David Tanzer - @dtanzer@social.devteams.at]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 /**
@@ -63,9 +63,9 @@
  * - the lines hold the actual text conten of the document, but they refer to
  *   line content further down the tree for inner content
  * 
- * @memberOf $element
+ * @category $element
  */
-export interface Element<THIS extends Element<THIS, CONTENT>, CONTENT extends Element<any, unknown> | never | unknown> {
+export interface Element<THIS extends Element<THIS, CONTENT> | unknown, CONTENT extends Element<any, unknown> | never | unknown> {
 	/**
 	 * Unique identifier for this instance of the element. 
 	 * 
@@ -81,6 +81,7 @@ export interface Element<THIS extends Element<THIS, CONTENT>, CONTENT extends El
 	readonly id: string,
 	content: CONTENT[],
 	lines: LineContent<THIS>[],
+	asText: string,
 }
 
 /**
@@ -94,9 +95,9 @@ export interface Element<THIS extends Element<THIS, CONTENT>, CONTENT extends El
  * `Element`s must rely on the `LineContent` data structure to receive their
  * data; otherwise the data will be wrong after parsing updates.
  * 
- * @memberOf $element
+ * @category $element
  */
-export interface LineContent<BELONGS_TO extends Element<any, unknown> | unknown> {
+export interface LineContent<BELONGS_TO extends Element<unknown, unknown> | unknown> {
 	belongsTo: BELONGS_TO,
 	content: LineContent<Element<any, unknown>>[]
 	asText: string,
@@ -105,18 +106,18 @@ export interface LineContent<BELONGS_TO extends Element<any, unknown> | unknown>
 /**
  * Text content in a `LineContent` data structure (See {@link LineContent}). 
  * 
- * @memberOf $element
+ * @category $element
  */
-export class StringLineContent<BELONGS_TO extends Element<any, unknown>> implements LineContent<BELONGS_TO> {
+export class StringLineContent<BELONGS_TO extends Element<unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
 	content: never[] = []
 	constructor(public asText: string, public belongsTo: BELONGS_TO) {}
 }
 /**
  * Generic, nestable content in a `LineContent` data structure (See {@link LineContent}). 
  * 
- * @memberOf $element
+ * @category $element
  */
-export class GenericLineContent<BELONGS_TO extends Element<any, unknown>> implements LineContent<BELONGS_TO> {
+export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown>> implements LineContent<BELONGS_TO> {
 	content: LineContent<Element<any, unknown>>[] = []
 	constructor(public belongsTo: BELONGS_TO) {}
 
@@ -128,7 +129,7 @@ export class GenericLineContent<BELONGS_TO extends Element<any, unknown>> implem
 }
 
 export abstract class Block<
-	THIS extends Block<THIS, CONTENT, TYPE>,
+	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Element<any, unknown> | unknown,
 	TYPE = string,
 > implements Element<THIS, CONTENT> {
@@ -136,12 +137,14 @@ export abstract class Block<
 	public readonly lines: LineContent<THIS>[] = []
 
 	constructor(public readonly id: string, public readonly type: TYPE) {}
+
+	get asText() { return '' }
 }
-export class ContainerBlock extends Block<ContainerBlock, Block<any, unknown>> {}
-export class LeafBlock extends Block<LeafBlock, Inline<any, unknown, LineContent<unknown>>> {}
+export class ContainerBlock<THIS extends ContainerBlock<THIS> | unknown> extends Block<THIS, Block<any, unknown>> {}
+export class LeafBlock<THIS extends LeafBlock<THIS> | unknown> extends Block<THIS, Inline<any, unknown, LineContent<unknown>>> {}
 
 export abstract class Inline<
-	THIS extends Inline<THIS, CONTENT, LINE>,
+	THIS extends Inline<THIS, CONTENT, LINE> | unknown,
 	CONTENT extends Element<any, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
 > implements Element<THIS, CONTENT> {
@@ -149,6 +152,8 @@ export abstract class Inline<
 	public readonly lines: LINE[] = []
 
 	constructor(public id: string) {}
+
+	get asText() { return '' }
 }
-export class ContainerInline extends Inline<ContainerInline, Inline<any, unknown, LineContent<unknown>>, LineContent<ContainerInline>> {}
-export class LeafInline extends Inline<LeafInline, never, StringLineContent<LeafInline>> {}
+export class ContainerInline<THIS extends ContainerInline<THIS> | unknown> extends Inline<THIS, Inline<any, unknown, LineContent<unknown>>, LineContent<THIS>> {}
+export class LeafInline<THIS extends LeafInline<THIS> | unknown> extends Inline<THIS, never, StringLineContent<THIS>> {}

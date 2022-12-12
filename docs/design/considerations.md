@@ -4,7 +4,7 @@
 
 A Markdown Document [consists of blocks](https://github.github.com/gfm/#blocks-and-inlines), 
 and those _blocks_ can contain other blocks and _inlines_. We call both blocks
-and inlines {@link $element.Element}.
+and inlines {@link Element}.
 
 A block can span multiple lines, and it can contain blocks that, again, span
 multiple lines. Here's an aside that contains a block quote and a paragraph.
