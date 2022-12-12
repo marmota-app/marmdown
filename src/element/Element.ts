@@ -138,7 +138,7 @@ export abstract class Block<
 	constructor(public readonly id: string, public readonly type: TYPE) {}
 }
 export class ContainerBlock extends Block<ContainerBlock, Block<any, unknown>> {}
-export class LeafBlock extends Block<LeafBlock, Inline<any, unknown, LineContent<unknown>> {}
+export class LeafBlock extends Block<LeafBlock, Inline<any, unknown, LineContent<unknown>>> {}
 
 export abstract class Inline<
 	THIS extends Inline<THIS, CONTENT, LINE>,

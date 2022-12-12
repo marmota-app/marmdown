@@ -4,7 +4,8 @@
   "description": "Parser for marmota-flavored-markdown (MfM)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest ./test",
+    "test:watch": "jest --watch ./test",
     "doc": "jsdoc src --tutorials docs -r -c .jsdoc.conf.json --readme README.md"
   },
   "author": "David Tanzer (business@davidtanzer.net)",
