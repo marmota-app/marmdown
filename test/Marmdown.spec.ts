@@ -20,14 +20,15 @@ import { ContainerBlock, } from "$markdown/element/Element"
 import { ContentUpdate } from "$markdown/ContentUpdate"
 import { Dialect } from "$parser/Dialect"
 import { MfMDialect } from "$markdown/MfMDialect"
+import { GenericBlock } from "$element/GenericElement"
 
-class TestContainer extends ContainerBlock<TestContainer> {}
+class TestContainer extends GenericBlock<TestContainer, unknown, string> {}
 class TestDialect implements Dialect<TestContainer> {
 	createEmptyDocument(): TestContainer {
-		return new TestContainer('dummy', 'dummy')
+		return new TestContainer('dummy', 'container')
 	}
 	parseCompleteText(text: string): TestContainer {
-		return new TestContainer('dummy', 'dummy')
+		return new TestContainer('dummy', 'container')
 	}
 	parseUpdate(document: TestContainer, update: ContentUpdate): TestContainer | null {
 		return document

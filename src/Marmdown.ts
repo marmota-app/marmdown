@@ -31,7 +31,7 @@ import { MfMDialect } from "./MfMDialect"
  * 
  * @param dialect The markdown dialect. 
 */
-export class Marmdown<CONTAINER extends ContainerBlock<unknown>> {
+export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown>> {
 	private _document: CONTAINER
 
 	constructor(private readonly dialect: Dialect<CONTAINER>) {

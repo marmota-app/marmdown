@@ -14,10 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerBlock } from "$element/Element";
+import { ContainerBlock, StringLineContent } from "$element/Element";
+import { GenericBlock, GenericInline } from "$element/GenericElement";
+import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
 
 /**
- * Main container element for the "Marmota flavored Markdown" dialect. 
+ * Main container element for the "MfM" dialect. 
  */
-export class MfMContainer extends ContainerBlock<MfMContainer> {
+export class MfMContainer extends GenericBlock<MfMContainer, MfMSection, 'container'> implements Container<MfMContainer, MfMSection> {
+	constructor(id: string) { super(id, 'container') }
 }
+
+export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section'> implements Section<MfMSection, MfMSectionContent> {
+	constructor(id: string) { super(id, 'section') }
+}
+
+export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph'> implements Paragraph<MfMParagraph, MfMParagraphContent> {
+	constructor(id: string) { super(id, 'paragraph') }
+}
+
+export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text'> implements Text<MfMText> {
+	constructor(id: string) { super(id, 'text') }
+}
+
+export type MfMSectionContent = MfMParagraph
+export type MfMParagraphContent = MfMText

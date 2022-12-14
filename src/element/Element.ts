@@ -65,7 +65,11 @@ limitations under the License.
  * 
  * @category $element
  */
-export interface Element<THIS extends Element<THIS, CONTENT> | unknown, CONTENT extends Element<any, unknown> | never | unknown> {
+export interface Element<
+	THIS extends Element<THIS, CONTENT, TYPE> | unknown, 
+	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
+	TYPE extends string | unknown,
+> {
 	/**
 	 * Unique identifier for this instance of the element. 
 	 * 
@@ -77,8 +81,16 @@ export interface Element<THIS extends Element<THIS, CONTENT> | unknown, CONTENT 
 	 * 
 	 * This feature allows users of the element tree to determine which
 	 * elements were changed by an update.
+	 * 
+	 * IDs **must** be unique **within a markdown document**.
 	 */
 	readonly id: string,
+	/**
+	 * The type of the element, used to distinguish different kinds of
+	 * element (headlines, paragraphs, etc.). 
+	 */
+	readonly type: TYPE,
+
 	content: CONTENT[],
 	lines: LineContent<THIS>[],
 	asText: string,
@@ -97,9 +109,9 @@ export interface Element<THIS extends Element<THIS, CONTENT> | unknown, CONTENT 
  * 
  * @category $element
  */
-export interface LineContent<BELONGS_TO extends Element<unknown, unknown> | unknown> {
+export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown> | unknown> {
 	belongsTo: BELONGS_TO,
-	content: LineContent<Element<any, unknown>>[]
+	content: LineContent<Element<unknown, unknown, unknown>>[]
 	asText: string,
 }
 
@@ -108,7 +120,7 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown> | unkn
  * 
  * @category $element
  */
-export class StringLineContent<BELONGS_TO extends Element<unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
+export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
 	content: never[] = []
 	constructor(public asText: string, public belongsTo: BELONGS_TO) {}
 }
@@ -117,8 +129,8 @@ export class StringLineContent<BELONGS_TO extends Element<unknown, unknown> | un
  * 
  * @category $element
  */
-export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown>> implements LineContent<BELONGS_TO> {
-	content: LineContent<Element<any, unknown>>[] = []
+export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown, unknown>> implements LineContent<BELONGS_TO> {
+	content: LineContent<Element<unknown, unknown, unknown>>[] = []
 	constructor(public belongsTo: BELONGS_TO) {}
 
 	get asText() {
@@ -128,32 +140,32 @@ export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown>> im
 	}
 }
 
-export abstract class Block<
+export interface Block<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
-	CONTENT extends Element<any, unknown> | unknown,
-	TYPE = string,
-> implements Element<THIS, CONTENT> {
-	public readonly content: CONTENT[] = []
-	public readonly lines: LineContent<THIS>[] = []
+	CONTENT extends Element<unknown, unknown, unknown> | unknown,
+	TYPE extends string | unknown,
+> extends Element<THIS, CONTENT, TYPE> {}
+export interface ContainerBlock<
+	THIS extends ContainerBlock<THIS, CONTENT, TYPE> | unknown,
+	CONTENT extends Block<unknown, unknown, unknown> | unknown,
+	TYPE extends string | unknown,
+> extends Block<THIS, CONTENT, TYPE> {}
+export interface LeafBlock<
+	THIS extends LeafBlock<THIS, CONTENT, TYPE> | unknown,
+	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
+	TYPE extends string,
+> extends Block<THIS, CONTENT, TYPE> {}
 
-	constructor(public readonly id: string, public readonly type: TYPE) {}
-
-	get asText() { return '' }
-}
-export class ContainerBlock<THIS extends ContainerBlock<THIS> | unknown> extends Block<THIS, Block<any, unknown>> {}
-export class LeafBlock<THIS extends LeafBlock<THIS> | unknown> extends Block<THIS, Inline<any, unknown, LineContent<unknown>>> {}
-
-export abstract class Inline<
-	THIS extends Inline<THIS, CONTENT, LINE> | unknown,
-	CONTENT extends Element<any, unknown> | never | unknown,
+export interface Inline<
+	THIS extends Inline<THIS, CONTENT, LINE, TYPE> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
-> implements Element<THIS, CONTENT> {
-	public readonly content: CONTENT[] = []
-	public readonly lines: LINE[] = []
-
-	constructor(public id: string) {}
-
-	get asText() { return '' }
-}
-export class ContainerInline<THIS extends ContainerInline<THIS> | unknown> extends Inline<THIS, Inline<any, unknown, LineContent<unknown>>, LineContent<THIS>> {}
-export class LeafInline<THIS extends LeafInline<THIS> | unknown> extends Inline<THIS, never, StringLineContent<THIS>> {}
+	TYPE extends string | unknown,
+> extends Element<THIS, CONTENT, TYPE> {}
+export interface ContainerInline<
+	THIS extends ContainerInline<THIS, CONTENT, TYPE> | unknown,
+	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
+	TYPE extends string,
+> extends Inline<THIS, CONTENT, LineContent<THIS>, TYPE> {}
+export interface LeafInline<THIS extends LeafInline<THIS, TYPE> | unknown, TYPE extends string>
+	extends Inline<THIS, never, StringLineContent<THIS>, TYPE> {}

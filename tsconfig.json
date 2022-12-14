@@ -14,7 +14,7 @@
 		"allowSyntheticDefaultImports": true,
 		"target": "ES2021",
 		"paths": {
-			"$mfm/*": ["src/element/*"],
+			"$mfm/*": ["src/mfm/*"],
 			"$element/*": ["src/element/*"],
 			"$parser/*": ["src/parser/*"],
 			"$markdown/*": ["src/*"],

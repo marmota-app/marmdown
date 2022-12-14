@@ -27,7 +27,7 @@ import { ContainerBlock } from "$element/Element";
  * 
  * @category $parsers
  */
-export interface Dialect<CONTAINER extends ContainerBlock<unknown>> {
+export interface Dialect<CONTAINER extends ContainerBlock<unknown, unknown, unknown>> {
 	/**
 	 * Create an empty document container. 
 	 */
