@@ -17,6 +17,8 @@ limitations under the License.
 import { ContainerBlock, StringLineContent } from "$element/Element";
 import { GenericBlock, GenericInline } from "$element/GenericElement";
 import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
+import { IdGenerator } from "$markdown/IdGenerator";
+import { Parser } from "$parser/Parser";
 
 /**
  * Main container element for the "MfM" dialect. 
@@ -25,6 +27,14 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMSection, 'contai
 	constructor(id: string) { super(id, 'container') }
 }
 
+export class MfMContainerParser implements Parser<MfMContainer> {
+	constructor(private idGenerator: IdGenerator) {}
+	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
+		return null
+	}
+}
+
+//TODO move to their own files! ---------------------------------------
 export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section'> implements Section<MfMSection, MfMSectionContent> {
 	constructor(id: string) { super(id, 'section') }
 }

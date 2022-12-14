@@ -16,20 +16,26 @@ limitations under the License.
 
 import { ContentUpdate } from "./ContentUpdate";
 import { Dialect } from "$parser/Dialect";
-import { MfMContainer } from "$mfm/MfMContainer";
+import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
+import { LineByLineParser } from "./LineByLineParser";
+import { Parser } from "$parser/Parser";
 
 /**
  * All known parsers for the "Marmota Flavored Markdown" dialect. 
  */
 export class MfMDialect implements Dialect<MfMContainer> {
-	constructor(private idGenerator: IdGenerator = new NumberedIdGenerator()) {}
+	constructor(
+		private idGenerator: IdGenerator = new NumberedIdGenerator(),
+		private containerParser: Parser<MfMContainer> = new MfMContainerParser(idGenerator),
+		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(containerParser),
+	) {}
 
 	createEmptyDocument(): MfMContainer {
 		return new MfMContainer(this.idGenerator.nextId())
 	}
 	parseCompleteText(text: string): MfMContainer {
-		return new MfMContainer(this.idGenerator.nextId())
+		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
 	}
 	parseUpdate(document: MfMContainer, update: ContentUpdate): MfMContainer | null {
 		return null
