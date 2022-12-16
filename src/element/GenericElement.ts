@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Block, Element, Inline, LineContent } from "./Element";
 
-export class GenericBlock<
+export abstract class GenericBlock<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
@@ -29,7 +29,7 @@ export class GenericBlock<
 	get asText() { return '' }
 }
 
-export class GenericInline<
+export abstract class GenericInline<
 	THIS extends Inline<THIS, CONTENT, LINE, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,

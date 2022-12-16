@@ -27,6 +27,11 @@ import { Element } from "$element/Element";
  */
 export interface Parser<RESULT extends Element<unknown, unknown, unknown>> {
 	/**
+	 * The name of the element type returned by this parser. 
+	 */
+	readonly elementName: string,
+
+	/**
 	 * Try to parse a given line of text into the supported element type
 	 * and add it to the previous element (if avaialbe).
 	 * 

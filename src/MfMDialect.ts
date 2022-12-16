@@ -20,6 +20,7 @@ import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 import { LineByLineParser } from "./LineByLineParser";
 import { Parser } from "$parser/Parser";
+import { MfMParsers } from "$mfm/MfMParsers";
 
 /**
  * All known parsers for the "Marmota Flavored Markdown" dialect. 
@@ -27,8 +28,8 @@ import { Parser } from "$parser/Parser";
 export class MfMDialect implements Dialect<MfMContainer> {
 	constructor(
 		private idGenerator: IdGenerator = new NumberedIdGenerator(),
-		private containerParser: Parser<MfMContainer> = new MfMContainerParser(idGenerator),
-		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(containerParser),
+		private parsers: MfMParsers = new MfMParsers(idGenerator),
+		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(parsers['MfMContainer']),
 	) {}
 
 	createEmptyDocument(): MfMContainer {
@@ -38,6 +39,7 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
 	}
 	parseUpdate(document: MfMContainer, update: ContentUpdate): MfMContainer | null {
+		//TODO implement parsing updates
 		return null
 	}
 }

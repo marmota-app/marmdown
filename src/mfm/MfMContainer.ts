@@ -19,6 +19,8 @@ import { GenericBlock, GenericInline } from "$element/GenericElement";
 import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
 import { IdGenerator } from "$markdown/IdGenerator";
 import { Parser } from "$parser/Parser";
+import { Parsers } from "$parser/Parsers";
+import { MfMSection, MfMSectionParser } from "./block/MfMSection";
 
 /**
  * Main container element for the "MfM" dialect. 
@@ -27,25 +29,20 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMSection, 'contai
 	constructor(id: string) { super(id, 'container') }
 }
 
+/**
+ * Parse line content into `MfMContainer` (the main container type of the MfM dialect). 
+ */
 export class MfMContainerParser implements Parser<MfMContainer> {
-	constructor(private idGenerator: IdGenerator) {}
+	public readonly elementName = 'MfMContainer'
+	constructor(private parsers: Parsers<MfMSectionParser>) {}
+
+	/** Lazily get section parser to avoid initializing everything in the constructor (might lead to stack overflow). */
+	get sectionParser(): MfMSectionParser { return this.parsers.MfMSection }
+
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
+		this.sectionParser.parseLine(null, text, start, length)
+
 		return null
 	}
 }
 
-//TODO move to their own files! ---------------------------------------
-export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section'> implements Section<MfMSection, MfMSectionContent> {
-	constructor(id: string) { super(id, 'section') }
-}
-
-export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph'> implements Paragraph<MfMParagraph, MfMParagraphContent> {
-	constructor(id: string) { super(id, 'paragraph') }
-}
-
-export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text'> implements Text<MfMText> {
-	constructor(id: string) { super(id, 'text') }
-}
-
-export type MfMSectionContent = MfMParagraph
-export type MfMParagraphContent = MfMText

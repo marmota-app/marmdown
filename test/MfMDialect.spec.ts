@@ -1,7 +1,8 @@
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { LineByLineParser } from "$markdown/LineByLineParser"
 import { MfMDialect } from "$markdown/MfMDialect"
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
+import { MfMContainer } from "$mfm/MfMContainer"
+import { MfMParsers } from "$mfm/MfMParsers"
 import { anyString, instance, mock, when } from "omnimock"
 
 describe('MfMDialect', () => {
@@ -20,7 +21,7 @@ describe('MfMDialect', () => {
 		when(lblParserMock.parse(anyString())).return(expectedDocument)
 
 		const idg = new NumberedIdGenerator()
-		const dialect = new MfMDialect(idg, new MfMContainerParser(idg), instance(lblParserMock))
+		const dialect = new MfMDialect(idg, new MfMParsers(idg), instance(lblParserMock))
 		const doc = dialect.parseCompleteText('dummy text')
 
 		expect(doc).toEqual(expectedDocument)
