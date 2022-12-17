@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Parser } from "$parser/Parser"
+
 /**
  * A marmdown document consists of `Element`s, and they can either be blocks
  * or inlines. 
@@ -94,6 +96,7 @@ export interface Element<
 	content: CONTENT[],
 	lines: LineContent<THIS>[],
 	asText: string,
+	parsedWith?: Parser<THIS>,
 }
 
 /**

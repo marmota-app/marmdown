@@ -34,15 +34,38 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMSection, 'contai
  */
 export class MfMContainerParser implements Parser<MfMContainer> {
 	public readonly elementName = 'MfMContainer'
-	constructor(private parsers: Parsers<MfMSectionParser>) {}
+	constructor(private _parsers: Parsers<MfMSectionParser>) {}
 
 	/** Lazily get section parser to avoid initializing everything in the constructor (might lead to stack overflow). */
-	get sectionParser(): MfMSectionParser { return this.parsers.MfMSection }
+	private get allParsers(): Parser<MfMSection>[] { return [
+		this._parsers.MfMSection,
+	]}
 
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
-		this.sectionParser.parseLine(null, text, start, length)
+		//----------------------
+		//--- Reusable code? ---
+		const container = previous ?? new MfMContainer(this._parsers.idGenerator.nextId())
+
+		const previousContent = container.content.length > 0? container.content[container.content.length-1] : null
+		if(previousContent && previousContent.parsedWith) {
+			const content = previousContent.parsedWith.parseLine(previousContent, text, start, length)
+			if(content) {
+				container.content.push(content)
+				return container
+			}
+		}
+		for(let i=0; i<this.allParsers.length; i++) {
+			const parser = this.allParsers[i]
+			const content = parser.parseLine(null, text, start, length)
+			if(content) {
+				container.content.push(content)
+				return container
+			}	
+		}
 
 		return null
+		//--- Reusable code? ---
+		//----------------------
 	}
 }
 

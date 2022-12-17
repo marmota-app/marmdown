@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Parser } from "$parser/Parser";
 import { Block, Element, Inline, LineContent } from "./Element";
 
 export abstract class GenericBlock<
@@ -27,6 +28,8 @@ export abstract class GenericBlock<
 	constructor(public readonly id: string, public readonly type: TYPE) {}
 
 	get asText() { return '' }
+
+	parsedWith?: Parser<THIS>
 }
 
 export abstract class GenericInline<
@@ -41,4 +44,6 @@ export abstract class GenericInline<
 	constructor(public readonly id: string, public readonly type: TYPE) {}
 
 	get asText() { return '' }
+
+	parsedWith?: Parser<THIS>
 }

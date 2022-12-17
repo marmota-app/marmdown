@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Element } from '$element/Element'
+import { IdGenerator } from '$markdown/IdGenerator'
 import { Parser } from './Parser'
 
 /**
@@ -33,4 +34,4 @@ import { Parser } from './Parser'
  */
 export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown>>> = {
 	[key in PARSER['elementName']]: PARSER
-}
+} & { idGenerator: IdGenerator }

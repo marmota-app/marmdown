@@ -25,7 +25,7 @@ import { Element } from "$element/Element";
  * 
  * Supports line-by-line-parsing by adding a new line to a given element.
  */
-export interface Parser<RESULT extends Element<unknown, unknown, unknown>> {
+export interface Parser<RESULT extends Element<unknown, unknown, unknown> | unknown> {
 	/**
 	 * The name of the element type returned by this parser. 
 	 */
