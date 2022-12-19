@@ -22,10 +22,11 @@ import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
 
+export type MfMContainerContent = MfMSection
 /**
  * Main container element for the "MfM" dialect. 
  */
-export class MfMContainer extends GenericBlock<MfMContainer, MfMSection, 'container'> implements Container<MfMContainer, MfMSection> {
+export class MfMContainer extends GenericBlock<MfMContainer, MfMContainerContent, 'container'> implements Container<MfMContainer, MfMContainerContent> {
 	constructor(id: string) { super(id, 'container') }
 }
 
@@ -37,7 +38,7 @@ export class MfMContainerParser implements Parser<MfMContainer> {
 	constructor(private _parsers: Parsers<MfMSectionParser>) {}
 
 	/** Lazily get section parser to avoid initializing everything in the constructor (might lead to stack overflow). */
-	private get allParsers(): Parser<MfMSection>[] { return [
+	private get allParsers(): Parser<MfMContainerContent>[] { return [
 		this._parsers.MfMSection,
 	]}
 

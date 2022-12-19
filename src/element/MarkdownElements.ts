@@ -26,6 +26,11 @@ export interface Section<
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'section'> {}
 
+export interface Heading<
+	THIS extends Heading<THIS, CONTENT>,
+	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
+> extends LeafBlock<THIS, CONTENT, 'heading'> {}
+
 export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,

@@ -34,4 +34,14 @@ import { Parser } from './Parser'
  */
 export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown>>> = {
 	[key in PARSER['elementName']]: PARSER
-} & { idGenerator: IdGenerator }
+} & { 
+	idGenerator: IdGenerator,
+
+	allBlocks: Parser<Element<unknown, unknown, unknown>>[],
+	allContainerBlocks: Parser<Element<unknown, unknown, unknown>>[],
+	allLeafBlocks: Parser<Element<unknown, unknown, unknown>>[],
+
+	allInlines: Parser<Element<unknown, unknown, unknown>>[],
+	allContainerInlines: Parser<Element<unknown, unknown, unknown>>[],
+	allLeafInlines: Parser<Element<unknown, unknown, unknown>>[],
+}

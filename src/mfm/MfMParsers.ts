@@ -16,7 +16,10 @@ limitations under the License.
 
 import { IdGenerator } from "$markdown/IdGenerator";
 import { Parsers } from "$parser/Parsers";
+import { MfMHeadingParser } from "./block/MfMHeading";
+import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
+import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 
 export type MfMMetaBlock =
@@ -24,17 +27,20 @@ export type MfMMetaBlock =
 	MfMSectionParser
 
 export type MfMContainerBlock = never
-export type MfMLeafBlock = never
+export type MfMLeafBlock =
+	MfMHeadingParser |
+	MfMParagraphParser
 
 export type MfMContainerInline = never
-export type MfMLeafInline = never
+export type MfMLeafInline =
+	MfMTextParser
 
 export type KnownParsers =
-	MfMMetaBlock //|
+	MfMMetaBlock |
 	//MfMContainerBlock |
-	//MfMLeafBlock |
+	MfMLeafBlock |
 	//MfMContainerInline |
-	//MfMLeafInline
+	MfMLeafInline
 
 /**
  * A class for accessing all known parsers that form the MfM markdown dialect,
@@ -51,6 +57,26 @@ export class MfMParsers implements Parsers<KnownParsers> {
 
 	get MfMContainer() { return this.getParser('MfMContainer', () => new MfMContainerParser(this)) }
 	get MfMSection() { return this.getParser('MfMSection', () => new MfMSectionParser(this)) }
+
+	get MfMParagraph() { return this.getParser('MfMParagraph', () => new MfMParagraphParser(this)) }
+	get MfMHeading() { return this.getParser('MfMHeading', () => new MfMHeadingParser(this)) }
+	
+	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
+
+	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
+	get allContainerBlocks(): KnownParsers[] { return [
+		this.MfMContainer, this.MfMSection,
+	] }
+	get allLeafBlocks(): KnownParsers[] { return [
+		this.MfMHeading,
+		this.MfMParagraph,
+	] }
+
+	get allInlines(): KnownParsers[] { return [ ...this.allContainerInlines, ...this.allLeafInlines, ] }
+	get allContainerInlines(): KnownParsers[] { return [] }
+	get allLeafInlines(): KnownParsers[] { return [
+		this.MfMText,
+	] }
 
 	private getParser<T extends KnownParsers>(name: T['elementName'], create: ()=>T): T {
 		if(this.knownParsers[name] == null) {
