@@ -1,5 +1,20 @@
 # Design Considerations
 
+## Empty Lines
+
+When any parser encounters an empty line, it will pass it to the previous
+inner parser (if available).
+
+This inner parser can then check if the empty line has any consequences
+for that current element. Suppose the current parser is a parser for
+sections, and the last element inside was a paragraph. When the section
+parser encounters an empty line, it will pass it on to the paragraph, which
+in turn would end the current paragraph, allowing new content to be parsed.
+
+If there is no previous inner parser, or if the previous inner parser ended
+the current element (it returned null), the empty line is ignored and **not**
+passed on to all subsequent parsers.
+
 ## Blocks and Inlines
 
 A Markdown Document [consists of blocks](https://github.github.com/gfm/#blocks-and-inlines), 

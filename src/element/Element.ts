@@ -87,16 +87,32 @@ export interface Element<
 	 * IDs **must** be unique **within a markdown document**.
 	 */
 	readonly id: string,
+
 	/**
 	 * The type of the element, used to distinguish different kinds of
 	 * element (headlines, paragraphs, etc.). 
 	 */
 	readonly type: TYPE,
 
+	/** The inner elements that make up the content of this element. */
 	content: CONTENT[],
+	/** The lines that, together, created the content of this element. */
 	lines: LineContent<THIS>[],
+
+	/**
+	 * The complete markdown text represented by this element (must be able
+	 * to recreate a part of the parsed original text). 
+	 */
 	asText: string,
+
+	/** The {@link Parser} this element was parsed with. */
 	parsedWith?: Parser<THIS>,
+	/** 
+	 * Describes whether the element is fully parsed and thus cannot be extended
+	 * by a next line anymore, or whether the parser can still try to add
+	 * the next line to this element. 
+	 */
+	isFullyParsed: boolean,
 }
 
 /**

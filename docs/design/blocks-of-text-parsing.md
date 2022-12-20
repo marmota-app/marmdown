@@ -1,4 +1,4 @@
-# Line-by-Line Parsing
+# Blocks-of-Text Parsing
 
 **TODO Continuous Blocks** might not be needed in the code. If that turns out
 to be true, remove them from here.
@@ -224,4 +224,6 @@ inline content.
 
 Next, see how this data structure is created during
 [non-copying parsing]{@tutorial non-copying-parsing} and supports
-[parsing updates]{@tutorial parsing-updates.md}.
+[parsing updates]{@tutorial parsing-updates.md}. Also, block parsers might
+create [meta blocks]{@tutorial meta-blocks.md} around the actual block, which
+requires special treatment.
