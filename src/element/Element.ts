@@ -112,7 +112,7 @@ export interface Element<
 	 * by a next line anymore, or whether the parser can still try to add
 	 * the next line to this element. 
 	 */
-	isFullyParsed: boolean,
+	readonly isFullyParsed: boolean,
 }
 
 /**

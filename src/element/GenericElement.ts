@@ -30,6 +30,8 @@ export abstract class GenericBlock<
 	get asText() { return '' }
 
 	parsedWith?: Parser<THIS>
+
+	get isFullyParsed() { return true }
 }
 
 export abstract class GenericInline<
@@ -46,4 +48,6 @@ export abstract class GenericInline<
 	get asText() { return '' }
 
 	parsedWith?: Parser<THIS>
+
+	get isFullyParsed() { return true }
 }

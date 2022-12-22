@@ -24,8 +24,14 @@ import { Element } from "$element/Element";
  * returns `null`.
  * 
  * Supports line-by-line-parsing by adding a new line to a given element.
+ * 
+ * @template RESULT the result type of this parser, also the type of the previous element
+ * @template META_RESULT the type this parser returns, defaults to RESULT but can be a [meta block]{@tutorial meta-blocks.md}
  */
-export interface Parser<RESULT extends Element<unknown, unknown, unknown> | unknown> {
+export interface Parser<
+	RESULT extends Element<unknown, unknown, unknown> | unknown,
+	META_RESULT extends Element<unknown, unknown, unknown> | unknown=RESULT,
+> {
 	/**
 	 * The name of the element type returned by this parser. 
 	 */
@@ -50,5 +56,5 @@ export interface Parser<RESULT extends Element<unknown, unknown, unknown> | unkn
 	 * @param start The start index of the line to parse, ignore everything before `start`
 	 * @param length The length of the line to parse, ignore everything after `start+length`
 	 */
-	parseLine(previous: RESULT | null, text: string, start: number, length: number): RESULT | null,
+	parseLine(previous: RESULT | null, text: string, start: number, length: number): META_RESULT | null,
 }

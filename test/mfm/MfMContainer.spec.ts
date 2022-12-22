@@ -95,6 +95,25 @@ describe('MfMContainer parser', () => {
 	
 			verify(sectionParserMock)
 		})
+		it('parses the file content into a new section when there are no options (previous section found but is fully parsed)', () => {
+			const text = 'some container line\nsecond line'
+	
+			const section = mock(MfMSection)
+			const sectionParserMock = mock(MfMSectionParser)
+			when(section.isFullyParsed).return(true)
+	
+			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
+			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).never()
+			when(sectionParserMock.parseLine(null, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
+	
+			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), idGenerator: new NumberedIdGenerator(), }
+	
+			const containerParser = new MfMContainerParser(parsers)
+			const container = containerParser.parseLine(null, text, 0, 'some container line'.length)
+			containerParser.parseLine(container, text, 'some container line\n'.length, 'second line'.length)
+	
+			verify(sectionParserMock)
+		})
 		it.skip('parses the document options', () => {})
 		it.skip('ignores empty lines between options and the first content line when there are options', () => {})	
 	})

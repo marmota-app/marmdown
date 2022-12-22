@@ -48,7 +48,7 @@ export class MfMContainerParser implements Parser<MfMContainer> {
 		const container = previous ?? new MfMContainer(this._parsers.idGenerator.nextId())
 
 		const previousContent = container.content.length > 0? container.content[container.content.length-1] : null
-		if(previousContent && previousContent.parsedWith) {
+		if(previousContent && previousContent.parsedWith && !previousContent.isFullyParsed) {
 			const content = previousContent.parsedWith.parseLine(previousContent, text, start, length)
 			if(content) {
 				container.content.push(content)

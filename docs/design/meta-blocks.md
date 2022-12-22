@@ -62,3 +62,16 @@ adds the text to the current heading.
 
 Then, from line 105 on, two paragraphs are parsed and `section n` is ended
 just like above when the parser encounters the next heading of level 1.
+
+The {@link Parser} interface has two generic parameters to support parsers
+that return meta results:
+
+```
+export interface Parser<
+	RESULT extends Element<unknown, unknown, unknown> | unknown,
+	META_RESULT extends Element<unknown, unknown, unknown> | unknown=RESULT,
+> {
+```
+
+When both parameters are set, the parser can accept a different previous
+element (it's own element) than the element it returns (the meta element).
