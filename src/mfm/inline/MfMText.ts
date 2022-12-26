@@ -6,6 +6,8 @@ import { Parsers } from "$parser/Parsers";
 
 export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text'> implements Text<MfMText> {
 	constructor(id: string) { super(id, 'text') }
+
+	readonly text: string = ''
 }
 
 export class MfMTextParser implements Parser<MfMText> {

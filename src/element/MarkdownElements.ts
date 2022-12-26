@@ -36,4 +36,6 @@ export interface Paragraph<
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
 > extends LeafBlock<THIS, CONTENT, 'paragraph'> {}
 
-export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {}
+export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
+	readonly text: string,
+}

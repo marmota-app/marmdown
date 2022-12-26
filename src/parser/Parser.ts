@@ -29,8 +29,8 @@ import { Element } from "$element/Element";
  * @template META_RESULT the type this parser returns, defaults to RESULT but can be a [meta block]{@tutorial meta-blocks.md}
  */
 export interface Parser<
-	RESULT extends Element<unknown, unknown, unknown> | unknown,
-	META_RESULT extends Element<unknown, unknown, unknown> | unknown=RESULT,
+	RESULT extends Element<unknown, unknown, unknown, unknown> | unknown,
+	META_RESULT extends Element<unknown, unknown, unknown, unknown> | unknown=RESULT,
 > {
 	/**
 	 * The name of the element type returned by this parser. 

@@ -32,16 +32,16 @@ import { Parser } from './Parser'
  * See {@link MfMParsers} for how one could implement such an object type
  * as a class.
  */
-export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown>>> = {
+export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown, unknown>>> = {
 	[key in PARSER['elementName']]: PARSER
 } & { 
 	idGenerator: IdGenerator,
 
-	allBlocks?: Parser<Element<unknown, unknown, unknown>>[],
-	allContainerBlocks?: Parser<Element<unknown, unknown, unknown>>[],
-	allLeafBlocks?: Parser<Element<unknown, unknown, unknown>>[],
+	allBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	allContainerBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	allLeafBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
 
-	allInlines?: Parser<Element<unknown, unknown, unknown>>[],
-	allContainerInlines?: Parser<Element<unknown, unknown, unknown>>[],
-	allLeafInlines?: Parser<Element<unknown, unknown, unknown>>[],
+	allInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	allContainerInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	allLeafInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
 }

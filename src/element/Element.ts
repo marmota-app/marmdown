@@ -68,8 +68,9 @@ import { Parser } from "$parser/Parser"
  * @category $element
  */
 export interface Element<
-	THIS extends Element<THIS, CONTENT, TYPE> | unknown, 
-	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
+	THIS extends Element<THIS, CONTENT, LINE, TYPE> | unknown, 
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
+	LINE extends LineContent<THIS> | unknown,
 	TYPE extends string | unknown,
 > {
 	/**
@@ -97,7 +98,7 @@ export interface Element<
 	/** The inner elements that make up the content of this element. */
 	content: CONTENT[],
 	/** The lines that, together, created the content of this element. */
-	lines: LineContent<THIS>[],
+	lines: LINE[],
 
 	/**
 	 * The complete markdown text represented by this element (must be able
@@ -128,9 +129,9 @@ export interface Element<
  * 
  * @category $element
  */
-export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown> | unknown> {
+export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> {
 	belongsTo: BELONGS_TO,
-	content: LineContent<Element<unknown, unknown, unknown>>[]
+	content: LineContent<Element<unknown, unknown, unknown, unknown>>[]
 	asText: string,
 }
 
@@ -139,7 +140,7 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
  * 
  * @category $element
  */
-export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
+export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
 	content: never[] = []
 	constructor(public asText: string, public belongsTo: BELONGS_TO) {}
 }
@@ -148,8 +149,8 @@ export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unkn
  * 
  * @category $element
  */
-export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown, unknown>> implements LineContent<BELONGS_TO> {
-	content: LineContent<Element<unknown, unknown, unknown>>[] = []
+export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown>> implements LineContent<BELONGS_TO> {
+	content: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
 	constructor(public belongsTo: BELONGS_TO) {}
 
 	get asText() {
@@ -161,9 +162,9 @@ export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown, unk
 
 export interface Block<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
-	CONTENT extends Element<unknown, unknown, unknown> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, TYPE> {}
+> extends Element<THIS, CONTENT, LineContent<THIS>, TYPE> {}
 export interface ContainerBlock<
 	THIS extends ContainerBlock<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Block<unknown, unknown, unknown> | unknown,
@@ -177,10 +178,10 @@ export interface LeafBlock<
 
 export interface Inline<
 	THIS extends Inline<THIS, CONTENT, LINE, TYPE> | unknown,
-	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, TYPE> {}
+> extends Element<THIS, CONTENT, LINE, TYPE> {}
 export interface ContainerInline<
 	THIS extends ContainerInline<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
