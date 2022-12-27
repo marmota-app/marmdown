@@ -17,7 +17,6 @@ limitations under the License.
 import { ContainerBlock } from "$element/Element"
 import { Dialect } from "$parser/Dialect"
 import { ContentUpdate as ContentUpdate } from "./ContentUpdate"
-import { MfMDialect } from "./MfMDialect"
 
 /**
  * Main entry point for parsing and managing a single Markdown document. 
