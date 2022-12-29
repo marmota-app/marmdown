@@ -19,35 +19,33 @@ import { Block, Element, Inline, LineContent } from "./Element";
 
 export abstract class GenericBlock<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
-	CONTENT extends Element<unknown, unknown, unknown> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
+	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
 	public readonly lines: LineContent<THIS>[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public readonly id: string, public readonly type: TYPE) {}
+	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
 	get asText() { return '' }
-
-	parsedWith?: Parser<THIS>
 
 	get isFullyParsed() { return true }
 }
 
 export abstract class GenericInline<
 	THIS extends Inline<THIS, CONTENT, LINE, TYPE> | unknown,
-	CONTENT extends Element<unknown, unknown, unknown> | never | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
 	TYPE extends string | unknown,
+	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Inline<THIS, CONTENT, LINE, TYPE> {
 	public readonly lines: LINE[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public readonly id: string, public readonly type: TYPE) {}
+	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
 	get asText() { return '' }
-
-	parsedWith?: Parser<THIS>
 
 	get isFullyParsed() { return true }
 }

@@ -21,6 +21,19 @@ import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 import { LineByLineParser } from "./LineByLineParser";
 import { Parser } from "$parser/Parser";
 import { MfMParsers } from "$mfm/MfMParsers";
+import { MfMSection } from "$mfm/block/MfMSection";
+import { MfMHeading, MfMHeadingText } from "$mfm/block/MfMHeading";
+import { MfMParagraph } from "$mfm/block/MfMParagraph";
+import { MfMText } from "$mfm/inline/MfMText";
+
+export type MfMBlockElements =
+	MfMSection |
+	MfMHeading |
+	MfMParagraph
+
+export type MfMInlineElements =
+	MfMHeadingText |
+	MfMText
 
 /**
  * All known parsers for the "Marmota Flavored Markdown" dialect. 

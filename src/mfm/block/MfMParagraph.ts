@@ -5,8 +5,8 @@ import { Parser } from "$parser/Parser"
 import { Parsers } from "$parser/Parsers"
 
 export type MfMParagraphContent = MfMText
-export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph'> implements Paragraph<MfMParagraph, MfMParagraphContent> {
-	constructor(id: string) { super(id, 'paragraph') }
+export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {
+	constructor(id: string, pw: MfMParagraphParser) { super(id, 'paragraph', pw) }
 }
 
 export class MfMParagraphParser implements Parser<MfMParagraph> {

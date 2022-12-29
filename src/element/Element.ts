@@ -107,7 +107,7 @@ export interface Element<
 	asText: string,
 
 	/** The {@link Parser} this element was parsed with. */
-	parsedWith?: Parser<THIS>,
+	parsedWith: Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 	/** 
 	 * Describes whether the element is fully parsed and thus cannot be extended
 	 * by a next line anymore, or whether the parser can still try to add

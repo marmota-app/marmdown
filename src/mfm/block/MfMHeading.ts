@@ -7,8 +7,8 @@ import { Parsers } from "$parser/Parsers"
 import { MfMSection, MfMSectionParser } from "./MfMSection"
 
 export type MfMHeadingContent = MfMHeadingText
-export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'heading'> implements Heading<MfMHeading, MfMHeadingContent> {
-	constructor(id: string, public readonly level: number) { super(id, 'heading') }
+export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'heading', MfMHeadingParser> implements Heading<MfMHeading, MfMHeadingContent> {
+	constructor(id: string, public readonly level: number, pw: MfMHeadingParser) { super(id, 'heading', pw) }
 }
 
 export const tokens = [ '######', '#####', '####', '###', '##', '#', ]
@@ -25,7 +25,7 @@ export class MfMHeadingParser implements Parser<MfMHeading, MfMSection> {
 				const section = (this.parsers.MfMSection as MfMSectionParser).create(token.length)
 
 				//TODO implement LineContent parsing!
-				const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length)
+				const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, this)
 				section.content.push(heading)
 
 				const textContent = (this.parsers.MfMHeadingText as MfMHeadingTextParser).parseLine(null, text, start+i, length-i)
@@ -39,8 +39,8 @@ export class MfMHeadingParser implements Parser<MfMHeading, MfMSection> {
 }
 
 export type MfMHeadingTextContent = MfMText //TODO actually, all container leaf elements are allowed here!
-export class MfMHeadingText extends GenericInline<MfMHeadingText, MfMHeadingTextContent, LineContent<MfMHeadingText>, 'heading-text'> {
-	constructor(id: string) { super(id, 'heading-text') }
+export class MfMHeadingText extends GenericInline<MfMHeadingText, MfMHeadingTextContent, LineContent<MfMHeadingText>, 'heading-text', MfMHeadingTextParser> {
+	constructor(id: string, pw: MfMHeadingTextParser) { super(id, 'heading-text', pw) }
 }
 export class MfMHeadingTextParser implements Parser<MfMHeadingText> {
 	public readonly elementName = 'MfMHeadingText'
@@ -50,7 +50,7 @@ export class MfMHeadingTextParser implements Parser<MfMHeadingText> {
 		//TODO can there be a `previous`?
 		if(!this.parsers.allInlines) { throw new Error(`Cannot parse ${text.substring(start, start+length)} at ${start} because all inline parsers array is not defined`) }
 		
-		const textContent = new MfMHeadingText(this.parsers.idGenerator.nextId())
+		const textContent = new MfMHeadingText(this.parsers.idGenerator.nextId(), this)
 
 		let i=0
 		while(i < length) {

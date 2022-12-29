@@ -4,8 +4,8 @@ import { Text } from "$element/MarkdownElements";
 import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
 
-export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text'> implements Text<MfMText> {
-	constructor(id: string) { super(id, 'text') }
+export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text', MfMTextParser> implements Text<MfMText> {
+	constructor(id: string, pw: MfMTextParser) { super(id, 'text', pw) }
 
 	readonly text: string = ''
 }

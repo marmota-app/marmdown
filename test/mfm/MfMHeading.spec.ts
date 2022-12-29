@@ -29,7 +29,7 @@ describe('MfMHeading parser', () => {
 		['#', '##', '###', '####', '#####', '######'].forEach(token => {
 			it(`creates a section with the heading\'s level "${token}", containing the heading`, () => {
 				const { headingParser, sectionParserMock, } = createHeadingParser()
-				when(sectionParserMock.create(anyNumber())).callFake(level => new MfMSection('dummy', level))
+				when(sectionParserMock.create(anyNumber())).callFake(level => new MfMSection('dummy', instance(sectionParserMock), level))
 
 				const text = `${token} Heading Text`
 				const result = headingParser.parseLine(null, text, 0, text.length)
@@ -40,7 +40,7 @@ describe('MfMHeading parser', () => {
 			})
 			it(`creates a heading with level ${token}`, () => {
 				const { headingParser, sectionParserMock, } = createHeadingParser()
-				when(sectionParserMock.create(anyNumber())).return(new MfMSection('dummy'))
+				when(sectionParserMock.create(anyNumber())).return(new MfMSection('dummy', instance(sectionParserMock)))
 
 				const text = `${token} Heading Text`
 				const result = headingParser.parseLine(null, text, 0, text.length) as MfMSection
@@ -53,7 +53,7 @@ describe('MfMHeading parser', () => {
 		it('parses simple text as the heading text', () => {
 			const { headingParser, returnedHeadingTextMock, sectionParserMock, } = createHeadingParser()
 			when(returnedHeadingTextMock.text).return('Heading Text')
-			when(sectionParserMock.create(anyNumber())).return(new MfMSection('dummy'))
+			when(sectionParserMock.create(anyNumber())).return(new MfMSection('dummy', instance(sectionParserMock)))
 
 			const text = `# Heading Text`
 			const result = headingParser.parseLine(null, text, 0, text.length) as MfMSection
