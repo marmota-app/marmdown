@@ -46,7 +46,7 @@ export class MfMDialect implements Dialect<MfMContainer> {
 	) {}
 
 	createEmptyDocument(): MfMContainer {
-		return new MfMContainer(this.idGenerator.nextId())
+		return this.parsers['MfMContainer'].create()
 	}
 	parseCompleteText(text: string): MfMContainer {
 		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()

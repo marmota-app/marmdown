@@ -1,7 +1,7 @@
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { LineByLineParser } from "$markdown/LineByLineParser"
 import { MfMDialect } from "$markdown/MfMDialect"
-import { MfMContainer } from "$mfm/MfMContainer"
+import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
 import { MfMParsers } from "$mfm/MfMParsers"
 import { anyString, instance, mock, when } from "omnimock"
 
@@ -16,7 +16,8 @@ describe('MfMDialect', () => {
 	})
 
 	it('uses the line-by-line-parser to parse a document', () => {
-		const expectedDocument = new MfMContainer('expected-id')
+		const containerParserMock = mock(MfMContainerParser)
+		const expectedDocument = new MfMContainer('expected-id', instance(containerParserMock))
 		const lblParserMock = mock<LineByLineParser<MfMContainer>>(LineByLineParser)
 		when(lblParserMock.parse(anyString())).return(expectedDocument)
 

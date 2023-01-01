@@ -7,7 +7,7 @@ describe('LineByLineParser', () => {
 	it('passes the complete document to the given parser when there are no lines', () => {
 		const containerParserMock = mock(MfMContainerParser)
 		when(containerParserMock.parseLine(null, 'the text', 0, 'the text'.length))
-			.return(new MfMContainer('expected result'))
+			.return(new MfMContainer('expected result', instance(containerParserMock)))
 			.once()
 
 		const parser = new LineByLineParser(instance(containerParserMock))
@@ -19,7 +19,7 @@ describe('LineByLineParser', () => {
 		const text = 'Sphinx of black quartz,\njudge my vow.'
 
 		const containerParserMock = mock(MfMContainerParser)
-		const container = new MfMContainer('expected result')
+		const container = new MfMContainer('expected result', instance(containerParserMock))
 		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
 			.return(container)
 			.once()
@@ -37,7 +37,7 @@ describe('LineByLineParser', () => {
 		const text = 'Sphinx of black quartz,\njudge my vow.'
 
 		const containerParserMock = mock(MfMContainerParser)
-		const container = new MfMContainer('a container')
+		const container = new MfMContainer('a container', instance(containerParserMock))
 		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
 			.return(container)
 		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length))
@@ -50,11 +50,11 @@ describe('LineByLineParser', () => {
 		const text = 'Sphinx of black quartz,\njudge my vow.'
 
 		const containerParserMock = mock(MfMContainerParser)
-		const container = new MfMContainer('a container')
+		const container = new MfMContainer('a container', instance(containerParserMock))
 		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
 			.return(container)
 		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length))
-			.return(new MfMContainer('different container'))
+			.return(new MfMContainer('different container', instance(containerParserMock)))
 
 		const parser = new LineByLineParser(instance(containerParserMock))
 		expect(() => parser.parse(text)).toThrow(ParseError)

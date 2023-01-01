@@ -118,6 +118,17 @@ describe('MfMContainer parser', () => {
 	
 			verify(sectionParserMock)
 		})
+		it('removes the first section if it is empty', () => {
+			const sectionParserMock = createSectionParserMock()
+			const section = new MfMSection('dummy', instance(sectionParserMock))
+			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(section).once()
+			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+	
+			const containerParser = new MfMContainerParser(parsers)
+			const container = containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
+	
+			expect(container?.content?.length).toEqual(1)
+		})
 		it.skip('parses the document options', () => {})
 		it.skip('ignores empty lines between options and the first content line when there are options', () => {})	
 	})

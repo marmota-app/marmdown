@@ -16,19 +16,22 @@ limitations under the License.
 
 import { Marmdown } from "../src/Marmdown"
 import { mock, instance, when, anyObject } from 'omnimock'
-import { ContainerBlock, } from "$markdown/element/Element"
 import { ContentUpdate } from "$markdown/ContentUpdate"
 import { Dialect } from "$parser/Dialect"
-import { MfMDialect } from "$markdown/MfMDialect"
+import { Parser } from "$parser/Parser"
 import { GenericBlock } from "$element/GenericElement"
 
-class TestContainer extends GenericBlock<TestContainer, unknown, string> {}
+class TestContainer extends GenericBlock<TestContainer, unknown, string, TestContainerParser> {}
+class TestContainerParser implements Parser<TestContainer> {
+	elementName = 'TestContainer'
+	parseLine(previous: TestContainer, text: string, start: number, length: number): TestContainer | null { return null }
+}
 class TestDialect implements Dialect<TestContainer> {
 	createEmptyDocument(): TestContainer {
-		return new TestContainer('dummy', 'container')
+		return new TestContainer('dummy', 'container', new TestContainerParser())
 	}
 	parseCompleteText(text: string): TestContainer {
-		return new TestContainer('dummy', 'container')
+		return new TestContainer('dummy', 'container', new TestContainerParser())
 	}
 	parseUpdate(document: TestContainer, update: ContentUpdate): TestContainer | null {
 		return document
@@ -42,9 +45,9 @@ describe('Marmdown', () => {
 	})
 
 	it('parses the whole document when setting new text content', () => {
-		const expectedDocument = new TestContainer('dummy', 'expected')
+		const expectedDocument = new TestContainer('dummy', 'expected', new TestContainerParser())
 		const dialectMock = mock(TestDialect)
-		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy'))
+		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
 		when(dialectMock.parseCompleteText('the text content')).return(expectedDocument)
 
 		const marmdown = new Marmdown(instance(dialectMock))
@@ -58,7 +61,7 @@ describe('Marmdown', () => {
 		const documentMock = mock(TestContainer)
 		when(documentMock.asText).return(expectedText)
 		const dialectMock = mock(TestDialect)
-		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy'))
+		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
 		when(dialectMock.parseCompleteText('the text content')).return(instance(documentMock))
 
 		const marmdown = new Marmdown(instance(dialectMock))
@@ -70,9 +73,9 @@ describe('Marmdown', () => {
 	it('parses an update to the document', () => {
 		const expectedChange: ContentUpdate = { rangeOffset: 5, rangeLength: 7, text: 'foobar', }
 
-		const expectedDocument = new TestContainer('dummy', 'expected')
+		const expectedDocument = new TestContainer('dummy', 'expected', new TestContainerParser())
 		const dialectMock = mock(TestDialect)
-		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy'))
+		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
 		when(dialectMock.parseUpdate(anyObject(), expectedChange)).return(null)
 		when(dialectMock.parseCompleteText('the text content')).return(expectedDocument)
 
@@ -85,9 +88,9 @@ describe('Marmdown', () => {
 	it('parses the complete document when parsing an update did bail out', () => {
 		const expectedChange: ContentUpdate = { rangeOffset: 5, rangeLength: 7, text: 'foobar', }
 
-		const expectedDocument = new TestContainer('dummy', 'expected')
+		const expectedDocument = new TestContainer('dummy', 'expected', new TestContainerParser())
 		const dialectMock = mock(TestDialect)
-		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy'))
+		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
 		when(dialectMock.parseUpdate(anyObject(), expectedChange)).return(expectedDocument)
 
 		const marmdown = new Marmdown(instance(dialectMock))

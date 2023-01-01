@@ -19,6 +19,7 @@ import { GenericBlock, GenericInline } from "$element/GenericElement";
 import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
 import { IdGenerator } from "$markdown/IdGenerator";
 import { MfMBlockElements } from "$markdown/MfMDialect";
+import { parseBlock } from "$parser/parse";
 import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
@@ -40,40 +41,25 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, '
  */
 export class MfMContainerParser implements Parser<MfMContainer> {
 	public readonly elementName = 'MfMContainer'
-	constructor(private _parsers: Parsers<MfMSectionParser>) {}
+	constructor(private parsers: Parsers<MfMSectionParser>) {}
 
+	create() {
+		return new MfMContainer(this.parsers.idGenerator.nextId(), this)
+	}
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
 		if(previous == null) {
-			previous = new MfMContainer(this._parsers.idGenerator.nextId(), this)
-			previous.content.push(this._parsers['MfMSection'].create(1))
+			previous = this.create()
+			previous.content.push(this.parsers['MfMSection'].create(1))
 		}
 
-		//----------------------
-		//--- Reusable code? ---
-		if(this._parsers.allBlocks == null) { throw new Error('Could not parse: List of all blocks is not available.') }
-		const container = previous ?? new MfMContainer(this._parsers.idGenerator.nextId(), this)
-
-		const previousContent = container.content.length > 0? container.content[container.content.length-1] : null
-		if(previousContent && !previousContent.isFullyParsed) {
-			const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
-			const content = parsedWith.parseLine(previousContent, text, start, length)
-			if(content) {
-				container.content.push(content)
-				return container
-			}
-		}
-		for(let i=0; i<this._parsers.allBlocks.length; i++) {
-			const parser = this._parsers.allBlocks[i]
-			const content = parser.parseLine(null, text, start, length) as MfMBlockElements
-			if(content) {
-				container.content.push(content)
-				return container
-			}	
+		const result = parseBlock<MfMContainer, MfMBlockElements>(previous, text, start, length, this.create, this.allBlocks)
+		if(result != null && result.content.length > 1 && result.content[0].content.length === 0) {
+			result.content.shift()
 		}
 
-		return null
-		//--- Reusable code? ---
-		//----------------------
+		return result
 	}
+
+	private get allBlocks() { return this.parsers.allBlocks ?? [] }
 }
 

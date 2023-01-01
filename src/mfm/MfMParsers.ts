@@ -71,7 +71,10 @@ export class MfMParsers implements Parsers<KnownParsers> {
 
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
-		this.MfMContainer, this.MfMSection,
+		//IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
+		//           not be part of this list, because they are created on-the-fly
+		//           when needed by other parsers. Parsing them explicitly would
+		//           create infiniterecursion or unnecessarily nested blocks.
 	] }
 	get allLeafBlocks(): KnownParsers[] { return [
 		this.MfMHeading,

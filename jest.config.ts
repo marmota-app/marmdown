@@ -25,11 +25,6 @@ const config: Config.InitialOptions = {
 	testEnvironment: "node",
 	setupFilesAfterEnv: [ "<rootDir>/test/setup.ts",  ],
 	preset: 'ts-jest',
-	globals: {
-		'ts-jest': {
-			isolatedModules: true
-		}
-	},
 	moduleNameMapper: mapModules()
 };
 export default config
