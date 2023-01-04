@@ -6,7 +6,7 @@ import { sanitized } from "../sanitize"
 describe('GfM: ATX Headings (https://github.github.com/gfm/#atx-heading)', () => {
 	const md = new Marmdown(new MfMDialect())
 
-	test.skip('Simple headings (https://github.github.com/gfm/#example-32)', () => {
+	test('Simple headings (https://github.github.com/gfm/#example-32)', () => {
 		md.textContent = sanitized`
 			# foo
 			## foo

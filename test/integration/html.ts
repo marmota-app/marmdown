@@ -1,5 +1,5 @@
 import { Marmdown } from "$markdown/Marmdown";
-import { MfMBlockElements } from "$markdown/MfMDialect";
+import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
 import { MfMHeading } from "$mfm/block/MfMHeading";
 import { MfMContainer } from "$mfm/MfMContainer";
 
@@ -18,7 +18,15 @@ function all(blocks: MfMBlockElements[]): string {
 }
 
 function heading(heading: MfMHeading) {
-	console.log(heading)
-	//TODO map content of heading, but first implement MfMTextParser!
-	return `<h${heading.level}></h${heading.level}>`
+	return `<h${heading.level}>${inline(heading.content)}</h${heading.level}>`
+}
+
+function inline(inlines: MfMInlineElements[]): string {
+	return inlines.map(i => {
+		switch(i.type) {
+			case 'heading-text': return inline(i.content)
+			case 'text': return i.text
+			default: return ''
+		}
+	}).join('')
 }

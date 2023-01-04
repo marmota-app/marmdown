@@ -7,7 +7,8 @@ import { Parsers } from "$parser/Parsers";
 export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfMText>, 'text', MfMTextParser> implements Text<MfMText> {
 	constructor(id: string, pw: MfMTextParser) { super(id, 'text', pw) }
 
-	readonly text: string = ''
+	override get asText() { return this.lines.map(l => l.asText).join('') }
+	get text() { return this.asText }
 }
 
 export class MfMTextParser implements Parser<MfMText> {
@@ -15,6 +16,10 @@ export class MfMTextParser implements Parser<MfMText> {
 	constructor(private parsers: Parsers<never>) {}
 
 	parseLine(previous: MfMText | null, text: string, start: number, length: number): MfMText | null {
-		return null
+		const result = new MfMText(this.parsers.idGenerator.nextId(), this)
+
+		result.lines.push(new StringLineContent(text, start, length, result))
+
+		return result
 	}
 }

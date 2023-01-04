@@ -142,7 +142,16 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
  */
 export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
 	content: never[] = []
-	constructor(public asText: string, public belongsTo: BELONGS_TO) {}
+	private _asText: string | undefined
+
+	constructor(private text: string, private start: number, private length: number, public belongsTo: BELONGS_TO) {}
+
+	public get asText() {
+		if(this._asText == null) {
+			this._asText = this.text.substring(this.start, this.start+this.length)
+		}
+		return this._asText
+	}
 }
 /**
  * Generic, nestable content in a `LineContent` data structure (See {@link LineContent}). 
