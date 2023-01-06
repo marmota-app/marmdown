@@ -68,9 +68,9 @@ import { Parser } from "$parser/Parser"
  * @category $element
  */
 export interface Element<
-	THIS extends Element<THIS, CONTENT, LINE, TYPE> | unknown, 
+	THIS extends Element<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown, 
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
-	LINE extends LineContent<THIS> | unknown,
+	LINE_CONTENT extends LineContent<THIS> | unknown,
 	TYPE extends string | unknown,
 > {
 	/**
@@ -97,8 +97,15 @@ export interface Element<
 
 	/** The inner elements that make up the content of this element. */
 	content: CONTENT[],
-	/** The lines that, together, created the content of this element. */
-	lines: LINE[],
+	/** The lines that, together, created the content of this element. 
+	 * 
+	 * TODO do we need an abstraction for a single line? As in, differentiate
+	 *      between **line** and **line content**? Currently, the code does
+	 *      not really do that, and this might lead to confusing situations.
+	 *      OTOH, an abstraction might be just another way for writing down
+	 *      an array, which might be confusing too...
+	 */
+	lines: ParsedLine<LINE_CONTENT, THIS>[],
 
 	/**
 	 * The complete markdown text represented by this element (must be able
@@ -130,9 +137,37 @@ export interface Element<
  * @category $element
  */
 export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> {
-	belongsTo: BELONGS_TO,
-	content: LineContent<Element<unknown, unknown, unknown, unknown>>[]
-	asText: string,
+	readonly belongsTo: BELONGS_TO,
+
+	readonly start: number,
+	readonly length: number,
+
+	readonly asText: string,
+}
+
+/**
+ * A single parsed line that is part of an {@link Element}. 
+ */
+export class ParsedLine<
+	LINE_CONTENT extends LineContent<BELONGS_TO> | unknown,
+	BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown,
+> implements LineContent<BELONGS_TO> {
+	public readonly content: LINE_CONTENT[] = []
+
+	constructor(public readonly belongsTo: BELONGS_TO) {}
+
+	get start() { return (this.content[0] as LineContent<BELONGS_TO>).start ?? 0 }
+	get length() {
+		if(this.content.length > 0) {
+			const last = this.content[this.content.length-1] as LineContent<BELONGS_TO>
+			const first = this.content[0] as LineContent<BELONGS_TO>
+
+			return last.start + last.length - first.start
+		}
+		return 0
+	}
+
+	get asText() { return this.content.map(c => (c as LineContent<BELONGS_TO>).asText).join('') }
 }
 
 /**
@@ -141,31 +176,15 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
  * @category $element
  */
 export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
-	content: never[] = []
 	private _asText: string | undefined
 
-	constructor(private text: string, private start: number, private length: number, public belongsTo: BELONGS_TO) {}
+	constructor(private text: string, public readonly start: number, public readonly length: number, public readonly belongsTo: BELONGS_TO) {}
 
 	public get asText() {
 		if(this._asText == null) {
 			this._asText = this.text.substring(this.start, this.start+this.length)
 		}
 		return this._asText
-	}
-}
-/**
- * Generic, nestable content in a `LineContent` data structure (See {@link LineContent}). 
- * 
- * @category $element
- */
-export class GenericLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown>> implements LineContent<BELONGS_TO> {
-	content: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
-	constructor(public belongsTo: BELONGS_TO) {}
-
-	get asText() {
-		return this.content
-			.map(c => c.asText)
-			.join('')
 	}
 }
 

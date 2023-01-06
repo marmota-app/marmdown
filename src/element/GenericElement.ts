@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Parser } from "$parser/Parser";
-import { Block, Element, Inline, LineContent } from "./Element";
+import { Block, Element, Inline, LineContent, ParsedLine } from "./Element";
 
 export abstract class GenericBlock<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
@@ -23,7 +23,7 @@ export abstract class GenericBlock<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
-	public readonly lines: LineContent<THIS>[] = []
+	public readonly lines: ParsedLine<LineContent<THIS>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
 	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
@@ -34,13 +34,13 @@ export abstract class GenericBlock<
 }
 
 export abstract class GenericInline<
-	THIS extends Inline<THIS, CONTENT, LINE, TYPE> | unknown,
+	THIS extends Inline<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
-	LINE extends LineContent<THIS>,
+	LINE_CONTENT extends LineContent<THIS>,
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
-> implements Inline<THIS, CONTENT, LINE, TYPE> {
-	public readonly lines: LINE[] = []
+> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+	public readonly lines: ParsedLine<LINE_CONTENT, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
 	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
