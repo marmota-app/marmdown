@@ -65,6 +65,11 @@ import { Parser } from "$parser/Parser"
  * - the lines hold the actual text conten of the document, but they refer to
  *   line content further down the tree for inner content
  * 
+ * **Note:** Elements do not have an `asText` property because the text of
+ * a document cannot be reproduces from the texts of its elements. That is
+ * only possible by the texts of its lines, e.g. in case of nested block
+ * contents (blockquote and paragraph, list and blockquote, etc.).
+ * 
  * @category $element
  */
 export interface Element<
@@ -107,12 +112,6 @@ export interface Element<
 	 */
 	lines: ParsedLine<LINE_CONTENT, THIS>[],
 
-	/**
-	 * The complete markdown text represented by this element (must be able
-	 * to recreate a part of the parsed original text). 
-	 */
-	asText: string,
-
 	/** The {@link Parser} this element was parsed with. */
 	parsedWith: Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 	/** 
@@ -139,9 +138,21 @@ export interface Element<
 export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> {
 	readonly belongsTo: BELONGS_TO,
 
+	/**
+	 * The current start value of the line content's text in the **current** document
+	 * (even after parsing updates), not necessarily an index in the original
+	 * text.
+	 */
 	readonly start: number,
+	/**
+	 * The current length of the line content's text (even after parsing updates).
+	 */
 	readonly length: number,
 
+	/**
+	 * The content of the line, rendered as text that can be parsed again by
+	 * a Marmdown parser. 
+	 */
 	readonly asText: string,
 }
 
@@ -149,7 +160,7 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
  * A single parsed line that is part of an {@link Element}. 
  */
 export class ParsedLine<
-	LINE_CONTENT extends LineContent<BELONGS_TO> | unknown,
+	LINE_CONTENT extends LineContent<Element<unknown, unknown, unknown, unknown>> | unknown,
 	BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown,
 > implements LineContent<BELONGS_TO> {
 	public readonly content: LINE_CONTENT[] = []
@@ -167,7 +178,9 @@ export class ParsedLine<
 		return 0
 	}
 
-	get asText() { return this.content.map(c => (c as LineContent<BELONGS_TO>).asText).join('') }
+	get asText() { 
+		return this.content.map(c => (c as LineContent<BELONGS_TO>).asText).join('')
+	}
 }
 
 /**
@@ -176,15 +189,10 @@ export class ParsedLine<
  * @category $element
  */
 export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
-	private _asText: string | undefined
-
 	constructor(private text: string, public readonly start: number, public readonly length: number, public readonly belongsTo: BELONGS_TO) {}
 
 	public get asText() {
-		if(this._asText == null) {
-			this._asText = this.text.substring(this.start, this.start+this.length)
-		}
-		return this._asText
+		return this.text
 	}
 }
 
@@ -192,7 +200,7 @@ export interface Block<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, LineContent<THIS>, TYPE> {}
+> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {}
 export interface ContainerBlock<
 	THIS extends ContainerBlock<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Block<unknown, unknown, unknown> | unknown,
@@ -209,7 +217,7 @@ export interface Inline<
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, LINE, TYPE> {}
+> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {}
 export interface ContainerInline<
 	THIS extends ContainerInline<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,

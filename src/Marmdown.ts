@@ -72,7 +72,7 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 		this._document = this.dialect.parseCompleteText(text)
 	}
 	get textContent() {
-		return this._document?.asText ?? ''
+		return this._document?.lines.map(l => l.asText).join('\n') ?? ''
 	}
 
 	/**

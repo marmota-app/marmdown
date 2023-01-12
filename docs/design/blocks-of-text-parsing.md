@@ -9,7 +9,7 @@ _Everything in this document is slightly simplified because it does not yet cons
 the lines at _line endings_ where a _line ending_ can be either `\r`, `\n`
 or `\r\n`. (Actually, `Marmdown` does not **split** the text&mdash;it does
 not technically create substrings from the text&mdash;it only finds the start
-and end of lines. Read more in [non-copying parsing]{@tutorial non-copying-parsing})
+and end of lines. Read more in [parsing and copying]{@tutorial parsing-and-copying})
 
 It knows all the block parsers that could potentially parse toplevel content
 and passes the current content to all of them, until one of them returns a result.
@@ -223,7 +223,7 @@ The parser must differentiate between container inline content and leaf
 inline content.
 
 Next, see how this data structure is created during
-[non-copying parsing]{@tutorial non-copying-parsing} and supports
+[parsing and copying]{@tutorial parsing-and-copying} and supports
 [parsing updates]{@tutorial parsing-updates.md}. Also, block parsers might
 create [meta blocks]{@tutorial meta-blocks.md} around the actual block, which
 requires special treatment.

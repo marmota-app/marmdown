@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerBlock, StringLineContent } from "$element/Element";
+import { ContainerBlock, ParsedLine, StringLineContent } from "$element/Element";
 import { GenericBlock, GenericInline } from "$element/GenericElement";
 import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
 import { IdGenerator } from "$markdown/IdGenerator";

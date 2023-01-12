@@ -3,7 +3,7 @@ import { MfMDialect } from "$markdown/MfMDialect"
 import { html } from "./html"
 import { sanitized } from "./sanitize"
 
-describe('nesting blocks', () => {
+describe('MfM: Nesting blocks', () => {
 	const md = new Marmdown(new MfMDialect())
 	test.skip('blockquote > p', () => {
 		md.textContent = sanitized`

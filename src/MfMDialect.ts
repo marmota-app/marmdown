@@ -52,7 +52,6 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
 	}
 	parseUpdate(document: MfMContainer, update: ContentUpdate): MfMContainer | null {
-		//TODO implement parsing updates
 		return null
 	}
 }

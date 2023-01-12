@@ -102,8 +102,8 @@ describe('MfMContainer parser', () => {
 		it('parses the file content into a new section when there are no options (previous section found but is fully parsed)', () => {
 			const text = 'some container line\nsecond line'
 	
-			const section = mock(MfMSection)
 			const sectionParserMock = createSectionParserMock()
+			const section = mock(MfMSection, new MfMSection('dummy', instance(sectionParserMock)))
 			when(section.isFullyParsed).return(true)
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(instance(section)).anyTimes()

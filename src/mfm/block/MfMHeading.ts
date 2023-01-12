@@ -1,4 +1,4 @@
-import { LineContent } from "$element/Element"
+import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock, GenericInline } from "$element/GenericElement"
 import { Heading } from "$element/MarkdownElements"
 import { MfMText } from "$mfm/inline/MfMText"
@@ -19,17 +19,20 @@ export class MfMHeadingParser implements Parser<MfMHeading, MfMSection> {
 	parseLine(previous: MfMHeading | null, text: string, start: number, length: number): MfMSection | null {
 		let i=0
 		for(let token of tokens) {
+			//FIXME duplication `${token} ` -- could be fixed with generic find function, maybe.
 			if(text.indexOf(`${token} `, start) === start) { //TODO generic find function?
 				i += `${token} `.length
 
 				const section = (this.parsers.MfMSection as MfMSectionParser).create(token.length)
 
-				//TODO implement LineContent parsing!
 				const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, this)
-				section.content.push(heading)
+				heading.lines.push(new ParsedLine(heading))
+				heading.lines[0].content.push(new StringLineContent(`${token} `, start, i, heading))
+
+				section.addContent(heading)
 
 				const textContent = (this.parsers.MfMHeadingText as MfMHeadingTextParser).parseLine(null, text, start+i, length-i)
-				if(textContent != null) { heading.content.push(textContent) }
+				if(textContent != null) { heading.addContent(textContent) }
 
 				return section
 			}
@@ -61,7 +64,7 @@ export class MfMHeadingTextParser implements Parser<MfMHeadingText> {
 				if(parsed) {
 					i = length //TODO get parsed length from last parsed line!
 					contentParsed = true
-					textContent.content.push(parsed as any) //TODO all container elements should be allowed here, but we need support in allInlines for that!
+					textContent.addContent(parsed as any) //TODO all container elements should be allowed here, but we need support in allInlines for that!
 					break
 				}
 			}

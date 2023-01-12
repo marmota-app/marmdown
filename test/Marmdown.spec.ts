@@ -20,6 +20,7 @@ import { ContentUpdate } from "$markdown/ContentUpdate"
 import { Dialect } from "$parser/Dialect"
 import { Parser } from "$parser/Parser"
 import { GenericBlock } from "$element/GenericElement"
+import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
 
 class TestContainer extends GenericBlock<TestContainer, unknown, string, TestContainerParser> {}
 class TestContainerParser implements Parser<TestContainer> {
@@ -59,7 +60,9 @@ describe('Marmdown', () => {
 	it('recreates the document text from the stored document structure (does NOT return the original text)', () => {
 		const expectedText = 'some updated text'
 		const documentMock = mock(TestContainer)
-		when(documentMock.asText).return(expectedText)
+		const parsedLine = new ParsedLine<LineContent<TestContainer>, TestContainer>(instance(documentMock))
+		parsedLine.content.push(new StringLineContent(expectedText, 0, expectedText.length, instance(documentMock)))
+		when(documentMock.lines).return([ parsedLine ])
 		const dialectMock = mock(TestDialect)
 		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
 		when(dialectMock.parseCompleteText('the text content')).return(instance(documentMock))

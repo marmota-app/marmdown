@@ -23,14 +23,25 @@ export abstract class GenericBlock<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
-	public readonly lines: ParsedLine<LineContent<THIS>, THIS>[] = []
+	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
 	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
-	get asText() { return '' }
-
 	get isFullyParsed() { return true }
+
+	addContent(content: CONTENT) {
+		if(this.lines.length === 0) { this.lines.push(new ParsedLine(this as unknown as THIS)) }
+
+		const i = content as Element<unknown, unknown, unknown, unknown>
+		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
+
+		if(lastItemLine) {
+			this.lines[this.lines.length-1].content.push(lastItemLine)
+		}
+
+		this.content.push(content)
+	}
 }
 
 export abstract class GenericInline<
@@ -40,12 +51,20 @@ export abstract class GenericInline<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
-	public readonly lines: ParsedLine<LINE_CONTENT, THIS>[] = []
+	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
 	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
-	get asText() { return '' }
-
 	get isFullyParsed() { return true }
+
+	addContent(content: CONTENT) {
+		if(this.lines.length === 0) { this.lines.push(new ParsedLine(this as unknown as THIS)) }
+		
+		const i = content as Element<unknown, unknown, unknown, unknown>
+		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
+		this.lines[this.lines.length-1].content.push(lastItemLine)
+
+		this.content.push(content)
+	}
 }

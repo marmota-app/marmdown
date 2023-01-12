@@ -9,7 +9,7 @@ blocks. We must take that into consideration when parsing updates.
 
 ## Parsing Updates and Copying Values
 
-During a complete re-parse of the document, the [non-copying parsing]{@tutorial non-copying-parsing}
+During a complete re-parse of the document, the [parsing and copying]{@tutorial parsing-and-copying}
 makes sure that all [blocks of text]{@tutorial blocks-of-text-parsing} use the
 same reference to the whole text and split the document only by remembering
 the indexes of their respective content.
@@ -110,7 +110,7 @@ and thus can change the inner contents.
 
 ### Removing One Asterisk at Start / End of Bold
 
-### Inserting Stars at Start / End of Bold
+### Inserting Asterisks at Start / End of Bold
 
 ### Creating a List by Inserting Asterisk at the Start of a Line
 
