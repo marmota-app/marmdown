@@ -1,5 +1,6 @@
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMTextParser } from "$mfm/inline/MfMText"
+import { UpdateParser } from "$markdown/UpdateParser"
+import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
 import { Parsers } from "$parser/Parsers"
 
 describe('MfMText', () => {
@@ -13,10 +14,20 @@ describe('MfMText', () => {
 			expect(text).toHaveProperty('text', 'the text')
 		})
 	})
-	describe.skip('parsing the content lines', () => {
-		//TODO implement me
-	})
-	describe.skip('parsing updates', () => {
-		//TODO implement me
+
+	describe('parsing updates', () => {
+		const parsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), }
+		const textParser = new MfMTextParser(parsers)
+		const originalText = textParser.parseLine(null, '---ignore---the original text---ignore---', '---ignore---'.length, 'the original text'.length) as MfMText
+		const updateParser = new UpdateParser()
+
+		it('parses update to text content when update is in range', () => {
+			const updated = updateParser.parse(originalText, { text: 'simple ', rangeOffset: '---ignore---'.length+'the '.length, rangeLength: 0, })
+
+			expect(updated).not.toBeNull()
+			expect(updated).toHaveProperty('text', 'the simple original text')
+			expect(updated?.lines[0]).toHaveProperty('start', '---ignore---'.length)
+			expect(updated?.lines[0]).toHaveProperty('length', 'the simple original text'.length)
+		})
 	})
 })

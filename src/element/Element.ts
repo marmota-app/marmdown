@@ -143,7 +143,7 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
 	 * (even after parsing updates), not necessarily an index in the original
 	 * text.
 	 */
-	readonly start: number,
+	start: number,
 	/**
 	 * The current length of the line content's text (even after parsing updates).
 	 */

@@ -12,7 +12,7 @@ describe('MfM: Parsing updates', () => {
 			md.update({ rangeOffset: 6, rangeLength: 0, text: 'updated ' }, () => 'dummy')
 	
 			expect(html(md)).toEqual(sanitized`
-				<h1>The updated heading content</h1>`)
+				<h1>The updated heading content.</h1>`)
 		})
 	
 		test.skip('update text in single-line paragraph', () => {
@@ -23,7 +23,7 @@ describe('MfM: Parsing updates', () => {
 	
 			expect(html(md)).toEqual(sanitized`
 				<p>
-				The updated text content
+				The updated text content.
 				</p>`)
 		})	
 	})

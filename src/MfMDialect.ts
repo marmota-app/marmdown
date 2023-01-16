@@ -25,6 +25,7 @@ import { MfMSection } from "$mfm/block/MfMSection";
 import { MfMHeading, MfMHeadingText } from "$mfm/block/MfMHeading";
 import { MfMParagraph } from "$mfm/block/MfMParagraph";
 import { MfMText } from "$mfm/inline/MfMText";
+import { UpdateParser } from "./UpdateParser";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -43,6 +44,7 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		private idGenerator: IdGenerator = new NumberedIdGenerator(),
 		private parsers: MfMParsers = new MfMParsers(idGenerator),
 		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(parsers['MfMContainer']),
+		private updateParser: UpdateParser<MfMContainer> = new UpdateParser(),
 	) {}
 
 	createEmptyDocument(): MfMContainer {
@@ -52,6 +54,6 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
 	}
 	parseUpdate(document: MfMContainer, update: ContentUpdate): MfMContainer | null {
-		return null
+		return this.updateParser.parse(document, update)
 	}
 }
