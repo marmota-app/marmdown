@@ -1,5 +1,6 @@
 import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
+import { UpdateParser } from "$markdown/UpdateParser"
 import { MfMHeading, MfMHeadingParser, MfMHeadingText, MfMHeadingTextParser } from "$mfm/block/MfMHeading"
 import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
 import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
@@ -87,5 +88,57 @@ describe('MfMHeading parser', () => {
 			})
 		})
 		//TODO add cases for multi-line headings
+	})
+
+	describe('parsing updates', () => {
+		it('can change the text of a parsed heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = '---ignore me---# the original heading---ignore me---'
+			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
+			const updatedSection = updateParser.parse(originalSection, { text: 'updated', rangeOffset: '---ignore me---# the '.length, rangeLength: 'original'.length, }) as MfMSection
+
+			expect(updatedSection).not.toBeNull()
+			expect(updatedSection.lines).toHaveLength(1)
+			expect(updatedSection.lines[0]).toHaveProperty('asText', '# the updated heading')
+			expect(updatedSection.lines[0]).toHaveProperty('start', '---ignore me---'.length)
+			expect(updatedSection.lines[0]).toHaveProperty('length', '# the updated heading'.length)
+
+			const updatedHeading = updatedSection?.content[0] as MfMHeading
+			expect(updatedHeading).not.toBeNull()
+			expect(updatedHeading.lines).toHaveLength(1)
+			expect(updatedSection.lines[0].content).toHaveLength(1)
+			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
+			expect(updatedHeading.lines[0].content).toHaveLength(2)
+
+			expect(updatedHeading.lines[0].content[1]).toHaveProperty('asText', 'the updated heading')
+			expect(updatedHeading.lines[0].content[1]).toHaveProperty('start', '---ignore me---'.length + '# '.length)
+			expect(updatedHeading.lines[0].content[1]).toHaveProperty('length', 'the updated heading'.length)
+		})
+
+		it('cannot change the heading into a simple paragraph', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = '---ignore me---# the original heading---ignore me---'
+			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
+
+			const updatedSection = updateParser.parse(originalSection, { text: '', rangeOffset: '---ignore me---'.length, rangeLength: 1, }) as MfMSection
+
+			expect(updatedSection).toBeNull()
+		})
+
+		it('cannot change the level of a heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = '---ignore me---# the original heading---ignore me---'
+			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
+
+			const updatedSection = updateParser.parse(originalSection, { text: '#', rangeOffset: '---ignore me---#'.length, rangeLength: 0, }) as MfMSection
+
+			expect(updatedSection).toBeNull()
+		})
 	})
 })

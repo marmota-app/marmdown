@@ -39,9 +39,9 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, '
  * a section as "previous content" to start with, which can be used when
  * the document does not start with a heading.
  */
-export class MfMContainerParser implements Parser<MfMContainer> {
+export class MfMContainerParser extends Parser<MfMContainer> {
 	public readonly elementName = 'MfMContainer'
-	constructor(private parsers: Parsers<MfMSectionParser>) {}
+	constructor(private parsers: Parsers<MfMSectionParser>) { super() }
 
 	create() {
 		return new MfMContainer(this.parsers.idGenerator.nextId(), this)

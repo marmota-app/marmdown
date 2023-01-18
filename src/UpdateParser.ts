@@ -32,18 +32,55 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			return null
 		}
 
-		const originalText = element.lines[0].asText
-		const rangeStartWithin = update.rangeOffset - element.lines[0].start
+		const updatedLine = this.parseContent(element.lines[0] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
+		if(updatedLine) {
+			element.lines[0] = updatedLine as ParsedLine<unknown, unknown>
+			return element
+		}
+
+		return null
+	}
+
+	private parseContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
+		const changeStart = update.rangeOffset
+		const changeEnd = update.rangeOffset + update.rangeLength
+		const rangeStartsWithingExistingBounds = changeStart >= content.start && changeStart <= content.start+content.length
+		const rangeEndsWithinExistingBounds = changeEnd >= content.start && changeEnd <= content.start+content.length
+
+		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
+			if(content instanceof ParsedLine) {
+				for(var i=0; i<content.content.length; i++) {
+					const innerContent = content.content[i]
+					const result = this.parseContent(innerContent, update)
+					if(result) {
+						content.content[i] = result
+						return content
+					}
+				}
+				return this.parseInnerContent(content, update)
+			} else {
+				return null
+			}
+		}
+
+		return null
+	}
+
+	private parseInnerContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
+		const originalText = content.asText
+		const rangeStartWithin = update.rangeOffset - content.start
 		const beforeChange = originalText.substring(0, rangeStartWithin)
 		const afterChange = originalText.substring(rangeStartWithin+update.rangeLength)
 		const updatedText = beforeChange + update.text + afterChange
 
-		const updated = element.parsedWith.parseLine(null, updatedText, 0, updatedText.length)
+		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length)
 
-		this.updateStart(updated!.lines[0], element.lines[0].start)
-		element.lines[0] = updated!.lines[0]
+		if(updated) {
+			this.updateStart(updated, content.start)
+			return updated
+		}
 
-		return element
+		return null
 	}
 
 	private updateStart(lineContent: LineContent<unknown>, start: number) {

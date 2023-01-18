@@ -9,9 +9,9 @@ export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent
 	constructor(id: string, pw: MfMParagraphParser) { super(id, 'paragraph', pw) }
 }
 
-export class MfMParagraphParser implements Parser<MfMParagraph> {
+export class MfMParagraphParser extends Parser<MfMParagraph> {
 	public readonly elementName = 'MfMParagraph'
-	constructor(private parsers: Parsers<never>) {}
+	constructor(private parsers: Parsers<never>) { super() }
 
 	parseLine(previous: MfMParagraph | null, text: string, start: number, length: number): MfMParagraph | null {
 		return null

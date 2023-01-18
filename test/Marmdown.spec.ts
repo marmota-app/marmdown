@@ -23,7 +23,7 @@ import { GenericBlock } from "$element/GenericElement"
 import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
 
 class TestContainer extends GenericBlock<TestContainer, unknown, string, TestContainerParser> {}
-class TestContainerParser implements Parser<TestContainer> {
+class TestContainerParser extends Parser<TestContainer> {
 	elementName = 'TestContainer'
 	parseLine(previous: TestContainer, text: string, start: number, length: number): TestContainer | null { return null }
 }

@@ -10,9 +10,9 @@ export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfM
 	get text() { return this.lines.length===1? this.lines[0].content.map(l => l.asText).join('') : '' }
 }
 
-export class MfMTextParser implements Parser<MfMText> {
+export class MfMTextParser extends Parser<MfMText> {
 	public readonly elementName = 'MfMText'
-	constructor(private parsers: Parsers<never>) {}
+	constructor(private parsers: Parsers<never>) { super() }
 
 	parseLine(previous: MfMText | null, text: string, start: number, length: number): MfMText | null {
 		const result = new MfMText(this.parsers.idGenerator.nextId(), this)

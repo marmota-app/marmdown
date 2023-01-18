@@ -12,9 +12,9 @@ export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'hea
 }
 
 export const tokens = [ '######', '#####', '####', '###', '##', '#', ]
-export class MfMHeadingParser implements Parser<MfMHeading, MfMSection> {
+export class MfMHeadingParser extends Parser<MfMHeading, MfMSection> {
 	public readonly elementName = 'MfMHeading'
-	constructor(private parsers: Parsers<MfMSectionParser | MfMHeadingTextParser>) {}
+	constructor(private parsers: Parsers<MfMSectionParser | MfMHeadingTextParser>) { super() }
 
 	parseLine(previous: MfMHeading | null, text: string, start: number, length: number): MfMSection | null {
 		let i=0
@@ -39,15 +39,23 @@ export class MfMHeadingParser implements Parser<MfMHeading, MfMSection> {
 		}
 		return null
 	}
+
+	parseLineUpdate(original: MfMHeading, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+		const result = this.parseLine(null, text, start, length)
+		if(result && result.level === original.level) {
+			return result.lines[0]
+		}
+		return null
+	}
 }
 
 export type MfMHeadingTextContent = MfMText //TODO actually, all container leaf elements are allowed here!
 export class MfMHeadingText extends GenericInline<MfMHeadingText, MfMHeadingTextContent, LineContent<MfMHeadingText>, 'heading-text', MfMHeadingTextParser> {
 	constructor(id: string, pw: MfMHeadingTextParser) { super(id, 'heading-text', pw) }
 }
-export class MfMHeadingTextParser implements Parser<MfMHeadingText> {
+export class MfMHeadingTextParser extends Parser<MfMHeadingText> {
 	public readonly elementName = 'MfMHeadingText'
-	constructor(private parsers: Parsers<never>) {}
+	constructor(private parsers: Parsers<never>) { super() }
 
 	parseLine(previous: MfMHeadingText | null, text: string, start: number, length: number): MfMHeadingText | null {
 		//TODO can there be a `previous`?

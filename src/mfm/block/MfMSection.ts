@@ -13,9 +13,9 @@ export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'sec
 	override get isFullyParsed() { return false }
 }
 
-export class MfMSectionParser implements Parser<MfMSection> {
+export class MfMSectionParser extends Parser<MfMSection> {
 	public readonly elementName = 'MfMSection'
-	constructor(private parsers: Parsers<never>) {}
+	constructor(private parsers: Parsers<never>) { super() }
 
 	create(level: number = 1) {
 		return new MfMSection(this.parsers.idGenerator.nextId(), this, level)

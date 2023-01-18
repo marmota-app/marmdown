@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element } from "$element/Element";
+import { Element, ParsedLine } from "$element/Element";
 
 /**
  * Parses an element and supports line-by-line-parsing. 
@@ -28,14 +28,14 @@ import { Element } from "$element/Element";
  * @template RESULT the result type of this parser, also the type of the previous element
  * @template META_RESULT the type this parser returns, defaults to RESULT but can be a [meta block]{@tutorial meta-blocks.md}
  */
-export interface Parser<
+export abstract class Parser<
 	RESULT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	META_RESULT extends Element<unknown, unknown, unknown, unknown> | unknown=RESULT,
 > {
 	/**
 	 * The name of the element type returned by this parser. 
 	 */
-	readonly elementName: string,
+	abstract readonly elementName: string
 
 	/**
 	 * Try to parse a given line of text into the supported element type
@@ -56,5 +56,23 @@ export interface Parser<
 	 * @param start The start index of the line to parse, ignore everything before `start`
 	 * @param length The length of the line to parse, ignore everything after `start+length`
 	 */
-	parseLine(previous: RESULT | null, text: string, start: number, length: number): META_RESULT | null,
+	abstract parseLine(previous: RESULT | null, text: string, start: number, length: number): META_RESULT | null
+
+	/**
+	 * Parse an update to an original element, returning the parsed line type if the
+	 * update could be parsed correctly. 
+	 * 
+	 * @param original The original element the update is being parsed for
+	 * @param text The complete text of the document
+	 * @param start The start index of the line to parse, ignore everything before `start`
+	 * @param length The length of the line to parse, ignore everything after `start+length`
+	 */
+	parseLineUpdate(original: RESULT, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+		const result = this.parseLine(null, text, start, length)
+
+		if(result) {
+			return (result as unknown as Element<unknown, unknown, unknown, unknown>).lines[0]
+		}
+		return null
+	}
 }
