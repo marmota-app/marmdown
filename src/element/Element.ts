@@ -92,7 +92,7 @@ export interface Element<
 	 * 
 	 * IDs **must** be unique **within a markdown document**.
 	 */
-	readonly id: string,
+	id: string,
 
 	/**
 	 * The type of the element, used to distinguish different kinds of

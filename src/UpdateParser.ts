@@ -1,5 +1,6 @@
 import { Element, LineContent, ParsedLine } from "$element/Element";
 import { ContentUpdate } from "./ContentUpdate";
+import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 
 /**
  * Parses updates to a document. 
@@ -27,6 +28,8 @@ import { ContentUpdate } from "./ContentUpdate";
  * Then it recreates the new element tree.
  */
 export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unknown>> {
+	constructor(private idGenerator: IdGenerator = new NumberedIdGenerator()) {}
+
 	parse(element: ELEMENT, update: ContentUpdate): ELEMENT | null {
 		if(update.text.indexOf('\r') >= 0 || update.text.indexOf('\n') >= 0) {
 			return null
@@ -76,6 +79,20 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length)
 
 		if(updated) {
+			let lineFound = false
+			for(let i=0; i<content.belongsTo.lines.length; i++) {
+				if(content.belongsTo.lines[i] === content) {
+					content.belongsTo.lines[i] = updated
+					content.belongsTo.id = this.idGenerator.nextId()
+					lineFound = true
+					break;
+				}
+			}
+			if(!lineFound) {
+				console.warn('Could not parse update: Line was not found in original element!')
+				return null
+			}
+
 			this.updateStart(updated, content.start)
 			return updated
 		}

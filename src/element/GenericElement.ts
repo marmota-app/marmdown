@@ -26,7 +26,7 @@ export abstract class GenericBlock<
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
 	get isFullyParsed() { return true }
 
@@ -54,7 +54,7 @@ export abstract class GenericInline<
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public readonly id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
 
 	get isFullyParsed() { return true }
 
