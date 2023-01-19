@@ -1,3 +1,4 @@
+import { ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { Section } from "$element/MarkdownElements"
 import { parseBlock } from "$parser/parse"
@@ -25,6 +26,14 @@ export class MfMSectionParser extends Parser<MfMSection> {
 		const result = parseBlock<MfMSection, MfMSectionContent>(previous, text, start, length, this.create.bind(this), this.allBlocks, this.endsPrevious)
 
 		return result
+	}
+
+	override parseLineUpdate(original: MfMSection, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+		//A section cannot be updated directly, only its contents can be updated.
+		//When an update bubbles up to this point, it is better to re-parse the
+		//whole document (or at least to re-parse the container that contains
+		//this section), so the section parser returns null here.
+		return null
 	}
 
 	private endsPrevious(previous: MfMSection, content: MfMSectionContent) {

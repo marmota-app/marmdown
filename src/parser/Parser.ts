@@ -62,6 +62,21 @@ export abstract class Parser<
 	 * Parse an update to an original element, returning the parsed line type if the
 	 * update could be parsed correctly. 
 	 * 
+	 * This method returns a new `ParsedLine` when the update can be handled
+	 * by this parser (which means original element can be updated at this
+	 * point), or null if it cannot. Hence, this method _can_ return null
+	 * if it wants to pass handling the update to the block containing it.
+	 * 
+	 * By that mechanism, updates bubble "up" or "out": First, we try
+	 * updating the innermost element, but when the parser of that element
+	 * returns null, we try the container of that element, and so on.
+	 * 
+	 * Overrides of this method should **not** pass `original` to `parseLine`;
+	 * at least in most cases, that would be the wrong behavior: A line update
+	 * does not _extend_ the `original`. Instead, it tries to replace a line
+	 * of original, so _if_ this method _does_ call `parseUpdate`, it should
+	 * pass `null` for the parameter `previous`.
+	 * 
 	 * @param original The original element the update is being parsed for
 	 * @param text The complete text of the document
 	 * @param start The start index of the line to parse, ignore everything before `start`

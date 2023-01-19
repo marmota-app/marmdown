@@ -1,4 +1,6 @@
+import { ParsedLine, LineContent, Element, StringLineContent } from "$element/Element"
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
+import { UpdateParser } from "$markdown/UpdateParser"
 import { MfMHeading, MfMHeadingParser } from "$mfm/block/MfMHeading"
 import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
 import { Parsers } from "$parser/Parsers"
@@ -61,7 +63,25 @@ describe('MfMSection parser', () => {
 		it.skip('parses paragraph content into section when there is no heading', () => {})
 	})
 
-	describe.skip('parsing updates', () => {
+	describe('parsing updates', () => {
+		it('cannot update a section directyl (e.g. changing heading to paragraph), must be a re-parse', () => {
+			const updateParser = new UpdateParser()
+
+			const headingParserMock = mock(MfMHeadingParser)
+			when(headingParserMock.elementName).return('MfMHeading')
+	
+			const parsers: Parsers<MfMHeadingParser> = { MfMHeading: instance(headingParserMock), allBlocks: [ instance(headingParserMock), ], idGenerator: new NumberedIdGenerator(), }
+			const sectionParser = new MfMSectionParser(parsers)
+			const section = sectionParser.create()
+
+			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, MfMSection>(section)
+			parsedLine.content.push(new StringLineContent('foo', 10, 3, section))
+			section.lines.push(parsedLine)
+
+			const updated = updateParser.parse(section, { text: 'bar', rangeOffset: 10, rangeLength: 0, })
+
+			expect(updated).toBeNull()
+		})
 		it.skip('updates start of paragraph correctly when heading before the paragraph changes', () => {})
 	})
 })

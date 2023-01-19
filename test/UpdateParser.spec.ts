@@ -12,4 +12,8 @@ describe('UpdateParser', () => {
 
 		expect(result).toEqual(null)
 	}))
+
+	it.skip('changes the id of the updated element when it actually updates it', () => {
+		expect(true).toEqual(false)
+	})
 })
