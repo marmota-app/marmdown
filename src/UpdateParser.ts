@@ -35,10 +35,12 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			return null
 		}
 
-		const updatedLine = this.parseContent(element.lines[0] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
-		if(updatedLine) {
-			element.lines[0] = updatedLine as ParsedLine<unknown, unknown>
-			return element
+		for(let i=0; i<element.lines.length; i++) {
+			const updatedLine = this.parseContent(element.lines[i] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
+			if(updatedLine) {
+				element.lines[i] = updatedLine as ParsedLine<unknown, unknown>
+				return element
+			}
 		}
 
 		return null
@@ -57,6 +59,14 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 					const result = this.parseContent(innerContent, update)
 					if(result) {
 						content.content[i] = result
+
+						//TODO we probably need better tests for updating the
+						//     start index of all following elements!
+						let start = result.start+result.length
+						for(var j=i+1; j<content.content.length; j++) {
+							this.updateStart(content.content[j], start)
+							start += content.content[j].length
+						}
 						return content
 					}
 				}

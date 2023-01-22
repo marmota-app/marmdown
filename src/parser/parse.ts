@@ -15,12 +15,18 @@ export function parseBlock<
 	const container = previous ?? create()
 
 	const previousContent = container.content.length > 0? container.content[container.content.length-1] : null
-	if(previousContent && !previousContent.isFullyParsed) {
+	if(previous && previousContent && !previousContent.isFullyParsed) {
 		const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
 		const content = parsedWith.parseLine(previousContent, text, start, length)
 		if(content) {
-			const contentLine = content.lines[content.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
-			previous?.lines[previous.lines.length-1].content.push(contentLine)
+			if(content as unknown === container) {
+				const inner = content.content[content.content.length-1] as Element<unknown, unknown, unknown, unknown>
+				const contentLine = inner.lines[inner.lines.length-1] as ParsedLine<unknown, Element<unknown, unknown, unknown, unknown>>
+				previous.lines[previous.lines.length-1].content.push(contentLine)
+			} else {
+				const contentLine = content.lines[content.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
+				previous.lines[previous.lines.length-1].content.push(contentLine)
+			}
 			return container
 		}
 	}

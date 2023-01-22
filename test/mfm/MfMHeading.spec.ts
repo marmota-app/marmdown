@@ -61,9 +61,68 @@ describe('MfMHeading parser', () => {
 		})
 		it.skip('parses heading options before the heading text', () => {})
 	})
-	describe.skip('multi-line headings', () => {
-		//TODO implement me
+	describe('multi-line headings', () => {
+		it('can parse a heading with two lines', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `# Heading Text  \nsecond line`
+			let result = headingParser.parseLine(null, text, 0, '# Heading Text  '.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '# Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			expect(result.content[0].content).toHaveLength(2)
+
+			const headingLine1 = result.content[0].content[0]
+			expect(headingLine1).toHaveProperty('type', 'heading-text')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = result.content[0].content[1]
+			expect(headingLine2).toHaveProperty('type', 'heading-text')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+		})
+
+		it('does not parse heading as multi-line when there are no spaces at the end', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `# Heading Text\nNOT the second line`
+			let result = headingParser.parseLine(null, text, 0, '# Heading Text'.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '# Heading Text\n'.length, 'NOT the second line'.length) as MfMSection
+
+			expect(result).toBeNull()
+		})
+
+		it('can parse a heading with three lines', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const first = '# Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let result = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, `${first}\n`.length, second.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+
+			expect(result.content[0].content).toHaveLength(3)
+
+			const headingLine1 = result.content[0].content[0]
+			expect(headingLine1).toHaveProperty('type', 'heading-text')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = result.content[0].content[1]
+			expect(headingLine2).toHaveProperty('type', 'heading-text')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+
+			const headingLine3 = result.content[0].content[2]
+			expect(headingLine3).toHaveProperty('type', 'heading-text')
+			expect(headingLine3.content).toHaveLength(1)
+			expect(headingLine3.content[0]).toHaveProperty('text', 'even a third line')
+		})
+
 	})
+
 	describe('parsing the content lines', () => {
 		['#', '##', '###', '####', '#####', '######'].forEach(token => {
 			it(`adds the only line of a single-line "${token}" heading to the line structure`, () => {
@@ -87,7 +146,48 @@ describe('MfMHeading parser', () => {
 				expect(line.content[1]).toHaveProperty('asText', 'Heading Text')
 			})
 		})
-		//TODO add cases for multi-line headings
+
+		it('adds the lines of a three-line "###" heading to the line structure', () => {
+			const { headingParser, } = createHeadingParser()
+	
+			const first = '### Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let section = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			section = headingParser.parseLine(section.content[0] as MfMHeading, text, `${first}\n`.length, second.length) as MfMSection
+			section = headingParser.parseLine(section.content[0] as MfMHeading, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+			const result = section.content[0] as MfMHeading
+
+			expect(result.lines).toHaveLength(3)
+			let line = result.lines[0]
+
+			expect(line).toHaveProperty('asText', '### Heading Text  ')
+			expect(line.content).toHaveLength(3)
+
+			expect(line.content[0]).toHaveProperty('start', 0)
+			expect(line.content[0]).toHaveProperty('length', 4)
+			expect(line.content[0]).toHaveProperty('asText', `### `)
+
+			expect(line.content[1]).toHaveProperty('start', 4)
+			expect(line.content[1]).toHaveProperty('length', 'Heading Text'.length)
+			expect(line.content[1]).toHaveProperty('asText', 'Heading Text')
+
+			expect(line.content[2]).toHaveProperty('asText', '  ')
+
+			line = result.lines[1]
+			expect(line).toHaveProperty('asText', 'second line  ')
+			expect(line.content).toHaveLength(2)
+			expect(line.content[1]).toHaveProperty('asText', '  ')
+
+			line = result.lines[2]
+			expect(line).toHaveProperty('asText', 'even a third line')
+			expect(line.content).toHaveLength(1)
+
+			expect(line.content[0]).toHaveProperty('start', `${first}\n${second}\n`.length)
+			expect(line.content[0]).toHaveProperty('length', third.length)
+			expect(line.content[0]).toHaveProperty('asText', third)
+		})
 	})
 
 	describe('parsing updates', () => {
@@ -139,6 +239,118 @@ describe('MfMHeading parser', () => {
 			const updatedSection = updateParser.parse(originalSection, { text: '#', rangeOffset: '---ignore me---#'.length, rangeLength: 0, }) as MfMSection
 
 			expect(updatedSection).toBeNull()
+		})
+
+		it('can change the first line of a three-line heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const first = '### Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let section = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n`.length, second.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+
+			const updatedSection = updateParser.parse(section, { text: 'The h', rangeOffset: 4, rangeLength: 1, }) as MfMSection
+
+			expect(updatedSection).not.toBeNull()
+			expect(updatedSection.lines).toHaveLength(3)
+			expect(updatedSection.lines[0]).toHaveProperty('asText', '### The heading Text  ')
+			expect(updatedSection.lines[0]).toHaveProperty('start', 0)
+			expect(updatedSection.lines[0]).toHaveProperty('length', '### The heading Text  '.length)
+			expect(updatedSection.lines[1]).toHaveProperty('asText', 'second line  ')
+			expect(updatedSection.lines[2]).toHaveProperty('asText', 'even a third line')
+
+			const updatedHeading = updatedSection?.content[0] as MfMHeading
+			expect(updatedHeading).not.toBeNull()
+			expect(updatedHeading.lines).toHaveLength(3)
+			expect(updatedSection.lines[0].content).toHaveLength(1)
+			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
+			expect(updatedHeading.lines[0].content).toHaveLength(3)
+
+			expect(updatedSection.lines[1].content).toHaveLength(1)
+			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
+			expect(updatedHeading.lines[1].content).toHaveLength(2)
+
+			expect(updatedSection.lines[2].content).toHaveLength(1)
+			expect(updatedSection.lines[2].content[0]).toEqual(updatedHeading.lines[2])
+			expect(updatedHeading.lines[2].content).toHaveLength(1)
+		})
+		it('can change the second line of a three-line heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const first = '### Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let section = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n`.length, second.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+
+			const updatedSection = updateParser.parse(section, { text: 'The ', rangeOffset: `${first}\n`.length, rangeLength: 0, }) as MfMSection
+
+			expect(updatedSection).not.toBeNull()
+			expect(updatedSection.lines).toHaveLength(3)
+			expect(updatedSection.lines[1]).toHaveProperty('asText', 'The second line  ')
+			expect(updatedSection.lines[1]).toHaveProperty('start', `${first}\n`.length)
+			expect(updatedSection.lines[1]).toHaveProperty('length', 'The second line  '.length)
+			expect(updatedSection.lines[0]).toHaveProperty('asText', '### Heading Text  ')
+			expect(updatedSection.lines[2]).toHaveProperty('asText', 'even a third line')
+
+			const updatedHeading = updatedSection?.content[0] as MfMHeading
+			expect(updatedHeading).not.toBeNull()
+			expect(updatedHeading.lines).toHaveLength(3)
+			expect(updatedSection.lines[0].content).toHaveLength(1)
+			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
+			expect(updatedHeading.lines[0].content).toHaveLength(3)
+
+			expect(updatedSection.lines[1].content).toHaveLength(1)
+			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
+			expect(updatedHeading.lines[1].content).toHaveLength(2)
+
+			expect(updatedSection.lines[2].content).toHaveLength(1)
+			expect(updatedSection.lines[2].content[0]).toEqual(updatedHeading.lines[2])
+			expect(updatedHeading.lines[2].content).toHaveLength(1)
+		})
+		it('can change the third line of a three-line heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const first = '### Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let section = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n`.length, second.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+
+			const updatedSection = updateParser.parse(section, { text: 'there\'s ', rangeOffset: `${first}\n${second}\n`.length, rangeLength: 0, }) as MfMSection
+
+			expect(updatedSection).not.toBeNull()
+			expect(updatedSection.lines).toHaveLength(3)
+			expect(updatedSection.lines[2]).toHaveProperty('asText', 'there\'s even a third line')
+			expect(updatedSection.lines[2]).toHaveProperty('start', `${first}\n${second}\n`.length)
+			expect(updatedSection.lines[2]).toHaveProperty('length', 'there\'s even a third line'.length)
+			expect(updatedSection.lines[0]).toHaveProperty('asText', '### Heading Text  ')
+			expect(updatedSection.lines[1]).toHaveProperty('asText', 'second line  ')
+
+			const updatedHeading = updatedSection?.content[0] as MfMHeading
+			expect(updatedHeading).not.toBeNull()
+			expect(updatedHeading.lines).toHaveLength(3)
+			expect(updatedSection.lines[0].content).toHaveLength(1)
+			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
+			expect(updatedHeading.lines[0].content).toHaveLength(3)
+
+			expect(updatedSection.lines[1].content).toHaveLength(1)
+			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
+			expect(updatedHeading.lines[1].content).toHaveLength(2)
+
+			expect(updatedSection.lines[2].content).toHaveLength(1)
+			expect(updatedSection.lines[2].content[0]).toEqual(updatedHeading.lines[2])
+			expect(updatedHeading.lines[2].content).toHaveLength(1)
 		})
 	})
 })

@@ -11,6 +11,11 @@ describe('asText - Reproduce the original document', () => {
 			#### foo
 			##### foo
 			###### foo`)
+	md('a three-line heading')
+		.canReproduce(sanitized`
+			#### Some heading  
+			with three lines  
+			shoud reproduce document`)
 	
 	skip('text content with "empty" section at the start and another section')
 		.canReproduce(sanitized`
