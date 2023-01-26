@@ -8,7 +8,7 @@ export function sanitized(markdown: TemplateStringsArray) {
 		result = result.substring(1)
 	}
 
-	const indentation = /^[ \t]+/.exec(result)
+	const indentation = /^[\t]+/.exec(result)
 	if(indentation) {
 		const remove = new RegExp(`^${indentation[0]}`, 'gm')
 		result = result.replaceAll(remove, '')
