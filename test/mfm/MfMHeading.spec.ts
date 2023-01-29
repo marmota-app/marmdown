@@ -1,29 +1,31 @@
 import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMHeading, MfMHeadingParser, MfMHeadingText, MfMHeadingTextParser } from "$mfm/block/MfMHeading"
+import { MfMHeading, MfMHeadingParser, } from "$mfm/block/MfMHeading"
 import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
+import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
 import { Parsers } from "$parser/Parsers"
 import { anyNumber, anyObject, anyString, instance, mock, when } from "omnimock"
 
-describe('MfMHeading parser', () => {
-	function createHeadingParser() {
-		const textParser = new MfMTextParser({ idGenerator: new NumberedIdGenerator() })
-		const tpParsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), allInlines: [ textParser, ], }
-		const headingTextParser = new MfMHeadingTextParser(tpParsers)
+export function createHeadingParser() {
+	const textParser = new MfMTextParser({ idGenerator: new NumberedIdGenerator() })
+	const tpParsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), allInlines: [ textParser, ], }
+	const contentLineParser = new MfMContentLineParser(tpParsers)
 
-		const sectionParser = new MfMSectionParser({ idGenerator: new NumberedIdGenerator() })
-		const parsers: Parsers<MfMSectionParser | MfMHeadingTextParser> = {
-			idGenerator: new NumberedIdGenerator(),
-			'MfMSection': sectionParser,
-			'MfMHeadingText': headingTextParser,
-		}
-
-		const headingParser = new MfMHeadingParser(parsers)
-
-		return { headingParser, sectionParser, }
+	const sectionParser = new MfMSectionParser({ idGenerator: new NumberedIdGenerator() })
+	const parsers: Parsers<MfMSectionParser | MfMContentLineParser> = {
+		idGenerator: new NumberedIdGenerator(),
+		'MfMSection': sectionParser,
+		'MfMContentLine': contentLineParser,
 	}
+
+	const headingParser = new MfMHeadingParser(parsers)
+
+	return { headingParser, sectionParser, }
+}
+
+describe('MfMHeading parser', () => {
 	describe('parsing the content', () => {
 		['#', '##', '###', '####', '#####', '######'].forEach(token => {
 			it(`creates a section with the heading\'s level "${token}", containing the heading`, () => {
@@ -55,7 +57,7 @@ describe('MfMHeading parser', () => {
 
 			expect(result.content[0].content).toHaveLength(1)
 			const headingContent = result.content[0].content[0]
-			expect(headingContent).toHaveProperty('type', 'heading-text')
+			expect(headingContent).toHaveProperty('type', 'content-line')
 			expect(headingContent.content).toHaveLength(1)
 			expect(headingContent.content[0]).toHaveProperty('text', 'Heading Text')
 		})
@@ -72,12 +74,12 @@ describe('MfMHeading parser', () => {
 			expect(result.content[0].content).toHaveLength(2)
 
 			const headingLine1 = result.content[0].content[0]
-			expect(headingLine1).toHaveProperty('type', 'heading-text')
+			expect(headingLine1).toHaveProperty('type', 'content-line')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = result.content[0].content[1]
-			expect(headingLine2).toHaveProperty('type', 'heading-text')
+			expect(headingLine2).toHaveProperty('type', 'content-line')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -106,17 +108,17 @@ describe('MfMHeading parser', () => {
 			expect(result.content[0].content).toHaveLength(3)
 
 			const headingLine1 = result.content[0].content[0]
-			expect(headingLine1).toHaveProperty('type', 'heading-text')
+			expect(headingLine1).toHaveProperty('type', 'content-line')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = result.content[0].content[1]
-			expect(headingLine2).toHaveProperty('type', 'heading-text')
+			expect(headingLine2).toHaveProperty('type', 'content-line')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 
 			const headingLine3 = result.content[0].content[2]
-			expect(headingLine3).toHaveProperty('type', 'heading-text')
+			expect(headingLine3).toHaveProperty('type', 'content-line')
 			expect(headingLine3.content).toHaveLength(1)
 			expect(headingLine3.content[0]).toHaveProperty('text', 'even a third line')
 		})

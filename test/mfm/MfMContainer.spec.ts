@@ -128,7 +128,19 @@ describe('MfMContainer parser', () => {
 			const container = containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
 	
 			expect(container?.content?.length).toEqual(1)
-		})
+		});
+		[ '', '   ', '\t', '   \t  \t '].forEach(empty => it(`parses unmapped empty line "${empty.replaceAll('\t', '\\t')}" as line of the container`, () => {
+			const sectionParser = new MfMSectionParser({ idGenerator: new NumberedIdGenerator() })
+			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': sectionParser, allBlocks: [ sectionParser ], idGenerator: new NumberedIdGenerator(), }
+	
+			const containerParser = new MfMContainerParser(parsers)
+			const container = containerParser.parseLine(null, empty, 0, empty.length)
+	
+			expect(container).not.toBeNull()
+			expect(container?.lines.length).toBeGreaterThanOrEqual(1)
+			expect(container?.lines[container.lines.length-1]).toHaveProperty('asText', empty)
+		}));
+
 		it.skip('parses the document options', () => {})
 		it.skip('ignores empty lines between options and the first content line when there are options', () => {})	
 	})

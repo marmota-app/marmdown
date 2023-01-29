@@ -22,10 +22,11 @@ import { LineByLineParser } from "./LineByLineParser";
 import { Parser } from "$parser/Parser";
 import { MfMParsers } from "$mfm/MfMParsers";
 import { MfMSection } from "$mfm/block/MfMSection";
-import { MfMHeading, MfMHeadingText } from "$mfm/block/MfMHeading";
+import { MfMHeading, } from "$mfm/block/MfMHeading";
 import { MfMParagraph } from "$mfm/block/MfMParagraph";
 import { MfMText } from "$mfm/inline/MfMText";
 import { UpdateParser } from "./UpdateParser";
+import { MfMContentLine } from "$mfm/inline/MfMContentLine";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -33,7 +34,7 @@ export type MfMBlockElements =
 	MfMParagraph
 
 export type MfMInlineElements =
-	MfMHeadingText |
+	MfMContentLine |
 	MfMText
 
 /**

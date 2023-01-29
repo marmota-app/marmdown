@@ -6,7 +6,7 @@ import { sanitized } from "../sanitize"
 describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 	const md = new Marmdown(new MfMDialect())
 
-	test.skip('Two single-line paragraphs (https://github.github.com/gfm/#example-189)', () => {
+	test('Two single-line paragraphs (https://github.github.com/gfm/#example-189)', () => {
 		md.textContent = sanitized`
 			aaa
 
@@ -21,7 +21,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			</p>`)
 	})
 
-	test.skip('Paragraphs with multiple lines (https://github.github.com/gfm/#example-190)', () => {
+	test('Paragraphs with multiple lines (https://github.github.com/gfm/#example-190)', () => {
 		md.textContent = sanitized`
 			aaa
 			bbb
@@ -40,7 +40,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			</p>`)
 	})
 
-	test.skip('Paragraphs with multiple blank lines (https://github.github.com/gfm/#example-191)', () => {
+	test('Paragraphs with multiple blank lines (https://github.github.com/gfm/#example-191)', () => {
 		md.textContent = sanitized`
 			aaa
 
@@ -56,6 +56,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			</p>`)
 	})
 
+	//TODO remove leading spaces / handle indentation correctly.
 	test.skip('Skipping leading spaces (https://github.github.com/gfm/#example-192)', () => {
 		md.textContent = sanitized`
 			  aaa
@@ -64,7 +65,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		expect(html(md)).toEqual(sanitized`
 			<p>
 			aaa
-			bbb
+			bbbx
 			</p>`)
 	})
 
@@ -78,7 +79,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			<p>
 			aaa
 			bbb
-			ccc
+			cccx
 			</p>`)
 	})
 
@@ -90,7 +91,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		expect(html(md)).toEqual(sanitized`
 			<p>
 			aaa
-			bbb
+			bbbx
 			</p>`)
 	})
 
@@ -106,7 +107,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			</code>
 			</pre>
 			<p>
-			bbb
+			bbbx
 			</p>`)
 	})
 
@@ -118,7 +119,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		expect(html(md)).toEqual(sanitized`
 			<p>
 			aaa<br />
-			bbb
+			bbbx
 			</p>`)
 	})
 })

@@ -44,3 +44,29 @@ export function parseBlock<
 
 	return null
 }
+
+export function parseInlineContent(
+	text: string, start: number, length: number,
+	container: { addContent: (content: any) => unknown, },
+	parsers: Parsers<never>
+) {
+	if(!parsers.allInlines) { throw new Error(`Cannot parse ${text.substring(start, start+length)} at ${start} because all inline parsers array is not defined`) }
+
+	let i=0
+	while(i < length) {
+		let contentParsed = false
+		for(let p=0; p < parsers.allInlines.length; p++) {
+			const parser = parsers.allInlines[p]
+			const parsed = parser.parseLine(null, text, start+i, length-i)
+			if(parsed) {
+				i = length //TODO get parsed length from last parsed line!
+				contentParsed = true
+				container.addContent(parsed)
+				break
+			}
+		}
+		if(!contentParsed) {
+			throw Error(`Could not parse content ${text.substring(start, start+length)} with inline parsers`)
+		}
+	}
+}

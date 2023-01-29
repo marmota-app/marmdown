@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { jsonTransient } from "$markdown/jsonTransient";
 import { Parser } from "$parser/Parser";
 import { Block, Element, Inline, LineContent, ParsedLine } from "./Element";
 
@@ -26,7 +27,9 @@ export abstract class GenericBlock<
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
+		jsonTransient(this, 'lines')
+	}
 
 	get isFullyParsed() { return true }
 
@@ -54,7 +57,9 @@ export abstract class GenericInline<
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
-	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {}
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
+		jsonTransient(this, 'lines')
+	}
 
 	get isFullyParsed() { return true }
 

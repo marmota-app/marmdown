@@ -19,6 +19,7 @@ import { GenericBlock, GenericInline } from "$element/GenericElement";
 import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
 import { IdGenerator } from "$markdown/IdGenerator";
 import { MfMBlockElements } from "$markdown/MfMDialect";
+import { isEmpty } from "$parser/find";
 import { parseBlock } from "$parser/parse";
 import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
@@ -41,7 +42,6 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, '
  */
 export class MfMContainerParser extends Parser<MfMContainer> {
 	public readonly elementName = 'MfMContainer'
-	constructor(private parsers: Parsers<MfMSectionParser>) { super() }
 
 	create() {
 		return new MfMContainer(this.parsers.idGenerator.nextId(), this)
@@ -52,7 +52,12 @@ export class MfMContainerParser extends Parser<MfMContainer> {
 			previous.content.push(this.parsers['MfMSection'].create(1))
 		}
 
-		const result = parseBlock<MfMContainer, MfMBlockElements>(previous, text, start, length, this.create, this.allBlocks)
+		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, text, start, length, this.create, this.allBlocks)
+		if(result == null && isEmpty(text, start, length)) {
+			result = previous
+			result.lines.push(new ParsedLine(result))
+			result.lines[result.lines.length-1].content.push(new StringLineContent(text, start, length, result))
+		}
 		if(result != null && result.content.length > 1 && result.content[0].content.length === 0) {
 			result.content.shift()
 		}

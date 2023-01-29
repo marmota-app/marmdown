@@ -18,9 +18,10 @@ import { Element } from "$element/Element";
 import { IdGenerator } from "$markdown/IdGenerator";
 import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
-import { MfMHeadingParser, MfMHeadingTextParser } from "./block/MfMHeading";
+import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
+import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 
@@ -34,7 +35,7 @@ export type MfMLeafBlock =
 	MfMParagraphParser
 
 export type MfMContainerInline =
-	MfMHeadingTextParser
+	MfMContentLineParser
 
 export type MfMLeafInline =
 	MfMTextParser
@@ -65,7 +66,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMParagraph() { return this.getParser('MfMParagraph', () => new MfMParagraphParser(this)) }
 	get MfMHeading() { return this.getParser('MfMHeading', () => new MfMHeadingParser(this)) }
 	
-	get MfMHeadingText() { return this.getParser('MfMHeadingText', () => new MfMHeadingTextParser(this)) }
+	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 

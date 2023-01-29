@@ -12,7 +12,6 @@ export class MfMText extends GenericInline<MfMText, never, StringLineContent<MfM
 
 export class MfMTextParser extends Parser<MfMText> {
 	public readonly elementName = 'MfMText'
-	constructor(private parsers: Parsers<never>) { super() }
 
 	parseLine(previous: MfMText | null, text: string, start: number, length: number): MfMText | null {
 		const result = new MfMText(this.parsers.idGenerator.nextId(), this)

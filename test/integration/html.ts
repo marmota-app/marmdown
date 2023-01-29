@@ -12,6 +12,7 @@ function all(blocks: MfMBlockElements[]): string {
 		switch(b.type) {
 			case 'heading': return heading(b)
 			case 'section': return all(b.content)
+			case 'paragraph': return `<p>\n${inline(b.content)}\n</p>`
 			default: return ''
 		}
 	}).join('\n')
@@ -22,10 +23,10 @@ function heading(heading: MfMHeading) {
 }
 
 function inline(inlines: MfMInlineElements[]): string {
-	return inlines.map(i => {
-		switch(i.type) {
-			case 'heading-text': return inline(i.content)
-			case 'text': return i.text
+	return inlines.map((element, index) => {
+		switch(element.type) {
+			case 'content-line': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
+			case 'text': return element.text
 			default: return ''
 		}
 	}).join('')

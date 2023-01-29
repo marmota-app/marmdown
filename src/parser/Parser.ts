@@ -15,6 +15,8 @@ limitations under the License.
 */
 
 import { Element, ParsedLine } from "$element/Element";
+import { jsonTransient } from "$markdown/jsonTransient";
+import { Parsers } from "./Parsers";
 
 /**
  * Parses an element and supports line-by-line-parsing. 
@@ -36,6 +38,10 @@ export abstract class Parser<
 	 * The name of the element type returned by this parser. 
 	 */
 	abstract readonly elementName: string
+
+	constructor(readonly parsers: Parsers<any>) {
+		jsonTransient(this, 'parsers')
+	}
 
 	/**
 	 * Try to parse a given line of text into the supported element type
@@ -89,5 +95,23 @@ export abstract class Parser<
 			return (result as unknown as Element<unknown, unknown, unknown, unknown>).lines[0]
 		}
 		return null
+	}
+
+	/**
+	 * Checks whether this parser should interrupt another element (can happen
+	 * because the text can be parsed by this parser and the resulting element
+	 * might have a higher priority).
+	 * 
+	 * Usually, this is done by checking whether the parser can parse a certain
+	 * text as the first line of its element. 
+	 * 
+	 * @param element The current element (that might get interrupted)
+	 * @param text The text to check whether it could be parsed
+	 * @param start The start of the line that should be checked
+	 * @param length The length of the line that should be checked
+	 * @returns true when the given text requires the parser to interrupt the current element
+	 */
+	shouldInterrupt(element: Element<unknown, unknown, unknown, unknown>, text: string, start: number, length: number): boolean {
+		return this.parseLine(null, text, start, length) != null
 	}
 }

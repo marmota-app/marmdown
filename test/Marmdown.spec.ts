@@ -21,10 +21,12 @@ import { Dialect } from "$parser/Dialect"
 import { Parser } from "$parser/Parser"
 import { GenericBlock } from "$element/GenericElement"
 import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
+import { NumberedIdGenerator } from "$markdown/IdGenerator"
 
 class TestContainer extends GenericBlock<TestContainer, unknown, string, TestContainerParser> {}
 class TestContainerParser extends Parser<TestContainer> {
 	elementName = 'TestContainer'
+	constructor() { super({ idGenerator: new NumberedIdGenerator, }) }
 	parseLine(previous: TestContainer, text: string, start: number, length: number): TestContainer | null { return null }
 }
 class TestDialect implements Dialect<TestContainer> {

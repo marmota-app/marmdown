@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { jsonTransient } from "$markdown/jsonTransient";
 import { Parser } from "$parser/Parser"
 
 /**
@@ -165,7 +166,9 @@ export class ParsedLine<
 > implements LineContent<BELONGS_TO> {
 	public readonly content: LINE_CONTENT[] = []
 
-	constructor(public readonly belongsTo: BELONGS_TO) {}
+	constructor(public readonly belongsTo: BELONGS_TO) {
+		jsonTransient(this, 'belongsTo')
+	}
 
 	get start() { return (this.content[0] as LineContent<BELONGS_TO>).start ?? 0 }
 	get length() {
