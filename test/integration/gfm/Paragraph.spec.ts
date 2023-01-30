@@ -13,12 +13,8 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			bbb`
 		
 		expect(html(md)).toEqual(sanitized`
-			<p>
-			aaa
-			</p>
-			<p>
-			bbb
-			</p>`)
+			<p>aaa</p>
+			<p>bbb</p>`)
 	})
 
 	test('Paragraphs with multiple lines (https://github.github.com/gfm/#example-190)', () => {
@@ -30,14 +26,10 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			ddd`
 		
 		expect(html(md)).toEqual(sanitized`
-			<p>
-			aaa
-			bbb
-			</p>
-			<p>
-			ccc
-			ddd
-			</p>`)
+			<p>aaa
+			bbb</p>
+			<p>ccc
+			ddd</p>`)
 	})
 
 	test('Paragraphs with multiple blank lines (https://github.github.com/gfm/#example-191)', () => {
@@ -48,12 +40,8 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 			bbb`
 		
 		expect(html(md)).toEqual(sanitized`
-			<p>
-			aaa
-			</p>
-			<p>
-			bbb
-			</p>`)
+			<p>aaa</p>
+			<p>bbb</p>`)
 	})
 
 	//TODO remove leading spaces / handle indentation correctly.
