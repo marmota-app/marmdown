@@ -5,7 +5,7 @@ import { sanitized } from "./sanitize"
 
 describe('MfM: Nesting blocks', () => {
 	const md = new Marmdown(new MfMDialect())
-	test.skip('blockquote > p', () => {
+	test('blockquote > p', () => {
 		md.textContent = sanitized`
 			> Sphinx of black quartz,
 			> judge my vow.
@@ -14,8 +14,22 @@ describe('MfM: Nesting blocks', () => {
 
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
-			<p>Sphinx of black quartz, judge my vow.</p>
-			<p>And another paragraph
+			<p>Sphinx of black quartz,
+			judge my vow.</p>
+			<p>And another paragraph</p>
+			</blockquote>`)
+	})
+	test('p + blockquote',() => {
+		md.textContent = sanitized`
+			Sphinx of black quartz,
+			judge my vow.
+			> And another paragraph, inside a blockquote`
+
+		expect(html(md)).toEqual(sanitized`
+			<p>Sphinx of black quartz,
+			judge my vow.</p>
+			<blockquote>
+			<p>And another paragraph, inside a blockquote</p>
 			</blockquote>`)
 	})
 	test.skip('aside > blockquote > p', () => {

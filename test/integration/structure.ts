@@ -1,6 +1,8 @@
 import { Marmdown } from "$markdown/Marmdown";
 import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
+import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 import { MfMHeading } from "$mfm/block/MfMHeading";
+import { MfMParagraph } from "$mfm/block/MfMParagraph";
 import { MfMSection } from "$mfm/block/MfMSection";
 import { MfMContainer } from "$mfm/MfMContainer";
 
@@ -13,6 +15,8 @@ function all(blocks: MfMBlockElements[], indentation: number): string {
 		switch(b.type) {
 			case 'heading': return heading(b, indentation)
 			case 'section': return section(b, indentation)
+			case 'paragraph': return paragraph(b, indentation)
+			case 'block-quote': return block(b, indentation)
 			default: return ''
 		}
 	}).join('\n')
@@ -26,10 +30,18 @@ function section(section: MfMSection, indentation: number) {
 	return `${indent(indentation)}section ${section.level}\n${all(section.content, indentation+1)}`
 }
 
+function paragraph(para: MfMParagraph, indentation: number) {
+	return `${indent(indentation)}paragraph\n${inline(para.content, indentation+1)}`
+}
+
+function block(block: MfMGeneralPurposeBlock, indentation: number) {
+	return `${indent(indentation)}block\n${all(block.content, indentation+1)}`
+}
+
 function inline(inlines: MfMInlineElements[], indentation: number): string {
 	return inlines.map(i => {
 		switch(i.type) {
-			case 'content-line': return `${indent(indentation)}heading-text\n${inline(i.content, indentation+1)}`
+			case 'content-line': return `${indent(indentation)}content-line\n${inline(i.content, indentation+1)}`
 			case 'text': return `${indent(indentation)}text`
 			default: return ''
 		}

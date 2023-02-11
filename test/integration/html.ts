@@ -13,6 +13,7 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'heading': return heading(b)
 			case 'section': return all(b.content)
 			case 'paragraph': return `<p>${inline(b.content)}</p>`
+			case 'block-quote': return `<blockquote>\n${all(b.content)}\n</blockquote>`
 			default: return ''
 		}
 	}).join('\n')

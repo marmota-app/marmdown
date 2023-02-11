@@ -6,7 +6,7 @@ import { sanitized } from "../sanitize"
 describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)', () => {
 	const md = new Marmdown(new MfMDialect())
 
-	test.skip('A simple block quote (https://github.github.com/gfm/#example-206)', () => {
+	test('A simple block quote (https://github.github.com/gfm/#example-206)', () => {
 		md.textContent = sanitized`
 			> # Foo
 			> bar
@@ -15,14 +15,12 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
 			<h1>Foo</h1>
-			<p>
-			bar
-			baz
-			</p>
+			<p>bar
+			baz</p>
 			</blockquote>`)
 	})
 
-	test.skip('Space after block quote character can be omitted (https://github.github.com/gfm/#example-207)', () => {
+	test('Space after block quote character can be omitted (https://github.github.com/gfm/#example-207)', () => {
 		md.textContent = sanitized`
 			># Foo
 			>bar
@@ -31,10 +29,8 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
 			<h1>Foo</h1>
-			<p>
-			bar
-			baz
-			</p>
+			<p>bar
+			baz</p>
 			</blockquote>`)
 	})
 
@@ -67,50 +63,19 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 			</code></pre>`)
 	})
 
-	test.skip('The Laziness clause allows us to omit the block quote character before paragraph continuation text (https://github.github.com/gfm/#example-210)', () => {
-		md.textContent = sanitized`
-			> # Foo
-			> bar
-			baz`
-	
-		expect(html(md)).toEqual(sanitized`
-			<blockquote>
-			<h1>Foo</h1>
-			<p>
-			bar
-			baz
-			</p>
-			</blockquote>`)
-	})
+	//Examples 210-216 are about special cases for lazyness that we'll probably
+	//never implement... I don't think the lazyness clause adds value here.
 
-	test.skip('A block quote can contain some lazy and some non-lazy continuation lines (https://github.github.com/gfm/#example-211)', () => {
-		md.textContent = sanitized`
-			> bar
-			baz
-			> foo`
-	
-		expect(html(md)).toEqual(sanitized`
-			<blockquote>
-			<p>
-			bar
-			baz
-			foo
-			</p>
-			</blockquote>`)
-	})
-
-	//Examples 212-216 are about special cases for lazyness that we'll probably
-	//never implement...
-
-	test.skip('A block quote can be empty (https://github.github.com/gfm/#example-217)', () => {
+	test('A block quote can be empty (https://github.github.com/gfm/#example-217)', () => {
 		md.textContent = sanitized`
 			>`
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
+
 			</blockquote>`)
 	})
-	test.skip('A block quote can be empty with multiple lines(https://github.github.com/gfm/#example-218)', () => {
+	test('A block quote can be empty with multiple lines(https://github.github.com/gfm/#example-218)', () => {
 		md.textContent = sanitized`
 			>
 			>  
@@ -118,10 +83,11 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
+
 			</blockquote>`)
 	})
 
-	test.skip('A block quote can have initial or final blank lines (https://github.github.com/gfm/#example-219)', () => {
+	test('A block quote can have initial or final blank lines (https://github.github.com/gfm/#example-219)', () => {
 		md.textContent = sanitized`
 			>
 			> foo
@@ -129,13 +95,11 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
-			<p>
-			foo
-			</p>
+			<p>foo</p>
 			</blockquote>`)
 	})
 
-	test.skip('A blank line always separates block quotes (https://github.github.com/gfm/#example-220)', () => {
+	test('A blank line always separates block quotes (https://github.github.com/gfm/#example-220)', () => {
 		md.textContent = sanitized`
 			> foo
 
@@ -143,20 +107,16 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
-			<p>
-			foo
-			</p>
+			<p>foo</p>
 			</blockquote>
 			<blockquote>
-			<p>
-			bar
-			</p>
+			<p>bar</p>
 			</blockquote>`)
 	})
-	//Example 221 is about removing the empty line from 220, which is a test.skip
+	//Example 221 is about removing the empty line from 220, which is a test
 	//that we already have!
 
-	test.skip('To get a block quote with two paragraphs, use (https://github.github.com/gfm/#example-222)', () => {
+	test('To get a block quote with two paragraphs, use (https://github.github.com/gfm/#example-222)', () => {
 		md.textContent = sanitized`
 			> foo
 			>
@@ -164,28 +124,20 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
-			<p>
-			foo
-			</p>
-			<p>
-			bar
-			</p>
+			<p>foo</p>
+			<p>bar</p>
 			</blockquote>`)
 	})
 
-	test.skip('Block quotes can interrupt paragraphs (https://github.github.com/gfm/#example-223)', () => {
+	test('Block quotes can interrupt paragraphs (https://github.github.com/gfm/#example-223)', () => {
 		md.textContent = sanitized`
 			foo
 			> bar`
 	
 		expect(html(md)).toEqual(sanitized`
-			<p>
-			foo
-			</p>
+			<p>foo</p>
 			<blockquote>
-			<p>
-			bar
-			</p>
+			<p>bar</p>
 			</blockquote>`)
 	})
 

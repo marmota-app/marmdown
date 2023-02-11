@@ -39,7 +39,7 @@ export function parseBlock<
 			}
 			container.addContent(content)
 			return container
-		}	
+		}
 	}
 
 	return null

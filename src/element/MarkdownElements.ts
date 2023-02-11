@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ContentUpdate } from "$markdown/ContentUpdate";
 import { Block, ContainerBlock, Element, Inline, LeafBlock, LeafInline, LineContent } from "./Element";
 
 export interface Container<
@@ -35,6 +36,11 @@ export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
 > extends LeafBlock<THIS, CONTENT, 'paragraph'> {}
+
+export interface BlockQuote<
+	THIS extends BlockQuote<THIS, CONTENT>,
+	CONTENT extends Block<unknown, unknown, unknown>,
+> extends ContainerBlock<THIS, CONTENT, 'block-quote'> {}
 
 export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
 	readonly text: string,

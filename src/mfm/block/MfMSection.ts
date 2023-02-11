@@ -1,13 +1,11 @@
 import { ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { Section } from "$element/MarkdownElements"
+import { MfMBlockElements } from "$markdown/MfMDialect"
 import { parseBlock } from "$parser/parse"
 import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
-import { MfMHeading } from "./MfMHeading"
-import { MfMParagraph } from "./MfMParagraph"
 
-export type MfMSectionContent = MfMHeading | MfMParagraph | MfMSection
+export type MfMSectionContent = MfMBlockElements
 export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section', MfMSectionParser> implements Section<MfMSection, MfMSectionContent> {
 	constructor(id: string, pw: MfMSectionParser, public readonly level: number = 1) { super(id, 'section', pw) }
 

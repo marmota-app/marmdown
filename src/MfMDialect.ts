@@ -27,10 +27,12 @@ import { MfMParagraph } from "$mfm/block/MfMParagraph";
 import { MfMText } from "$mfm/inline/MfMText";
 import { UpdateParser } from "./UpdateParser";
 import { MfMContentLine } from "$mfm/inline/MfMContentLine";
+import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 
 export type MfMBlockElements =
 	MfMSection |
 	MfMHeading |
+	MfMGeneralPurposeBlock |
 	MfMParagraph
 
 export type MfMInlineElements =
