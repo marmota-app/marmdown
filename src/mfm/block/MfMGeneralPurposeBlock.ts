@@ -1,4 +1,4 @@
-import { Element, LineContent, ParsedLine } from "$element/Element"
+import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { BlockQuote } from "$element/MarkdownElements"
 import { MfMBlockElements } from "$markdown/MfMDialect"
@@ -22,10 +22,17 @@ export class MfMGeneralPurposeBlockParser extends Parser<MfMGeneralPurposeBlock>
 	parseLine(previous: MfMGeneralPurposeBlock | null, text: string, start: number, length: number): MfMGeneralPurposeBlock | null {
 		if(text.charAt(start) === '>') {
 			let i=1
-			if(text.charAt(start+1) === ' ' || text.charAt(start+1) === '\t') { i++ }
+			let lineStart = '>'
+			const nextChar = text.charAt(start+1)
+			if(nextChar === ' ' || nextChar === '\t') { 
+				i++
+				lineStart += nextChar
+			}
 
-			if(previous) { previous.lines.push(new ParsedLine(previous)) }
 			const block = previous ?? new MfMGeneralPurposeBlock(this.parsers.idGenerator.nextId(), this)
+			block.lines.push(new ParsedLine(block))
+			block.lines[block.lines.length-1].content.push(new StringLineContent(lineStart, start, i, block))
+
 			const previousContent = block.content.length > 0? block.content[block.content.length-1] : null
 			if(previous && previousContent && !previousContent.isFullyParsed) {
 				const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
@@ -48,7 +55,7 @@ export class MfMGeneralPurposeBlockParser extends Parser<MfMGeneralPurposeBlock>
 
 			return block
 		}
-		
+
 		if(previous) {
 			previous.continueWithNextLine = false
 		}

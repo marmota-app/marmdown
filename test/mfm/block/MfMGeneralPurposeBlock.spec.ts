@@ -1,5 +1,5 @@
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMGeneralPurposeBlockParser } from "$mfm/block/MfMGeneralPurposeBlock"
+import { MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser } from "$mfm/block/MfMGeneralPurposeBlock"
 import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMParagraph, MfMParagraphParser } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
@@ -189,6 +189,60 @@ describe('MfMGeneralPurposeBlock parser', () => {
 		})
 	})
 	describe('parsing content lines', () => {
-		it.skip('contains the starting block character', () => {})
+		it('contains the starting block character of an empty block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const result = parser.parseLine(null, '>', 0, 1) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(1)
+			const line = result.lines[0]
+
+			expect(line.content).toHaveLength(1)
+
+			expect(line.content[0]).toHaveProperty('start', 0)
+			expect(line.content[0]).toHaveProperty('length', 1)
+			expect(line.content[0]).toHaveProperty('asText', `>`)
+		})
+
+		it('contains the full line of a single-line block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const text = '>\ta single line block'
+			const result = parser.parseLine(null, text, 0, text.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(1)
+			const line = result.lines[0]
+
+			expect(line.content).toHaveLength(2)
+
+			expect(line.content[0]).toHaveProperty('start', 0)
+			expect(line.content[0]).toHaveProperty('length', 2)
+			expect(line.content[0]).toHaveProperty('asText', `>\t`)
+
+			expect(line.content[1]).toHaveProperty('start', 2)
+			expect(line.content[1]).toHaveProperty('length', 'a single line block'.length)
+			expect(line.content[1]).toHaveProperty('asText', 'a single line block')
+		})
+
+		it('contains the full second line of a two-line block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const text = '>\tfirst line\n> second line'
+			const first = parser.parseLine(null, text, 0, '>\tfirst line'.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(first, text, '>\tfirst line\n'.length, '> second line'.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(2)
+			const line = result.lines[1]
+
+			expect(line.content).toHaveLength(2)
+
+			expect(line.content[0]).toHaveProperty('start', '>\tfirst line\n'.length)
+			expect(line.content[0]).toHaveProperty('length', 2)
+			expect(line.content[0]).toHaveProperty('asText', `> `)
+
+			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
+			expect(line.content[1]).toHaveProperty('length', 'second line'.length)
+			expect(line.content[1]).toHaveProperty('asText', 'second line')
+		})
 	})
 })
