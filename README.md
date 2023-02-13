@@ -35,7 +35,7 @@ This will not be a drop-in replacement
 ## License
 
 ```
-   Copyright [2020-2022] [David Tanzer - @dtanzer@social.devteams.at]
+   Copyright [2020-2023] [David Tanzer - @dtanzer@social.devteams.at]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
