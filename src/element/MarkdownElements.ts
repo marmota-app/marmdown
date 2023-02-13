@@ -42,6 +42,11 @@ export interface BlockQuote<
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'block-quote'> {}
 
+export interface Aside<
+	THIS extends Aside<THIS, CONTENT>,
+	CONTENT extends Block<unknown, unknown, unknown>,
+> extends ContainerBlock<THIS, CONTENT, 'aside'> {}
+
 export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
 	readonly text: string,
 }

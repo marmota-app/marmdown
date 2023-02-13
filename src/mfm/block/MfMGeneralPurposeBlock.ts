@@ -1,9 +1,5 @@
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { BlockQuote } from "$element/MarkdownElements"
-import { MfMBlockElements } from "$markdown/MfMDialect"
-import { parseBlock } from "$parser/parse"
-import { Parser } from "$parser/Parser"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
 export class MfMGeneralPurposeBlock extends GenericBlock<
@@ -17,6 +13,7 @@ export class MfMGeneralPurposeBlock extends GenericBlock<
 }
 
 export class MfMGeneralPurposeBlockParser extends MfMBlockContentParser<MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser> {
+	public readonly elementName = 'MfMGeneralPurposeBlock'
 	readonly token = '>'
 
 	override create(): MfMGeneralPurposeBlock {

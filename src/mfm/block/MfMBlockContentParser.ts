@@ -9,10 +9,9 @@ export abstract class MfMBlockContentParser<
 	T extends GenericBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, },
 	P extends MfMBlockContentParser<T, P>,
 > extends Parser<T> {
-	public readonly elementName = 'MfMGeneralPurposeBlock'
-
 	abstract create(): T
 	abstract get token(): string
+	abstract get elementName(): string
 
 	parseLine(previous: T | null, text: string, start: number, length: number): T | null {
 		if(text.charAt(start) === this.token) {

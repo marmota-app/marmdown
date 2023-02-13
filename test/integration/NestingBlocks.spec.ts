@@ -32,7 +32,7 @@ describe('MfM: Nesting blocks', () => {
 			<p>And another paragraph, inside a blockquote</p>
 			</blockquote>`)
 	})
-	test.skip('aside > blockquote > p', () => {
+	test('aside > blockquote > p', () => {
 		md.textContent = sanitized`
 			^ > Sphinx of black quartz,
 			^ > judge my vow.
@@ -42,10 +42,11 @@ describe('MfM: Nesting blocks', () => {
 		expect(html(md)).toEqual(sanitized`
 			<aside>
 			<blockquote>
-			<p>Sphinx of black quartz, judge my vow.</p>
+			<p>Sphinx of black quartz,
+			judge my vow.</p>
 			</blockquote>
 			<blockquote>
-			<p>And another paragraph
+			<p>And another paragraph</p>
 			</blockquote>
 			</aside>`)
 	})

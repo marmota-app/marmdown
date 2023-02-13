@@ -1,5 +1,6 @@
 import { Marmdown } from "$markdown/Marmdown";
 import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
+import { MfMAside } from "$mfm/block/MfMAside";
 import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 import { MfMHeading } from "$mfm/block/MfMHeading";
 import { MfMParagraph } from "$mfm/block/MfMParagraph";
@@ -17,6 +18,7 @@ function all(blocks: MfMBlockElements[], indentation: number): string {
 			case 'section': return section(b, indentation)
 			case 'paragraph': return paragraph(b, indentation)
 			case 'block-quote': return block(b, indentation)
+			case 'aside': return aside(b, indentation)
 			default: return ''
 		}
 	}).join('\n')
@@ -36,6 +38,10 @@ function paragraph(para: MfMParagraph, indentation: number) {
 
 function block(block: MfMGeneralPurposeBlock, indentation: number) {
 	return `${indent(indentation)}block\n${all(block.content, indentation+1)}`
+}
+
+function aside(aside: MfMAside, indentation: number) {
+	return `${indent(indentation)}aside\n${all(aside.content, indentation+1)}`
 }
 
 function inline(inlines: MfMInlineElements[], indentation: number): string {

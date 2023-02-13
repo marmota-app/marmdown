@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element } from "$element/Element";
 import { IdGenerator } from "$markdown/IdGenerator";
-import { Parser } from "$parser/Parser";
 import { Parsers } from "$parser/Parsers";
-import { MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
+import { MfMAsideParser } from "./block/MfMAside";
+import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
 import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
@@ -31,7 +30,8 @@ export type MfMMetaBlock =
 	MfMSectionParser
 
 export type MfMContainerBlock =
-	MfMGeneralPurposeBlockParser
+	MfMGeneralPurposeBlockParser |
+	MfMAsideParser
 
 export type MfMLeafBlock =
 	MfMHeadingParser |
@@ -74,7 +74,8 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
-
+	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this))}
+	
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
 		//IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
@@ -82,6 +83,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 		//           when needed by other parsers. Parsing them explicitly would
 		//           create infiniterecursion or unnecessarily nested blocks.
 		this.MfMGeneralPurposeBlock,
+		this.MfMAside,
 	] }
 	get allLeafBlocks(): KnownParsers[] { return [
 		this.MfMHeading,
