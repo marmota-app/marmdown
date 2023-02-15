@@ -33,7 +33,7 @@ describe('asText - Reproduce the original document', () => {
 			with three lines  
 			shoud reproduce document`)
 	
-	skip('text content with "empty" section at the start and another section')
+	md('text content with "empty" section at the start and another section')
 		.canReproduce(sanitized`
 			some paragraph content
 			with two lines
@@ -41,6 +41,30 @@ describe('asText - Reproduce the original document', () => {
 			# The next section
 			
 			with more paragraph content`)
+
+	md('paragraphs and block quotes')
+		.canReproduce(sanitized`
+			here is a paragraph
+			with two lines
+			> interrupted by a block quote
+			> # that even contains a heading
+			>
+			> and more paragraph content
+			
+			and another paragraph,
+			after the block quote`)
+
+	md('nested block quotes and asides')
+		.canReproduce(sanitized`
+			> a block quote
+			> > that contains another block quote
+			> > ^ containing even an aside
+			> there's more content
+			> ^ and another aside
+			
+			^ and at the toplevel, there is
+			^ ## an aside
+			^ too`)
 })
 
 function md(title: string) {
@@ -50,6 +74,7 @@ function md(title: string) {
 				const md = new Marmdown(new MfMDialect())
 				md.textContent = text
 
+				console.log(md.document?.lines.map((l,i) => `${i}\t${l.asText}`).join('\n'))
 				expect(md.textContent).toEqual(text)
 			})
 		}

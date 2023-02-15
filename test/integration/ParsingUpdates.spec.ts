@@ -74,6 +74,28 @@ describe('MfM: Parsing updates', () => {
 				<p>the original paragraph</p>
 				</blockquote>`)
 		})
+
+		test('updates the text inside a multiply-nested block with heading and paragraph', () => {
+			const md = new Marmdown(new MfMDialect())
+	
+			md.textContent = sanitized`
+				> ^ >> # the original heading
+				>
+				> the original paragraph`
+			md.update({ rangeOffset: 13, rangeLength: 9, text: 'updated ' }, () => 'dummy')
+	
+			expect(html(md)).toEqual(sanitized`
+				<blockquote>
+				<aside>
+				<blockquote>
+				<blockquote>
+				<h1>the updated heading</h1>
+				</blockquote>
+				</blockquote>
+				</aside>
+				<p>the original paragraph</p>
+				</blockquote>`)
+		})
 	})
 
 	describe.skip('updates that change the document structure, but can be partially parsed', () => {

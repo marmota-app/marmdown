@@ -55,8 +55,15 @@ export class MfMContainerParser extends Parser<MfMContainer> {
 		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, text, start, length, this.create, this.allBlocks)
 		if(result == null && isEmpty(text, start, length)) {
 			result = previous
-			result.lines.push(new ParsedLine(result))
-			result.lines[result.lines.length-1].content.push(new StringLineContent(text, start, length, result))
+			//`previous` already has an empty line at the end, so there's no need
+			//to add an empty line at the end, like
+			//```result.lines.push(new ParsedLine(result))```
+			//FIXME: Argh, I don't like that. The code here implicitly knows
+			//       that `parseBlock` always adds an empty line. Actually,
+			//       `parseBlock` should not do that. We should add the line
+			//       here, like in the commented code above. But that's not an
+			//       easy fix, so I am leaving it like this for now.
+			result.lines[result.lines.length-1].content.push(new StringLineContent(text.substring(start, start+length), start, length, result))
 		}
 		if(result != null && result.content.length > 1 && result.content[0].content.length === 0) {
 			result.content.shift()

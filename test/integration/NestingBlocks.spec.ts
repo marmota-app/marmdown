@@ -66,6 +66,31 @@ describe('MfM: Nesting blocks', () => {
 			</blockquote>
 			</aside>`)
 	})
+	test('blockquote > blockquote > aside > p', () => {
+		md.textContent = sanitized`
+			before
+			> block quote
+			> > nested block quote
+			> > ^ aside
+			> > after aside
+			> after nested
+			after`
+
+		expect(html(md)).toEqual(sanitized`
+			<p>before</p>
+			<blockquote>
+			<p>block quote</p>
+			<blockquote>
+			<p>nested block quote</p>
+			<aside>
+			<p>aside</p>
+			</aside>
+			<p>after aside</p>
+			</blockquote>
+			<p>after nested</p>
+			</blockquote>
+			<p>after</p>`)
+	})
 	test.skip('blockquote > ul > li > p', () => {
 		md.textContent = sanitized`
 			> * Sphinx of black quartz,
