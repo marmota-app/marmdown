@@ -96,6 +96,10 @@ describe('MfM: Parsing updates', () => {
 				<p>the original paragraph</p>
 				</blockquote>`)
 		})
+
+		test.skip('parsing two updates, in heading and paragraph', () => {})
+
+		test.skip('parsing two updates, in bold and italic of two paragraphs', () => {})
 	})
 
 	describe.skip('updates that change the document structure, but can be partially parsed', () => {

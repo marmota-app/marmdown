@@ -29,6 +29,16 @@ describe('MfMText', () => {
 
 			expect(text).toHaveProperty('text', 'the text')
 		})
+
+		it('returns null when previous is set', () => {
+			const parsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), }
+			const textParser = new MfMTextParser(parsers)
+
+			const prev = textParser.parseLine(null, 'the text', 0, 'the text'.length)
+			const text = textParser.parseLine(prev, 'the text', 0, 'the text'.length)
+
+			expect(text).toBeNull()
+		})
 	})
 
 	describe('parsing updates', () => {

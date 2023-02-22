@@ -24,6 +24,7 @@ import { MfMSectionParser } from "./block/MfMSection";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
+import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -43,12 +44,17 @@ export type MfMContainerInline =
 export type MfMLeafInline =
 	MfMTextParser
 
+export type MfMOptions =
+	MfMFirstOptionParser |
+	MfMOptionParser
+
 export type KnownParsers =
 	MfMMetaBlock |
 	MfMContainerBlock |
 	MfMLeafBlock |
 	MfMContainerInline |
-	MfMLeafInline
+	MfMLeafInline |
+	MfMOptions
 
 /**
  * A class for accessing all known parsers that form the MfM markdown dialect,
@@ -76,6 +82,9 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
 	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this))}
 	
+	get MfMFirstOption() { return this.getParser('MfMFirstOption', () => new MfMFirstOptionParser(this))}
+	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this))}
+	
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
 		//IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
@@ -86,6 +95,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 		this.MfMAside,
 	] }
 	get allLeafBlocks(): KnownParsers[] { return [
+		//IMPORTANT: Options are not part of leaf blocks!
 		this.MfMHeading,
 		this.MfMParagraph,
 	] }

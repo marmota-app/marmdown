@@ -115,3 +115,28 @@ export abstract class Parser<
 		return this.parseLine(null, text, start, length) != null
 	}
 }
+
+/**
+ * Abstract Parser<> to parse Inlines with common functionality. 
+ * 
+ * This parser returns null when there is a previous result, since inlines
+ * can never span more than a line. It also makes sure that the parsed
+ * result has exactly one line.
+ */
+export abstract class InlineParser<
+	RESULT extends Element<unknown, unknown, unknown, unknown>
+> extends Parser<RESULT, RESULT> {
+	abstract parseInline(text: string, start: number, length: number): RESULT | null
+
+	override parseLine(previous: RESULT | null, text: string, start: number, length: number): RESULT | null {
+		if(previous != null) { return null }
+
+		const result = this.parseInline(text, start, length)
+
+		if(result && result.lines.length !== 1) {
+			throw new Error(`Could not parse ${text.substring(start, start+length)}: Expected inline to return 1 line, but it returned ${result.lines.length}`)
+		}
+
+		return result
+	}
+}

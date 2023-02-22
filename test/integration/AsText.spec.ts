@@ -74,7 +74,6 @@ function md(title: string) {
 				const md = new Marmdown(new MfMDialect())
 				md.textContent = text
 
-				console.log(md.document?.lines.map((l,i) => `${i}\t${l.asText}`).join('\n'))
 				expect(md.textContent).toEqual(text)
 			})
 		}
