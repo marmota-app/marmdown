@@ -63,6 +63,15 @@ abstract class MfMGenericOptionParser<P extends MfMGenericOptionParser<P>> exten
 		
 		const optionLine = new ParsedLine<MfMOptionKey | MfMOptionValue | StringLineContent<MfMOption<P>>, MfMOption<P>>(option)
 		
+		const openingBracketIndex = text.indexOf('{', start)
+		if(openingBracketIndex >= start && openingBracketIndex < start+length) {
+			return null
+		}
+		const closingBracketIndex = text.indexOf('}', start)
+		if(closingBracketIndex >= start && closingBracketIndex < start+length) {
+			return null
+		}
+		
 		findTrimmed(text, [ ';', ], start, length).insertInto(optionLine, option, (found, foundStart, foundLength) => {
 			if(found.indexOf('=') >= 0) {
 				const foundKey = findTrimmed(found, [ '=', ], 0, found.length).insertInto(optionLine, option, (key, keyStart, keyLength) => {

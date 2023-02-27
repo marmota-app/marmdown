@@ -16,6 +16,7 @@ limitations under the License.
 
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
+import { MfMSectionParser } from "$mfm/block/MfMSection"
 import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
 import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
@@ -25,7 +26,8 @@ describe('UpdateParser', () => {
 	[ '\r', '\n' ].forEach(nl => it(`does not parse a document that contains the newline character ${nl.replaceAll('\r', '\\r').replaceAll('\n', '\\n')}`, () => {
 		const updateParser = new UpdateParser()
 		const containerParserMock = mock(MfMContainerParser)
-		const dummy = new MfMContainer('dummy', instance(containerParserMock))
+		const sectionParserMock = mock(MfMSectionParser)
+		const dummy = new MfMContainer('dummy', instance(containerParserMock), instance(sectionParserMock))
 
 		const result = updateParser.parse(dummy, { text: `foo${nl}bar`, rangeOffset: 0, rangeLength: 0, })
 

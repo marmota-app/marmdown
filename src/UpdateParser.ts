@@ -44,6 +44,8 @@ import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
  * Then it recreates the new element tree.
  */
 export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unknown>> {
+	//TODO is it dangerous to set the id generator to a default value here?
+	//     That default value must never be used in production!
 	constructor(private idGenerator: IdGenerator = new NumberedIdGenerator()) {}
 
 	parse(element: ELEMENT, update: ContentUpdate): ELEMENT | null {
@@ -102,12 +104,15 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const afterChange = originalText.substring(rangeStartWithin+update.rangeLength)
 		const updatedText = beforeChange + update.text + afterChange
 
-		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length)
+		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length, content)
+		const isFullyParsed = updated?.length === updatedText.length && 
+			content.belongsTo.parsedWith.isFullyParsedUpdate(updated as LineContent<Element<unknown, unknown, unknown, unknown>>, content)
 
-		if(updated) {
+		if(updated && isFullyParsed) {
 			let lineFound = false
 			for(let i=0; i<content.belongsTo.lines.length; i++) {
 				if(content.belongsTo.lines[i] === content) {
+					this.updateContentOwner(updated as ParsedLine<LineContent<unknown>, unknown>, content.belongsTo)
 					content.belongsTo.lines[i] = updated
 					content.belongsTo.id = this.idGenerator.nextId()
 					lineFound = true
@@ -124,6 +129,12 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		}
 
 		return null
+	}
+
+	private updateContentOwner(updated: ParsedLine<LineContent<unknown>, unknown>, newOwner: Element<unknown, unknown, unknown, unknown>) {
+		updated.content
+			.filter(c => c.belongsTo === updated.belongsTo)
+			.forEach(c => c.belongsTo = newOwner)
 	}
 
 	private updateStart(lineContent: LineContent<unknown>, start: number) {

@@ -75,9 +75,19 @@ describe('MfMOption', () => {
 			expect(option?.lines[0].start).toEqual('-ignore me-'.length)
 			expect(option?.lines[0].length).toEqual(' the_key\t =  \t\tthe value  '.length)
 		})
+
+		it.skip('does not parse a key that contains an opening bracket', () => {})
+		it.skip('does not parse a key that contains an closing bracket', () => {})
+		it.skip('does not parse a value that contains an opening bracket', () => {})
+		it.skip('does not parse a value that contains an closing bracket', () => {})
+
+		it.skip('can parse a key that contains an escaped opening bracket', () => {})
+		it.skip('can parse a key that contains an escaped closing bracket', () => {})
+		it.skip('can parse a value that contains an escaped opening bracket', () => {})
+		it.skip('can parse a value that contains an escaped closing bracket', () => {})
 	})
 
-	describe('parsing the content - with default', () => {
+	describe('parsing the content - without default', () => {
 		function createOptionParser() {
 			const idGenerator = new NumberedIdGenerator()
 			const optionParser = new MfMOptionParser({ idGenerator })

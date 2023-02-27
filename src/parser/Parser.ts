@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, ParsedLine } from "$element/Element";
+import { Element, LineContent, ParsedLine } from "$element/Element";
 import { jsonTransient } from "$markdown/jsonTransient";
 import { Parsers } from "./Parsers";
 
@@ -88,13 +88,17 @@ export abstract class Parser<
 	 * @param start The start index of the line to parse, ignore everything before `start`
 	 * @param length The length of the line to parse, ignore everything after `start+length`
 	 */
-	parseLineUpdate(original: RESULT, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+	parseLineUpdate(original: RESULT, text: string, start: number, length: number, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>): ParsedLine<unknown, unknown> | null {
 		const result = this.parseLine(null, text, start, length)
 
 		if(result) {
 			return (result as unknown as Element<unknown, unknown, unknown, unknown>).lines[0]
 		}
 		return null
+	}
+
+	isFullyParsedUpdate(update: LineContent<Element<unknown, unknown, unknown, unknown>>, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>) {
+		return true
 	}
 
 	/**

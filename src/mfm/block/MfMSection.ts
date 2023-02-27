@@ -25,7 +25,8 @@ export type MfMSectionContent = MfMBlockElements
 export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section', MfMSectionParser> implements Section<MfMSection, MfMSectionContent> {
 	constructor(id: string, pw: MfMSectionParser, public readonly level: number = 1) { super(id, 'section', pw) }
 
-	override get isFullyParsed() { return false }
+	sectionCompleted: boolean = false
+	override get isFullyParsed() { return this.sectionCompleted }
 }
 
 export class MfMSectionParser extends Parser<MfMSection> {

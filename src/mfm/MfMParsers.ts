@@ -25,6 +25,7 @@ import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
+import { MfMOptionsParser } from "./options/MfMOptions";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -46,7 +47,8 @@ export type MfMLeafInline =
 
 export type MfMOptions =
 	MfMFirstOptionParser |
-	MfMOptionParser
+	MfMOptionParser |
+	MfMOptionsParser
 
 export type KnownParsers =
 	MfMMetaBlock |
@@ -84,6 +86,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	
 	get MfMFirstOption() { return this.getParser('MfMFirstOption', () => new MfMFirstOptionParser(this))}
 	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this))}
+	get MfMOptions() { return this.getParser('MfMOptions', () => new MfMOptionsParser(this))}
 	
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [

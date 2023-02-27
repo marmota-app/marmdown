@@ -24,7 +24,7 @@ import { anyObject, anything, instance, mock, when } from "omnimock"
 
 describe('MfMSection parser', () => {
 	describe('parsing the content', () => {
-		[ 1, 2, 3, 4, 5].forEach(level => it(`adds heading (and section) that level ${level+1} to current section ${level}`, () => {
+		[ 1, 2, 3, 4, 5].forEach(level => it(`adds heading (and section) of level ${level+1} to current section ${level}`, () => {
 			const headingParserMock = mock(MfMHeadingParser)
 			when(headingParserMock.elementName).return('MfMHeading')
 	
@@ -32,7 +32,9 @@ describe('MfMSection parser', () => {
 			const sectionParser = new MfMSectionParser(parsers)
 	
 			const text = `${new Array(level+1).fill('#')} Heading Text`
-			when(headingParserMock.parseLine(anything(), text, 0, text.length)).return(new MfMSection('inner', sectionParser, level+1))
+			const innerSection = new MfMSection('inner', sectionParser, level+1)
+			innerSection.lines.push(new ParsedLine(innerSection))
+			when(headingParserMock.parseLine(anything(), text, 0, text.length)).return(innerSection)
 	
 			const previousSection = new MfMSection('prev', sectionParser, level)
 	

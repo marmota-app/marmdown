@@ -18,11 +18,13 @@ import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { LineByLineParser } from "$markdown/LineByLineParser"
 import { MfMDialect } from "$markdown/MfMDialect"
 import { UpdateParser } from "$markdown/UpdateParser"
+import { MfMSectionParser } from "$mfm/block/MfMSection"
 import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
 import { MfMParsers } from "$mfm/MfMParsers"
 import { anyObject, anyString, instance, mock, when } from "omnimock"
 
 describe('MfMDialect', () => {
+	const sectionParserMock = mock(MfMSectionParser)
 	it('creates two empty documents with different ids', () => {
 		const dialect = new MfMDialect()
 
@@ -34,7 +36,7 @@ describe('MfMDialect', () => {
 
 	it('uses the line-by-line-parser to parse a document', () => {
 		const containerParserMock = mock(MfMContainerParser)
-		const expectedDocument = new MfMContainer('expected-id', instance(containerParserMock))
+		const expectedDocument = new MfMContainer('expected-id', instance(containerParserMock), instance(sectionParserMock))
 		const lblParserMock = mock<LineByLineParser<MfMContainer>>(LineByLineParser)
 		when(lblParserMock.parse(anyString())).return(expectedDocument)
 		const updateParserMock = mock(UpdateParser)
@@ -48,8 +50,8 @@ describe('MfMDialect', () => {
 
 	it('uses update-parser to parse a document update', () => {
 		const containerParserMock = mock(MfMContainerParser)
-		const currentDocument = new MfMContainer('expected-id', instance(containerParserMock))
-		const expectedDocument = new MfMContainer('expected-id', instance(containerParserMock))
+		const currentDocument = new MfMContainer('expected-id', instance(containerParserMock), instance(sectionParserMock))
+		const expectedDocument = new MfMContainer('expected-id', instance(containerParserMock), instance(sectionParserMock))
 
 		const lblParserMock = mock<LineByLineParser<MfMContainer>>(LineByLineParser)
 		const updateParserMock = mock<UpdateParser<MfMContainer>>(UpdateParser)

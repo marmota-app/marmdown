@@ -25,7 +25,18 @@ export abstract class GenericBlock<
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
-	public readonly content: CONTENT[] = []
+	public get content(): CONTENT[] {
+		return this.lines
+			.flatMap(l => l.content)
+			.filter(lc => lc.belongsTo !== this)
+			.map(lc => lc.belongsTo as CONTENT)
+			.reduce((result: CONTENT[], current: CONTENT) => {
+				if(result.length === 0 || result[result.length-1] !== current) {
+					result.push(current)
+				}
+				return result
+			}, [] as CONTENT[])
+	}
 
 	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
 		jsonTransient(this, 'lines')
@@ -42,8 +53,6 @@ export abstract class GenericBlock<
 		if(lastItemLine) {
 			this.lines[this.lines.length-1].content.push(lastItemLine)
 		}
-
-		this.content.push(content)
 	}
 }
 

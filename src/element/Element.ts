@@ -137,7 +137,7 @@ export interface Element<
  * @category $element
  */
 export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> {
-	readonly belongsTo: BELONGS_TO,
+	belongsTo: BELONGS_TO,
 
 	/**
 	 * The current start value of the line content's text in the **current** document

@@ -29,7 +29,17 @@ import { MfMSection, MfMSectionParser } from "./block/MfMSection";
  * Main container element for the "MfM" dialect. 
  */
 export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
-	constructor(id: string, pw: MfMContainerParser) { super(id, 'container', pw) }
+	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
+
+	override addContent(content: MfMBlockElements): void {
+		if(this.content.length === 0 && content.type !== 'section') {
+			const section = this.sectionParser.create(1)
+			section.addContent(content)
+			super.addContent(section)
+		} else {
+			super.addContent(content)
+		}
+	}
 }
 
 /**
@@ -44,12 +54,11 @@ export class MfMContainerParser extends Parser<MfMContainer> {
 	public readonly elementName = 'MfMContainer'
 
 	create() {
-		return new MfMContainer(this.parsers.idGenerator.nextId(), this)
+		return new MfMContainer(this.parsers.idGenerator.nextId(), this, this.parsers['MfMSection'])
 	}
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
 		if(previous == null) {
 			previous = this.create()
-			previous.content.push(this.parsers['MfMSection'].create(1))
 		}
 
 		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, text, start, length, this.create, this.allBlocks)
@@ -64,9 +73,6 @@ export class MfMContainerParser extends Parser<MfMContainer> {
 			//       here, like in the commented code above. But that's not an
 			//       easy fix, so I am leaving it like this for now.
 			result.lines[result.lines.length-1].content.push(new StringLineContent(text.substring(start, start+length), start, length, result))
-		}
-		if(result != null && result.content.length > 1 && result.content[0].content.length === 0) {
-			result.content.shift()
 		}
 
 		return result
