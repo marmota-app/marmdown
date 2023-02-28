@@ -45,11 +45,6 @@ export class MfMHeadingParser extends Parser<MfMHeading, MfMSection> {
 		if(previous != null && !previous.isFullyParsed) {
 			const textContent = (this.parsers.MfMContentLine as MfMContentLineParser).parseLine(null, text, start+i, length-i-skipAtEnd)
 			if(textContent != null) {
-				//TODO can we generalize adding a new line? it's always 
-				//     necessary when there is a previous element. But
-				//     generalizing might be hard, because there is no other
-				//     part of the system that knows it's necessary except
-				//     every individual parser.
 				previous.lines.push(new ParsedLine(previous))
 				previous.addContent(textContent)
 				if(continueWithNextLine) { 
@@ -62,8 +57,7 @@ export class MfMHeadingParser extends Parser<MfMHeading, MfMSection> {
 			}
 		} else {
 			for(let token of tokens) {
-				if(text.indexOf(`${token} `, start) === start) { //TODO generic find function?
-					//FIXME duplication `${token} ` -- could be fixed with generic find function, maybe.
+				if(text.indexOf(`${token} `, start) === start) {
 					i += `${token} `.length
 
 					const section = (this.parsers.MfMSection as MfMSectionParser).create(token.length)

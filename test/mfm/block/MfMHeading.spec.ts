@@ -371,4 +371,9 @@ describe('MfMHeading parser', () => {
 			expect(updatedHeading.lines[2].content).toHaveLength(1)
 		})
 	})
+
+	describe('Adding options', () => {
+		it.skip('adds options block at the beginning of the heading', () => {})
+		it.skip('rejects update if there is an un-closed options block', () => {})
+	})
 })
