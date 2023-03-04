@@ -33,7 +33,7 @@ import { Parser } from './Parser'
  * as a class.
  */
 export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown, unknown>>> = {
-	[key in PARSER['elementName']]: PARSER
+	[key in PARSER['elementName']]: Extract<PARSER, Record<'elementName', key>>
 } & { 
 	idGenerator: IdGenerator,
 

@@ -33,13 +33,14 @@ import { Parsers } from "./Parsers";
 export abstract class Parser<
 	RESULT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	META_RESULT extends Element<unknown, unknown, unknown, unknown> | unknown=RESULT,
+	REQUIRED_PARSERS extends Parser<Element<unknown, unknown, unknown, unknown>> = any,
 > {
 	/**
 	 * The name of the element type returned by this parser. 
 	 */
 	abstract readonly elementName: string
 
-	constructor(readonly parsers: Parsers<any>) {
+	constructor(readonly parsers: Parsers<REQUIRED_PARSERS>) {
 		jsonTransient(this, 'parsers')
 	}
 
@@ -95,6 +96,16 @@ export abstract class Parser<
 			return (result as unknown as Element<unknown, unknown, unknown, unknown>).lines[0]
 		}
 		return null
+	}
+
+	/**
+	 * Checks whether the original result can be updated by the update parser. 
+	 * 
+	 * @param original The original result that should be updated
+	 * @returns true when the original result can be updated, false otherwise
+	 */
+	canUpdate(original: RESULT): boolean {
+		return true
 	}
 
 	isFullyParsedUpdate(update: LineContent<Element<unknown, unknown, unknown, unknown>>, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>) {

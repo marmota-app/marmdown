@@ -14,32 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMHeading, MfMHeadingParser, } from "$mfm/block/MfMHeading"
-import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
-import { Parsers } from "$parser/Parsers"
-import { anyNumber, anyObject, anyString, instance, mock, when } from "omnimock"
-
-export function createHeadingParser() {
-	const textParser = new MfMTextParser({ idGenerator: new NumberedIdGenerator() })
-	const tpParsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), allInlines: [ textParser, ], }
-	const contentLineParser = new MfMContentLineParser(tpParsers)
-
-	const sectionParser = new MfMSectionParser({ idGenerator: new NumberedIdGenerator() })
-	const parsers: Parsers<MfMSectionParser | MfMContentLineParser> = {
-		idGenerator: new NumberedIdGenerator(),
-		'MfMSection': sectionParser,
-		'MfMContentLine': contentLineParser,
-	}
-
-	const headingParser = new MfMHeadingParser(parsers)
-
-	return { headingParser, sectionParser, }
-}
+import { MfMHeading } from "$mfm/block/MfMHeading"
+import { MfMSection } from "$mfm/block/MfMSection"
+import { createHeadingParser } from "./createHeadingParser"
 
 describe('MfMHeading parser', () => {
 	describe('parsing the content', () => {
@@ -153,15 +131,15 @@ describe('MfMHeading parser', () => {
 				expect(result.lines).toHaveLength(1)
 				const line = result.lines[0]
 	
-				expect(line.content).toHaveLength(2)
+				expect(line.content).toHaveLength(3)
 	
 				expect(line.content[0]).toHaveProperty('start', 0)
-				expect(line.content[0]).toHaveProperty('length', token.length + 1)
-				expect(line.content[0]).toHaveProperty('asText', `${token} `)
+				expect(line.content[0]).toHaveProperty('length', token.length)
+				expect(line.content[0]).toHaveProperty('asText', `${token}`)
 	
-				expect(line.content[1]).toHaveProperty('start', token.length + 1)
-				expect(line.content[1]).toHaveProperty('length', 'Heading Text'.length)
-				expect(line.content[1]).toHaveProperty('asText', 'Heading Text')
+				expect(line.content[2]).toHaveProperty('start', token.length + 1)
+				expect(line.content[2]).toHaveProperty('length', 'Heading Text'.length)
+				expect(line.content[2]).toHaveProperty('asText', 'Heading Text')
 			})
 		})
 
@@ -181,17 +159,17 @@ describe('MfMHeading parser', () => {
 			let line = result.lines[0]
 
 			expect(line).toHaveProperty('asText', '### Heading Text  ')
-			expect(line.content).toHaveLength(3)
+			expect(line.content).toHaveLength(4)
 
 			expect(line.content[0]).toHaveProperty('start', 0)
-			expect(line.content[0]).toHaveProperty('length', 4)
-			expect(line.content[0]).toHaveProperty('asText', `### `)
+			expect(line.content[0]).toHaveProperty('length', 3)
+			expect(line.content[0]).toHaveProperty('asText', `###`)
 
-			expect(line.content[1]).toHaveProperty('start', 4)
-			expect(line.content[1]).toHaveProperty('length', 'Heading Text'.length)
-			expect(line.content[1]).toHaveProperty('asText', 'Heading Text')
+			expect(line.content[2]).toHaveProperty('start', 4)
+			expect(line.content[2]).toHaveProperty('length', 'Heading Text'.length)
+			expect(line.content[2]).toHaveProperty('asText', 'Heading Text')
 
-			expect(line.content[2]).toHaveProperty('asText', '  ')
+			expect(line.content[3]).toHaveProperty('asText', '  ')
 
 			line = result.lines[1]
 			expect(line).toHaveProperty('asText', 'second line  ')
@@ -228,11 +206,11 @@ describe('MfMHeading parser', () => {
 			expect(updatedHeading.lines).toHaveLength(1)
 			expect(updatedSection.lines[0].content).toHaveLength(1)
 			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
-			expect(updatedHeading.lines[0].content).toHaveLength(2)
+			expect(updatedHeading.lines[0].content).toHaveLength(3)
 
-			expect(updatedHeading.lines[0].content[1]).toHaveProperty('asText', 'the updated heading')
-			expect(updatedHeading.lines[0].content[1]).toHaveProperty('start', '---ignore me---'.length + '# '.length)
-			expect(updatedHeading.lines[0].content[1]).toHaveProperty('length', 'the updated heading'.length)
+			expect(updatedHeading.lines[0].content[2]).toHaveProperty('asText', 'the updated heading')
+			expect(updatedHeading.lines[0].content[2]).toHaveProperty('start', '---ignore me---'.length + '# '.length)
+			expect(updatedHeading.lines[0].content[2]).toHaveProperty('length', 'the updated heading'.length)
 		})
 
 		it('cannot change the heading into a simple paragraph', () => {
@@ -286,7 +264,7 @@ describe('MfMHeading parser', () => {
 			expect(updatedHeading.lines).toHaveLength(3)
 			expect(updatedSection.lines[0].content).toHaveLength(1)
 			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
-			expect(updatedHeading.lines[0].content).toHaveLength(3)
+			expect(updatedHeading.lines[0].content).toHaveLength(4)
 
 			expect(updatedSection.lines[1].content).toHaveLength(1)
 			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
@@ -323,7 +301,7 @@ describe('MfMHeading parser', () => {
 			expect(updatedHeading.lines).toHaveLength(3)
 			expect(updatedSection.lines[0].content).toHaveLength(1)
 			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
-			expect(updatedHeading.lines[0].content).toHaveLength(3)
+			expect(updatedHeading.lines[0].content).toHaveLength(4)
 
 			expect(updatedSection.lines[1].content).toHaveLength(1)
 			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
@@ -360,7 +338,7 @@ describe('MfMHeading parser', () => {
 			expect(updatedHeading.lines).toHaveLength(3)
 			expect(updatedSection.lines[0].content).toHaveLength(1)
 			expect(updatedSection.lines[0].content[0]).toEqual(updatedHeading.lines[0])
-			expect(updatedHeading.lines[0].content).toHaveLength(3)
+			expect(updatedHeading.lines[0].content).toHaveLength(4)
 
 			expect(updatedSection.lines[1].content).toHaveLength(1)
 			expect(updatedSection.lines[1].content[0]).toEqual(updatedHeading.lines[1])
@@ -370,10 +348,185 @@ describe('MfMHeading parser', () => {
 			expect(updatedSection.lines[2].content[0]).toEqual(updatedHeading.lines[2])
 			expect(updatedHeading.lines[2].content).toHaveLength(1)
 		})
+
+		it('parses an update in an options block of a heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = `#{ the default value;\nkey2 = value2 } Heading Text  \nsecond line`
+			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\n'.length, 'key2 = value2 } Heading Text  '.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\nkey2 = value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const updatedSection = updateParser.parse(section, { text: 'the ', rangeOffset: '#{ the default value;\nkey2 = '.length, rangeLength: 0, }) as MfMSection
+
+			const heading = updatedSection.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toEqual('the value2')
+
+			expect(heading.content).toHaveLength(2)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = heading.content[1]
+			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+		})
+		it('parses an update after an options block of a heading', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = `#{ the default value;\nkey2 = value2 } Heading Text  \nsecond line`
+			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\n'.length, 'key2 = value2 } Heading Text  '.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\nkey2 = value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const updatedSection = updateParser.parse(section, { text: 'the ', rangeOffset: '#{ the default value;\nkey2 = value2 } Heading Text  \n'.length, rangeLength: 0, }) as MfMSection
+
+			const heading = updatedSection.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toEqual('value2')
+
+			expect(heading.content).toHaveLength(2)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = heading.content[1]
+			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'the second line')
+		})
+		it('rejects update to heading if there is an un-closed options block', () => {
+			const { headingParser, } = createHeadingParser()
+			const updateParser = new UpdateParser()
+
+			const text = `#{ the default value;\nkey 2 value2 } Heading Text  \nsecond line`
+			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\n'.length, 'key 2 value2 } Heading Text  '.length) as MfMSection
+			section = section.parsedWith.parseLine(section, text, '#{ the default value;\nkey 2 value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const heading = section.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.isFullyParsed).toEqual(false)
+
+			const updatedSection = updateParser.parse(section, { text: 'a ', rangeOffset: `#{ the default value;\nkey 2 value2 } Heading Text  \n`.length, rangeLength: 0, }) as MfMSection
+
+			expect(updatedSection).toBeNull()
+		})
 	})
 
 	describe('Adding options', () => {
-		it.skip('adds options block at the beginning of the heading', () => {})
-		it.skip('rejects update if there is an un-closed options block', () => {})
+		it('adds options block at the beginning of the heading', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `#{ the default value; key2 = value2 } Heading Text  \nsecond line`
+			let result = headingParser.parseLine(null, text, 0, '#{ the default value; key2 = value2 } Heading Text  '.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value; key2 = value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const heading = result.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toEqual('value2')
+
+			expect(heading.content).toHaveLength(2)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = heading.content[1]
+			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+		})
+
+		it('adds options block with two lines at the beginning of the heading', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `#{ the default value;\nkey2 = value2 } Heading Text  \nsecond line`
+			let result = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\n'.length, 'key2 = value2 } Heading Text  '.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\nkey2 = value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const heading = result.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toEqual('value2')
+
+			expect(heading.content).toHaveLength(2)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
+
+			const headingLine2 = heading.content[1]
+			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+		})
+
+		it('can parse heading that has only options in the second line', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `#{ the default value;\nkey2 = value2 }  \nsecond line`
+			let result = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\n'.length, 'key2 = value2 }  '.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\nkey2 = value2 }  \n'.length, 'second line'.length) as MfMSection
+
+			const heading = result.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toEqual('value2')
+
+			expect(heading.content).toHaveLength(1)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'second line')
+		})
+		it('parses second heading line when options cannot be parsed anymore', () => {
+			const { headingParser, } = createHeadingParser()
+
+			const text = `#{ the default value;\nkey 2 value2 } Heading Text  \nsecond line`
+			let result = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\n'.length, 'key 2 value2 } Heading Text  '.length) as MfMSection
+			result = headingParser.parseLine(result.content[0] as MfMHeading, text, '#{ the default value;\nkey 2 value2 } Heading Text  \n'.length, 'second line'.length) as MfMSection
+
+			const heading = result.content[0] as MfMHeading
+
+			expect(heading.options).not.toBeNull()
+			expect(heading.options.get('default')).toEqual('the default value')
+			expect(heading.options.get('key2')).toBeUndefined()
+
+			expect(heading.content).toHaveLength(2)
+
+			const headingLine1 = heading.content[0]
+			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1.content).toHaveLength(1)
+			expect(headingLine1.content[0]).toHaveProperty('text', 'key 2 value2 } Heading Text')
+
+			const headingLine2 = heading.content[1]
+			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2.content).toHaveLength(1)
+			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
+		})
 	})
 })

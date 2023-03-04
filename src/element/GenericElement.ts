@@ -28,7 +28,7 @@ export abstract class GenericBlock<
 	public get content(): CONTENT[] {
 		return this.lines
 			.flatMap(l => l.content)
-			.filter(lc => lc.belongsTo !== this)
+			.filter(lc => lc.belongsTo !== this && lc.belongsTo.type !== 'options')
 			.map(lc => lc.belongsTo as CONTENT)
 			.reduce((result: CONTENT[], current: CONTENT) => {
 				if(result.length === 0 || result[result.length-1] !== current) {

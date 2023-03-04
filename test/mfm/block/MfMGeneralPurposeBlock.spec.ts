@@ -18,10 +18,9 @@ import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser } from "$mfm/block/MfMGeneralPurposeBlock"
 import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMParagraph, MfMParagraphParser } from "$mfm/block/MfMParagraph"
-import { MfMSection } from "$mfm/block/MfMSection"
 import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMTextParser } from "$mfm/inline/MfMText"
-import { createHeadingParser } from "./MfMHeading.spec"
+import { createHeadingParser } from "./createHeadingParser"
 
 function createGeneralPurposeBlockParser() {
 	const idGenerator = new NumberedIdGenerator()

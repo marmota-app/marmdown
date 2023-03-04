@@ -71,7 +71,7 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const rangeEndsWithinExistingBounds = changeEnd >= content.start && changeEnd <= content.start+content.length
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			if(content instanceof ParsedLine) {
+			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo)) {
 				for(var i=0; i<content.content.length; i++) {
 					const innerContent = content.content[i]
 					const result = this.parseContent(innerContent, update)

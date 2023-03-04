@@ -15,12 +15,11 @@ limitations under the License.
 */
 
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMHeading, MfMHeadingParser } from "$mfm/block/MfMHeading"
 import { MfMParagraphParser } from "$mfm/block/MfMParagraph"
-import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
+import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMTextParser } from "$mfm/inline/MfMText"
 import { Parsers } from "$parser/Parsers"
-import { createHeadingParser } from "./MfMHeading.spec"
+import { createHeadingParser } from "./createHeadingParser"
 
 describe('MfMParagraph parser', () => {
 	function createParagraphParser() {

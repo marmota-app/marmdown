@@ -4,17 +4,9 @@ import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
 import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { Parsers } from "$parser/Parsers"
 import { not } from "omnimock"
+import { createOptionsParser } from "./createOptionsParser"
 
 describe('MfMOptions', () => {
-	function createOptionsParser() {
-		const idGenerator = new NumberedIdGenerator()
-		const parsers: Parsers<MfMOptionParser | MfMFirstOptionParser> = {
-			idGenerator,
-			MfMFirstOption: new MfMFirstOptionParser({ idGenerator }),
-			MfMOption: new MfMOptionParser({ idGenerator }),
-		}
-		return new MfMOptionsParser(parsers)
-	}
 	describe('parsing the content', () => {
 		it('parses an empty options block', () => {
 			const parser = createOptionsParser()

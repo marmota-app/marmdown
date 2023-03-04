@@ -5,6 +5,23 @@ import { Parser } from "$parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
 
 export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options'> {
+	get(key: string): string | null | undefined
+}
+
+class EmptyOptionsParser extends Parser<MfMOptions> {
+	elementName = 'MfMOptions'
+	constructor() { super({ idGenerator: { nextId: () => { throw new Error('This ID generator must never be used!') }}}) }
+	override parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null { return null }
+}
+
+export const EMPTY_OPTIONS: Options = {
+	id: '--empty--',
+	type: 'options',
+	content: [],
+	lines: [],
+	isFullyParsed: true,
+	parsedWith: new EmptyOptionsParser(),
+	get(key: string) { return null},
 }
 
 export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options', MfMOptionsParser> implements Options {
@@ -13,10 +30,12 @@ export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptio
 	constructor(id: string, pw: MfMOptionsParser) { super(id, 'options', pw) }
 
 	get isFullyParsed(): boolean { return this._isFullyParsed }
-	set isFullyParsed(fp: boolean) { this._isFullyParsed =fp }
+	set isFullyParsed(fp: boolean) { this._isFullyParsed = fp }
+
+	get(key: string) { return this.content.find(c => c.key===key)?.value }
 }
 
-export class MfMOptionsParser extends Parser<MfMOptions> {
+export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOptionParser | MfMOptionParser> {
 	public readonly elementName = 'MfMOptions';
 
 	override parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null {
