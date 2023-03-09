@@ -14,16 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { Marmdown } from "$markdown/Marmdown"
+import { MfMDialect } from "$markdown/MfMDialect"
 
-export function createOptionsParser(idGenerator = new NumberedIdGenerator()) {
-	const parsers: Parsers<MfMOptionParser | MfMFirstOptionParser> = {
-		idGenerator,
-		MfMFirstOption: new MfMFirstOptionParser({ idGenerator }),
-		MfMOption: new MfMOptionParser({ idGenerator }),
+export function md(title: string) {
+	return {
+		canReproduce: (text: string) => {
+			test(title, () => {
+				const md = new Marmdown(new MfMDialect())
+				md.textContent = text
+
+				expect(md.textContent).toEqual(text)
+			})
+		}
 	}
-	return new MfMOptionsParser(parsers)
+}
+export function skip(title: string) {
+	return {
+		canReproduce: (text: string) => {
+			test.skip(title, () => {})
+		}
+	}
 }

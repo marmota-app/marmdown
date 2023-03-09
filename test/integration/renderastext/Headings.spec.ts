@@ -14,16 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { Marmdown } from "$markdown/Marmdown"
+import { MfMDialect } from "$markdown/MfMDialect"
+import { sanitized } from "../sanitize"
+import { md } from "../md"
 
-export function createOptionsParser(idGenerator = new NumberedIdGenerator()) {
-	const parsers: Parsers<MfMOptionParser | MfMFirstOptionParser> = {
-		idGenerator,
-		MfMFirstOption: new MfMFirstOptionParser({ idGenerator }),
-		MfMOption: new MfMOptionParser({ idGenerator }),
-	}
-	return new MfMOptionsParser(parsers)
-}
+describe('asText - Reproduce the original document', () => {
+	md('a structure of different headings')
+		.canReproduce(sanitized`
+			# foo
+			## foo
+			### foo
+			#### foo
+			##### foo
+			###### foo`)
+	md('a three-line heading')
+		.canReproduce(sanitized`
+			#### Some heading  
+			with three lines  
+			shoud reproduce document`)
+})
+

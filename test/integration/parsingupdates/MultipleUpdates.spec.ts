@@ -14,16 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { Marmdown } from "$markdown/Marmdown"
+import { MfMDialect } from "$markdown/MfMDialect"
+import { html } from "../html"
+import { sanitized } from "../sanitize"
 
-export function createOptionsParser(idGenerator = new NumberedIdGenerator()) {
-	const parsers: Parsers<MfMOptionParser | MfMFirstOptionParser> = {
-		idGenerator,
-		MfMFirstOption: new MfMFirstOptionParser({ idGenerator }),
-		MfMOption: new MfMOptionParser({ idGenerator }),
-	}
-	return new MfMOptionsParser(parsers)
-}
+describe('MfM: Parsing updates - Multiple Updates', () => {
+	const md = new Marmdown(new MfMDialect())
+
+	test.skip('parsing two updates, in heading and paragraph', () => {})
+
+	test.skip('parsing two updates, in bold and italic of two paragraphs', () => {})
+})

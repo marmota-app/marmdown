@@ -16,23 +16,10 @@ limitations under the License.
 
 import { Marmdown } from "$markdown/Marmdown"
 import { MfMDialect } from "$markdown/MfMDialect"
-import { sanitized } from "./sanitize"
+import { sanitized } from "../sanitize"
+import { md } from "../md"
 
 describe('asText - Reproduce the original document', () => {
-	md('a structure of different headings')
-		.canReproduce(sanitized`
-			# foo
-			## foo
-			### foo
-			#### foo
-			##### foo
-			###### foo`)
-	md('a three-line heading')
-		.canReproduce(sanitized`
-			#### Some heading  
-			with three lines  
-			shoud reproduce document`)
-	
 	md('text content with "empty" section at the start and another section')
 		.canReproduce(sanitized`
 			some paragraph content
@@ -66,23 +53,3 @@ describe('asText - Reproduce the original document', () => {
 			^ ## an aside
 			^ too`)
 })
-
-function md(title: string) {
-	return {
-		canReproduce: (text: string) => {
-			test(title, () => {
-				const md = new Marmdown(new MfMDialect())
-				md.textContent = text
-
-				expect(md.textContent).toEqual(text)
-			})
-		}
-	}
-}
-function skip(title: string) {
-	return {
-		canReproduce: (text: string) => {
-			test.skip(title, () => {})
-		}
-	}
-}

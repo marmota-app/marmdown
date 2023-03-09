@@ -16,8 +16,8 @@ limitations under the License.
 
 import { Marmdown } from "$markdown/Marmdown"
 import { MfMDialect } from "$markdown/MfMDialect"
-import { html } from "./html"
-import { sanitized } from "./sanitize"
+import { html } from "../html"
+import { sanitized } from "../sanitize"
 
 describe('MfM: Nesting blocks', () => {
 	const md = new Marmdown(new MfMDialect())
