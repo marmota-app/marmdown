@@ -48,6 +48,10 @@ export class MfMHeadingParser extends Parser<
 	parseLine(previous: MfMHeading | null, text: string, start: number, length: number): MfMSection | null {
 		const { skipAtEnd, continueWithNextLine, textAtEnd, } = this.hasContinuationEnd(text, start, length)
 
+		//TODO somehow, this code has become too complicated. Maybe I can
+		//     factor parsing the optiosn out from here - but how? -> Check
+		//     again when there are more examples of options parsing, so
+		//     similarities are easier to see.
 		let i=0
 		if(previous != null && !previous.isFullyParsed) {
 			previous.lines.push(new ParsedLine(previous))

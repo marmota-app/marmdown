@@ -21,6 +21,7 @@ import { Parser } from "$parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
 
 export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options'> {
+	keys: string[]
 	get(key: string): string | null | undefined
 }
 
@@ -35,6 +36,7 @@ export const EMPTY_OPTIONS: Options = {
 	type: 'options',
 	content: [],
 	lines: [],
+	keys: [],
 	isFullyParsed: true,
 	parsedWith: new EmptyOptionsParser(),
 	get(key: string) { return null},
@@ -49,6 +51,10 @@ export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptio
 	set isFullyParsed(fp: boolean) { this._isFullyParsed = fp }
 
 	get(key: string) { return this.content.find(c => c.key===key)?.value }
+
+	get keys(): string[] {
+		return this.content.map(c => c.key)
+	}
 }
 
 export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOptionParser | MfMOptionParser> {

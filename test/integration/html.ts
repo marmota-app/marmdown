@@ -18,6 +18,7 @@ import { Marmdown } from "$markdown/Marmdown";
 import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
 import { MfMHeading } from "$mfm/block/MfMHeading";
 import { MfMContainer } from "$mfm/MfMContainer";
+import { MfMOptions } from "$mfm/options/MfMOptions";
 
 export function html(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content) : ''
@@ -28,16 +29,16 @@ function all(blocks: MfMBlockElements[]): string {
 		switch(b.type) {
 			case 'heading': return heading(b)
 			case 'section': return all(b.content)
-			case 'paragraph': return `<p>${inline(b.content)}</p>`
-			case 'block-quote': return `<blockquote>\n${all(b.content)}\n</blockquote>`
-			case 'aside': return `<aside>\n${all(b.content)}\n</aside>`
+			case 'paragraph': return `<p${options(b)}>${inline(b.content)}</p>`
+			case 'block-quote': return `<blockquote${options(b)}>\n${all(b.content)}\n</blockquote>`
+			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
 			default: return ''
 		}
 	}).join('\n')
 }
 
 function heading(heading: MfMHeading) {
-	return `<h${heading.level}>${inline(heading.content)}</h${heading.level}>`
+	return `<h${heading.level}${options(heading)}>${inline(heading.content)}</h${heading.level}>`
 }
 
 function inline(inlines: MfMInlineElements[]): string {
@@ -48,4 +49,13 @@ function inline(inlines: MfMInlineElements[]): string {
 			default: return ''
 		}
 	}).join('')
+}
+
+function options(element: MfMBlockElements) {
+	const options: MfMOptions | undefined = (element as any).options
+	if(options && options.keys.length > 0) {
+		const mappedOptions = options.keys.map(key => `${key}=${options.get(key)}`).join(';')
+		return ` data-options="${mappedOptions}"`
+	}
+	return ``
 }

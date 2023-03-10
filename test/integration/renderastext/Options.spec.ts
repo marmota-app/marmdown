@@ -17,19 +17,28 @@ limitations under the License.
 import { sanitized } from "../sanitize"
 import { md } from "../md"
 
-describe('asText - Reproduce the original document for headings', () => {
-	md('a structure of different headings')
+describe('asText - Reproduce the original document for options', () => {
+	md('a single-line heading with options')
 		.canReproduce(sanitized`
-			# foo
-			## foo
-			### foo
-			#### foo
-			##### foo
-			###### foo`)
-	md('a three-line heading')
+			#{ the value; key2=value2; key3=value3} foo`)
+	md('a three-line heading with options')
 		.canReproduce(sanitized`
-			#### Some heading  
+			####{ the value;
+			key2 =\tvalue2; key3   = \t  value3\t } Some heading  
 			with three lines  
 			shoud reproduce document`)
-})
+	md('multiple headings with and without options')
+		.canReproduce(sanitized`
+			# I am the main heading
+			##{ default value } heading 2
+
+
+
+			####{ the value;
+			key2 =\tvalue2; key3   = \t  value3\t } Some heading  
+			with three lines  
+			shoud reproduce document
+			
+			#{ key1=value1; key2=value2 } Another heading`)
+	})
 

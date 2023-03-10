@@ -22,6 +22,8 @@ import { MfMHeading } from "$mfm/block/MfMHeading";
 import { MfMParagraph } from "$mfm/block/MfMParagraph";
 import { MfMSection } from "$mfm/block/MfMSection";
 import { MfMContainer } from "$mfm/MfMContainer";
+import { MfMOption } from "$mfm/options/MfMOption";
+import { MfMOptions } from "$mfm/options/MfMOptions";
 
 export function structure(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content, 0) : ''
@@ -41,23 +43,23 @@ function all(blocks: MfMBlockElements[], indentation: number): string {
 }
 
 function heading(heading: MfMHeading, indentation: number) {
-	return `${indent(indentation)}heading ${heading.level}\n${inline(heading.content, indentation+1)}`
+	return `${indent(indentation)}heading ${heading.level}\n${options(heading, indentation+1)}${inline(heading.content, indentation+1)}`
 }
 
 function section(section: MfMSection, indentation: number) {
-	return `${indent(indentation)}section ${section.level}\n${all(section.content, indentation+1)}`
+	return `${indent(indentation)}section ${section.level}\n${options(section, indentation+1)}${all(section.content, indentation+1)}`
 }
 
 function paragraph(para: MfMParagraph, indentation: number) {
-	return `${indent(indentation)}paragraph\n${inline(para.content, indentation+1)}`
+	return `${indent(indentation)}paragraph\n${options(para, indentation+1)}${inline(para.content, indentation+1)}`
 }
 
 function block(block: MfMGeneralPurposeBlock, indentation: number) {
-	return `${indent(indentation)}block\n${all(block.content, indentation+1)}`
+	return `${indent(indentation)}block\n${options(block, indentation+1)}${all(block.content, indentation+1)}`
 }
 
 function aside(aside: MfMAside, indentation: number) {
-	return `${indent(indentation)}aside\n${all(aside.content, indentation+1)}`
+	return `${indent(indentation)}aside\n${options(aside, indentation+1)}${all(aside.content, indentation+1)}`
 }
 
 function inline(inlines: MfMInlineElements[], indentation: number): string {
@@ -68,6 +70,19 @@ function inline(inlines: MfMInlineElements[], indentation: number): string {
 			default: return ''
 		}
 	}).join('\n')
+}
+
+function options(block: MfMBlockElements, indentation: number) {
+	const options: MfMOptions | undefined = (block as any).options
+	if(options && options.keys.length > 0) {
+		const optionValues = options.content.map(opt => option(opt, indentation+1)).join('\n')
+		return `${indent(indentation)}options\n${optionValues}\n`
+	}
+	return ``
+}
+
+function option(opt: MfMOption<any>, indentation: number) {
+	return `${indent(indentation)}option[${opt.key}]`
 }
 
 function indent(i: number) {

@@ -16,26 +16,31 @@ limitations under the License.
 
 import { Marmdown } from "$markdown/Marmdown"
 import { MfMDialect } from "$markdown/MfMDialect"
-import { html } from "../html"
 import { sanitized } from "../sanitize"
+import { structure } from "../structure"
 
-describe('MfM: Parsing updates - Multiple Updates', () => {
+describe('Document Structure - Options', () => {
 	const md = new Marmdown(new MfMDialect())
 
-	test('parsing two updates, in heading and paragraph', () => {
+	test('Structure of multi-line heading with options', () => {
 		md.textContent = sanitized`
-			# The heading content.
-			And some more paragraph content
-			with two lines.`
-		md.update({ rangeOffset: 6, rangeLength: 0, text: 'updated ' }, () => 'dummy')
-		md.update({ rangeOffset: 37, rangeLength: 0, text: 'updated ' }, () => 'dummy')
+			#{ the value; key2=value2;
+			key3=value3;} First heading line  
+			second heading line  
+			third heading line`
 
-		expect(html(md)).toEqual(sanitized`
-			<h1>The updated heading content.</h1>
-			<p>And some more updated paragraph content
-			with two lines.</p>`)
-
+		expect(structure(md)).toEqual(sanitized`
+			section 1
+				heading 1
+					options
+						option[default]
+						option[key2]
+						option[key3]
+					content-line
+						text
+					content-line
+						text
+					content-line
+						text`)
 	})
-
-	test.skip('parsing two updates, in bold and italic of two paragraphs', () => {})
 })

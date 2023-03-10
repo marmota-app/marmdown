@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Marmdown } from "$markdown/Marmdown"
-import { MfMDialect } from "$markdown/MfMDialect"
 import { sanitized } from "../sanitize"
 import { md } from "../md"
 
-describe('asText - Reproduce the original document', () => {
+describe('asText - Reproduce the original document for multiple blocks', () => {
 	md('text content with "empty" section at the start and another section')
 		.canReproduce(sanitized`
 			some paragraph content
