@@ -28,7 +28,9 @@ marmdown must be able to
 * Be able to parse documents that the first parser was able to parse into a similar structure
 
 Full compatibility with the first markdown parser is **not a design goal** - 
-This will not be a drop-in replacement
+This will not be a drop-in replacement. But we adapted the tests from the
+legacy parser anyway, to make sure that this parser supports the same use
+cases. [See "Legacy Tests]{@tutorial legacy-tests}
 
 [Read more about the design of marmdown]{@tutorial design}
 
