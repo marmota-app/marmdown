@@ -42,6 +42,28 @@ describe('MfMHeading parser', () => {
 				expect(result.content[0]).toHaveProperty('type', 'heading')
 				expect(result.content[0]).toHaveProperty('level', token.length)
 			})
+			it(`creates an empty heading with leve ${token}`, () => {
+				const { headingParser, } = createHeadingParser()
+
+				const text = `${token}`
+				const result = headingParser.parseLine(null, text, 0, text.length) as MfMSection
+
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', 'heading')
+				expect(result.content[0]).toHaveProperty('level', token.length)
+				expect(result.content[0].content).toHaveLength(0)
+			})
+			it(`creates an empty heading with leve ${token}, skipping the spaces`, () => {
+				const { headingParser, } = createHeadingParser()
+
+				const text = `${token} `
+				const result = headingParser.parseLine(null, text, 0, text.length) as MfMSection
+
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', 'heading')
+				expect(result.content[0]).toHaveProperty('level', token.length)
+				expect(result.content[0].content).toHaveLength(0)
+			})
 		})
 		it('parses simple text as the heading text', () => {
 			const { headingParser, } = createHeadingParser()
@@ -55,7 +77,6 @@ describe('MfMHeading parser', () => {
 			expect(headingContent.content).toHaveLength(1)
 			expect(headingContent.content[0]).toHaveProperty('text', 'Heading Text')
 		})
-		it.skip('parses heading options before the heading text', () => {})
 	})
 	describe('multi-line headings', () => {
 		it('can parse a heading with two lines', () => {

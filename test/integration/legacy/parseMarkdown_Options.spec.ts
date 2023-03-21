@@ -1,3 +1,7 @@
+import { MfMHeading } from "$mfm/block/MfMHeading"
+import { MfMSection } from "$mfm/block/MfMSection"
+import { parseMarkdown } from "./parseMarkdown"
+
 describe('parseMarkdown: Options with curly braces', () => {
 	it.skip('supports options on code blocks', () => {/*
 		const markdown = '```{ javascript }\n```'
@@ -41,18 +45,17 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(options).to.have.property('default', 'defaultoption')
 	*/})
 
-	it.skip('supports options on headings', () => {/*
+	it('supports options on headings', () => {
 		const markdown = '#{ defaultoption }\n'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		const hResult = result.content.filter(c => c.type === 'Heading')
-		expect(hResult).to.have.length(1)
-		expect(hResult[0]).to.have.property('type', 'Heading')
+		const hResult = result.content[0]
+		expect(hResult).toHaveProperty('type', 'heading')
 
-		const options = (hResult[0] as Heading).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const options = (hResult as MfMHeading).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
 
 	it.skip('supports options on paragraphs', () => {/*
 		const markdown = 'asdf\n\n{ defaultoption }paragraph 2\n'

@@ -1,127 +1,149 @@
+import { GenericBlock } from "$element/GenericElement"
+import { MfMParagraph } from "$mfm/block/MfMParagraph"
+import { MfMSection } from "$mfm/block/MfMSection"
+import { parseMarkdown } from "./parseMarkdown"
+
+const assume = expect
+
 describe('parseMarkdown', () => {
-	it.skip('always creates a resulting document', () => {/*
+	it('always creates a resulting document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-		expect(result).to.exist
-	*/})
+		expect(result).not.toBeNull()
+	})
 
-	it.skip('empty markdown creates empty document', () => {/*
+	it('empty markdown creates empty document', () => {
 		const markdown = ''
 
 		const result = parseMarkdown(markdown)
 
-		expect(result.content).to.deep.equal([])
-	*/})
+		expect(result.content).toHaveLength(0)
+	})
 
 	describe('parse headings', () => {
 		const headlines: string[] = [ '#', '##', '###', '####', ]
 		headlines.forEach((h: string) => {
-			it.skip(`heading level ${h.length} creates Headline`, () => {/*
+			it(`heading level ${h.length} creates Headline`, () => {
 				const markdown = h + ' Foobar\n'
 
 				const result = parseMarkdown(markdown)
 
-				expect(result.content).to.have.length(1)
-				expect(result.content[0]).to.have.property('type', 'Heading')
-				expect(result.content[0]).to.have.property('level', h.length)
-				expect(result.content[0]).to.have.property('text', 'Foobar')
-			*/})
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', 'section')
+				expect(result.content[0]).toHaveProperty('level', h.length)
 
-			it.skip(`creates empty heading fro single ${h}`, () => {/*
+				expect(result.content[0].content).toHaveLength(1)
+				expect(result.content[0].content[0]).toHaveProperty('type', 'heading')
+				expect(result.content[0].content[0]).toHaveProperty('level', h.length)
+				expect(result.content[0].content[0].content[0].content[0]).toHaveProperty('text', 'Foobar')
+			})
+
+			it(`creates empty heading fro single ${h}`, () => {
 				const markdown = h
 
 				const result = parseMarkdown(markdown)
 
-				expect(result.content).to.have.length(1)
-				expect(result.content[0]).to.have.property('type', 'Heading')
-				expect(result.content[0]).to.have.property('level', h.length)
-				expect(result.content[0]).to.have.property('text', '')
-			*/})
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', 'section')
+				expect(result.content[0]).toHaveProperty('level', h.length)
+
+				expect(result.content[0].content).toHaveLength(1)
+				expect(result.content[0].content[0]).toHaveProperty('type', 'heading')
+				expect(result.content[0].content[0]).toHaveProperty('level', h.length)
+				expect(result.content[0].content[0].content).toHaveLength(0)
+			})
 		})
 
 		const texts: string[] = [ 'Foobar\n', 'Foobar', 'Foo bar', 'Foo\r\n', 'Foo\n\r', 'foo # foobar', ]
 		texts.forEach((text: string) => {
-			it.skip(`heading create Headling with text ${text}`, () => {/*
+			it(`heading create Headling with text ${text}`, () => {
 				const markdown = '# ' + text
 
 				const result = parseMarkdown(markdown)
 
 				const expectedText = text.replace('\n', '').replace('\r', '')
 
-				expect(result.content).to.have.length(1)
-				expect(result.content[0]).to.have.property('type', 'Heading')
-				expect(result.content[0]).to.have.property('text', expectedText)
-			*/})
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', 'section')
+				expect(result.content[0]).toHaveProperty('level', 1)
+
+				expect(result.content[0].content).toHaveLength(1)
+				expect(result.content[0].content[0]).toHaveProperty('type', 'heading')
+				expect(result.content[0].content[0]).toHaveProperty('level', 1)
+				expect(result.content[0].content[0].content[0].content[0]).toHaveProperty('text', expectedText)
+			})
 		})
 
 
-		it.skip('parses two headings into multiple heading', () => {/*
+		it('parses two headings into multiple heading', () => {
 			const markdown = '# foo\n# bar'
 
 			const result = parseMarkdown(markdown)
-			expect(result.content).to.have.length(2)
-			expect(result.content[0]).to.have.property('type', 'Heading')
-			expect(result.content[1]).to.have.property('type', 'Heading')
-		*/})
+			expect(result.content).toHaveLength(2)
+			expect(result.content[0]).toHaveProperty('type', 'section')
+			expect(result.content[0].content[0]).toHaveProperty('type', 'heading')
+			expect(result.content[1]).toHaveProperty('type', 'section')
+			expect(result.content[1].content[0]).toHaveProperty('type', 'heading')
+		})
 
 	})
 
 	describe('parse paragraph', () => {
-		it.skip('create paragraph when line starts with normal text', () => {/*
+		it('create paragraph when line starts with normal text', () => {
 			const markdown = 'lorem ipsum'
 
 			const result = parseMarkdown(markdown)
 
-			expect(result.content).to.have.length(1)
-			expect(result.content[0]).to.have.property('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).to.have.length(1)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'lorem ipsum')
-		*/})
+			expect(result.content).toHaveLength(1)
+			expect(result.content[0]).toHaveProperty('type', 'section')
+			expect(result.content[0].content).toHaveLength(1)
+			expect(result.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			expect((result.content[0].content[0] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[0].content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('type', 'text')
+			expect((result.content[0].content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem ipsum')
+		})
 
-		it.skip('create paragraph when multiple line starts with normal text', () => {/*
+		it('create paragraph when multiple line starts with normal text', () => {
 			const markdown = 'lorem\nipsum'
 
-			const result = parseMarkdown(markdown)
+			const result = parseMarkdown(markdown).content[0] as MfMSection
 
-			expect(result.content).to.have.length(1)
-			expect(result.content[0]).to.have.property('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).to.have.length(3)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Newline')
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('content', 'ipsum')
-		*/})
+			expect(result.content).toHaveLength(1)
+			expect(result.content[0]).toHaveProperty('type', 'paragraph')
+			expect((result.content[0] as MfMParagraph).content).toHaveLength(2)
+			expect((result.content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+			expect((result.content[0] as MfMParagraph).content[1].content[0]).toHaveProperty('text', 'ipsum')
+		})
 
-		it.skip('create new paragraph for every empty line', () => {/*
+		it('create new paragraph for every empty line', () => {
 			const markdown = 'lorem\n\nipsum'
 
-			const result = parseMarkdown(markdown)
+			const result = parseMarkdown(markdown).content[0] as MfMSection
 
-			expect(result.content).to.have.length(2)
-			expect(result.content[0]).to.have.property('type', 'Paragraph')
-			expect(result.content[1]).to.have.property('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).to.have.length(1)
-			expect((result.content[1] as Paragraph).content).to.have.length(1)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-			expect((result.content[1] as Paragraph).content[0]).to.have.property('content', 'ipsum')
-		*/})
+			expect(result.content).toHaveLength(2)
+			expect(result.content[0]).toHaveProperty('type', 'paragraph')
+			expect(result.content[1]).toHaveProperty('type', 'paragraph')
+			expect((result.content[0] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[1] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+			expect((result.content[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+		})
 
-		it.skip('create new paragraph for every empty line that contains only whitespaces', () => {/*
+		it('create new paragraph for every empty line that contains only whitespaces', () => {
 			const markdown = 'lorem\n    \t\nipsum'
 
-			const result = parseMarkdown(markdown)
+			const result = parseMarkdown(markdown).content[0] as MfMSection
 
-			expect(result.content).to.have.length(2)
-			expect(result.content[0]).to.have.property('type', 'Paragraph')
-			expect(result.content[1]).to.have.property('type', 'Paragraph')
-			expect((result.content[0] as Paragraph).content).to.have.length(1)
-			expect((result.content[1] as Paragraph).content).to.have.length(1)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-			expect((result.content[1] as Paragraph).content[0]).to.have.property('content', 'ipsum')
-		*/})
+			expect(result.content).toHaveLength(2)
+			expect(result.content[0]).toHaveProperty('type', 'paragraph')
+			expect(result.content[1]).toHaveProperty('type', 'paragraph')
+			expect((result.content[0] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[1] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+			expect((result.content[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+		})
 	})
 
 	it.skip('parses a multiline code block that starts and ends with triple-backquote', () => {/*
@@ -162,86 +184,84 @@ describe('parseMarkdown', () => {
 		*/})
 	})
 
-	const blocks: string[][] = [ [ '^', 'Aside', ], [ '>', 'Blockquote', ], ]
+	const blocks: string[][] = [ [ '^', 'aside', ], [ '>', 'block-quote', ], ]
 	blocks.forEach(block => {
 		describe('parse ' + block[1], () => {
-			it.skip(`adds an ${block[1]} when the line starts with a ${block[0]} character`, () => {/*
+			it(`adds an ${block[1]} when the line starts with a ${block[0]} character`, () => {
 				const markdown = `${block[0]} lorem`
 
-				const result = parseMarkdown(markdown)
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				expect(result.content).to.have.length(1)
-				expect(result.content[0]).to.have.property('type', block[1])
-			*/})
+				expect(result.content).toHaveLength(1)
+				expect(result.content[0]).toHaveProperty('type', block[1])
+			})
 
-			it.skip(`adds a paragraph with the first line to the ${block[1]}`, () => {/*
+			it(`adds a paragraph with the first line to the ${block[1]}`, () => {
 				const markdown = `${block[0]} lorem`
 
-				const result = parseMarkdown(markdown)
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', block[1])
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', block[1])
 
-				const blockContent = (result.content[0] as Block).content
-				expect(blockContent).to.have.length(1)
-				expect(blockContent[0]).to.have.property('type', 'Paragraph')
-				expect((blockContent[0] as Paragraph).content).to.have.length(1)
-				expect((blockContent[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-			*/})
+				const blockContent = (result.content[0] as GenericBlock<any, any, any, any>).content
+				expect(blockContent).toHaveLength(1)
+				expect(blockContent[0]).toHaveProperty('type', 'paragraph')
+				expect((blockContent[0] as MfMParagraph).content).toHaveLength(1)
+				expect((blockContent[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+			})
 
-			it.skip(`adds more content to existing ${block[1]}`, () => {/*
+			it(`adds more content to existing ${block[1]}`, () => {
 				const markdown = `${block[0]} lorem\n${block[0]} ipsum`
 
-				const result = parseMarkdown(markdown)
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', block[1])
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', block[1])
 
-				const blockContent = (result.content[0] as Block).content
-				expect(blockContent).to.have.length(1)
-				expect(blockContent[0]).to.have.property('type', 'Paragraph')
-				expect((blockContent[0] as Paragraph).content).to.have.length(3)
-				expect((blockContent[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-				expect((blockContent[0] as Paragraph).content[1]).to.have.property('type', 'Newline')
-				expect((blockContent[0] as Paragraph).content[2]).to.have.property('content', 'ipsum')
-			*/})
+				const blockContent = (result.content[0] as GenericBlock<any, any, any, any>).content
+				expect(blockContent).toHaveLength(1)
+				expect(blockContent[0]).toHaveProperty('type', 'paragraph')
+				expect((blockContent[0] as MfMParagraph).content).toHaveLength(2)
+				expect((blockContent[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+				expect((blockContent[0] as MfMParagraph).content[1].content[0]).toHaveProperty('text', 'ipsum')
+			})
 
-			it.skip(`adds a second paragraph to existing ${block[1]}, even when there is no space after ${block[0]}`, () => {/*
+			it(`adds a second paragraph to existing ${block[1]}, even when there is no space after ${block[0]}`, () => {
 				const markdown = `${block[0]} lorem\n${block[0]}\n${block[0]} ipsum`
 
-				const result = parseMarkdown(markdown)
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', block[1])
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', block[1])
 
-				const blockContent = (result.content[0] as Block).content
-				expect(blockContent).to.have.length(2)
-				expect(blockContent[0]).to.have.property('type', 'Paragraph')
-				expect(blockContent[1]).to.have.property('type', 'Paragraph')
-				expect((blockContent[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
-				expect((blockContent[1] as Paragraph).content[0]).to.have.property('content', 'ipsum')
-			*/})
+				const blockContent = (result.content[0] as GenericBlock<any, any, any, any>).content
+				expect(blockContent).toHaveLength(2)
+				expect(blockContent[0]).toHaveProperty('type', 'paragraph')
+				expect(blockContent[1]).toHaveProperty('type', 'paragraph')
+				expect((blockContent[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
+				expect((blockContent[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+			})
 
-			it.skip(`creates a second ${block[0]} when there is content in between`, () => {/*
+			it(`creates a second ${block[0]} when there is content in between`, () => {
 				const markdown = `${block[0]} lorem\n\n${block[0]} ipsum`
 
-				const result = parseMarkdown(markdown)
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				const blocks = result.content.filter(c => c.type === block[1])
-				expect(blocks).to.have.length(2)
+				expect(result.content).toHaveLength(2)
 
-				const blockContent1 = (blocks[0] as Block).content
-				expect(blockContent1).to.have.length(1)
-				expect(blockContent1[0]).to.have.property('type', 'Paragraph')
-				expect((blockContent1[0] as Paragraph).content).to.have.length(1)
-				expect((blockContent1[0] as Paragraph).content[0]).to.have.property('content', 'lorem')
+				const blockContent1 = (result.content[0] as GenericBlock<any, any, any, any>).content
+				expect(blockContent1).toHaveLength(1)
+				expect(blockContent1[0]).toHaveProperty('type', 'paragraph')
+				expect((blockContent1[0] as MfMParagraph).content).toHaveLength(1)
+				expect((blockContent1[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
 
-				const blockContent2 = (blocks[1] as Block).content
-				expect(blockContent2).to.have.length(1)
-				expect(blockContent2[0]).to.have.property('type', 'Paragraph')
-				expect((blockContent2[0] as Paragraph).content).to.have.length(1)
-				expect((blockContent2[0] as Paragraph).content[0]).to.have.property('content', 'ipsum')
-		*/})
+				const blockContent2 = (result.content[1] as GenericBlock<any, any, any, any>).content
+				expect(blockContent2).toHaveLength(1)
+				expect(blockContent2[0]).toHaveProperty('type', 'paragraph')
+				expect((blockContent2[0] as MfMParagraph).content).toHaveLength(1)
+				expect((blockContent2[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+			})
 		})
 	})
 

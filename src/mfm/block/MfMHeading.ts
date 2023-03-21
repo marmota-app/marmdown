@@ -90,8 +90,8 @@ export class MfMHeadingParser extends Parser<
 						lastOptionLine = options.lines[options.lines.length-1]
 						i += lastOptionLine.length
 					}
-					
-					if(text.charAt(start+i) === ' ' || options !== EMPTY_OPTIONS) {
+
+					if(text.charAt(start+i) === ' ' || options !== EMPTY_OPTIONS || i === length) {
 						const section = this.parsers.MfMSection.create(token.length)
 
 						const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, section, this)
@@ -102,7 +102,7 @@ export class MfMHeadingParser extends Parser<
 						if(lastOptionLine) {
 							heading.lines[heading.lines.length-1].content.push(lastOptionLine)
 						}
-						if(text.charAt(start+i) === ' ') {
+						if(i < length && text.charAt(start+i) === ' ') {
 							//TODO should we skipp all whitespace here?
 							heading.lines[0].content.push(new StringLineContent(' ', start+i, 1, heading))
 							i++
