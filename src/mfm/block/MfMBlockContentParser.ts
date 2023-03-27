@@ -17,12 +17,13 @@ limitations under the License.
 import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { MfMBlockElements } from "$markdown/MfMDialect"
+import { EMPTY_OPTIONS, Options, MfMOptions } from "$mfm/options/MfMOptions"
 import { Parser } from "$parser/Parser"
 
 export type MfMBlockElementContent = MfMBlockElements
 
 export abstract class MfMBlockContentParser<
-	T extends GenericBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, },
+	T extends GenericBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, options: Options },
 	P extends MfMBlockContentParser<T, P>,
 > extends Parser<T> {
 	abstract create(): T
@@ -32,16 +33,42 @@ export abstract class MfMBlockContentParser<
 	parseLine(previous: T | null, text: string, start: number, length: number): T | null {
 		if(text.charAt(start) === this.token) {
 			let i=1
+
+			let options: Options = EMPTY_OPTIONS
+			let lastOptionLine: LineContent<MfMOptions> | undefined = undefined
+
 			let lineStart = this.token
 			const nextChar = text.charAt(start+1)
-			if(nextChar === ' ' || nextChar === '\t') { 
+			if(!previous && nextChar === '{') {
+				options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i)
+				if(options != null) {
+					lastOptionLine = options.lines[options.lines.length-1]
+					i += lastOptionLine.length	
+				} else {
+					options = EMPTY_OPTIONS
+				}
+			} else if(previous && !previous.options.isFullyParsed) {
+				options = this.parsers.MfMOptions.parseLine(previous.options, text, start+i, length-i)
+				if(options != null) {
+					lastOptionLine = options.lines[options.lines.length-1]
+					i += lastOptionLine.length
+				}
+			} else if(nextChar === ' ' || nextChar === '\t') { 
 				i++
 				lineStart += nextChar
 			}
 
 			const block = previous ?? this.create()
 			block.lines.push(new ParsedLine(block))
-			block.lines[block.lines.length-1].content.push(new StringLineContent(lineStart, start, i, block))
+			block.lines[block.lines.length-1].content.push(new StringLineContent(lineStart, start, lineStart.length, block))
+			if(lastOptionLine) {
+				block.lines[block.lines.length-1].content.push(lastOptionLine)
+				const afterOptions = text.charAt(start+i)
+				if(options.isFullyParsed && (afterOptions === ' ' || afterOptions === '\t')) {
+					block.lines[block.lines.length-1].content.push(new StringLineContent(afterOptions, start+i, 1, block))
+					i++
+				}
+			}
 
 			const previousContent = block.content.length > 0? block.content[block.content.length-1] : null
 			if(previous && previousContent && !previousContent.isFullyParsed) {

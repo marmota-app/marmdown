@@ -33,7 +33,7 @@ export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'hea
 	override get isFullyParsed(): boolean {
 		return this.options.isFullyParsed? !this.continueWithNextLine : false
 	}
-	public get options(): MfMOptions {
+	public get options(): MfMOptions { //FIXME return type should be options
 		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? EMPTY_OPTIONS
 	}
 }

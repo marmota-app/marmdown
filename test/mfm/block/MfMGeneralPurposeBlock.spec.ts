@@ -20,14 +20,16 @@ import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMParagraph, MfMParagraphParser } from "$mfm/block/MfMParagraph"
 import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMTextParser } from "$mfm/inline/MfMText"
+import { createOptionsParser } from "../options/createOptionsParser"
 import { createHeadingParser } from "./createHeadingParser"
 
 function createGeneralPurposeBlockParser() {
 	const idGenerator = new NumberedIdGenerator()
 	const MfMContentLine = new MfMContentLineParser({ idGenerator, allInlines: [ new MfMTextParser({ idGenerator }), ], })
 	const { headingParser } = createHeadingParser()
+	const MfMOptions = createOptionsParser(idGenerator)
 	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })
-	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMParagraph, allBlocks: [ headingParser, MfMParagraph, ] })
+	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMParagraph, MfMOptions, allBlocks: [ headingParser, MfMParagraph, ] })
 	return parser
 }
 describe('MfMGeneralPurposeBlock parser', () => {
@@ -258,6 +260,101 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
 			expect(line.content[1]).toHaveProperty('length', 'second line'.length)
 			expect(line.content[1]).toHaveProperty('asText', 'second line')
+		})
+	})
+
+	describe('adding options', () => {
+		it('adds options block to the beginning of a block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine = '>{ default value;key2=  value2 } first line'
+			const secondLine = '> second line'
+			const text = `${firstLine}\n${secondLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.options).not.toBeNull()
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+
+			//make sure parsing the contena **after** options works
+			expect(result.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'paragraph')
+			const paragraph = result?.content[0] as unknown as MfMParagraph
+			expect(paragraph.content).toHaveLength(2)
+
+			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'first line')
+
+			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'second line')
+		})
+
+		it('uses the correct line start when there are options', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine = '>{ default value;key2=  value2 } first line'
+			const secondLine = '> second line'
+			const text = `${firstLine}\n${secondLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines[0].content[0].asText).toEqual('>')
+			expect(result.lines[0].content[0].length).toEqual(1)
+		})
+
+		it('adds multi-line options block to the beginning of a block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine = '>{ default value;key2=  value2 '
+			const secondLine = '> key3 = value3} first block line'
+			const thirdLine = '> second block line'
+			const text = `${firstLine}\n${secondLine}\n${thirdLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const second = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(second, text, firstLine.length+1+secondLine.length+1, thirdLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.options).not.toBeNull()
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+			expect(result.options.get('key3')).toEqual('value3')
+
+			//make sure parsing the contena **after** options works
+			expect(result.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'paragraph')
+			const paragraph = result?.content[0] as unknown as MfMParagraph
+			expect(paragraph.content).toHaveLength(2)
+
+			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'first block line')
+
+			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'second block line')
+		})
+
+		it('adds the correct line representations for multi-line options block to the beginning of a block', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine = '>{ default value;key2=  value2 '
+			const secondLine = '> key3 = value3} first block line'
+			const thirdLine = '> second block line'
+			const text = `${firstLine}\n${secondLine}\n${thirdLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const second = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(second, text, firstLine.length+1+secondLine.length+1, thirdLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(3)
+			expect(result.lines[0].asText).toEqual(firstLine)
+			expect(result.lines[1].asText).toEqual(secondLine)
+			expect(result.lines[2].asText).toEqual(thirdLine)
 		})
 	})
 })

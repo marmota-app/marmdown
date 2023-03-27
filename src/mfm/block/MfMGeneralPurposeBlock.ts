@@ -16,6 +16,7 @@ limitations under the License.
 
 import { GenericBlock } from "$element/GenericElement"
 import { BlockQuote } from "$element/MarkdownElements"
+import { EMPTY_OPTIONS, Options } from "$mfm/options/MfMOptions"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
 export class MfMGeneralPurposeBlock extends GenericBlock<
@@ -25,6 +26,9 @@ export class MfMGeneralPurposeBlock extends GenericBlock<
 	constructor(id: string, pw: MfMGeneralPurposeBlockParser) { super(id, 'block-quote', pw) }
 	override get isFullyParsed(): boolean {
 		return !this.continueWithNextLine
+	}
+	get options(): Options {
+		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as Options ?? EMPTY_OPTIONS
 	}
 }
 
