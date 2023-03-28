@@ -60,6 +60,36 @@ export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptio
 export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOptionParser | MfMOptionParser> {
 	public readonly elementName = 'MfMOptions';
 
+	addOptionsTo(
+		element: { options: MfMOptions | typeof EMPTY_OPTIONS, lines: ParsedLine<any, any>[],}, 
+		text: string, start: number, length: number
+	): { parsedLength: number} {
+		let i=0
+		let lastOptionLine: LineContent<MfMOptions> | undefined = undefined
+
+		const previousOptions = element.options
+
+		if(previousOptions===EMPTY_OPTIONS && text.charAt(start+i) === '{') {
+			const options = this.parseLine(null, text, start+i, length-i)
+			if(options != null) {
+				lastOptionLine = options.lines[options.lines.length-1]
+				i += lastOptionLine.length	
+			}
+		} else if(previousOptions!==EMPTY_OPTIONS && !previousOptions.isFullyParsed) {
+			const options = this.parseLine(previousOptions as MfMOptions, text, start+i, length-i)
+			if(options != null) {
+				lastOptionLine = options.lines[options.lines.length-1]
+				i += lastOptionLine.length
+			}
+		}
+
+		if(lastOptionLine) {
+			element.lines[element.lines.length-1].content.push(lastOptionLine)
+		}
+
+		return { parsedLength: i }
+	}
+
 	override parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null {
 		const options = previous ?? new MfMOptions(this.parsers.idGenerator.nextId(), this)
 		

@@ -29,7 +29,7 @@ function createGeneralPurposeBlockParser() {
 	const { headingParser } = createHeadingParser()
 	const MfMOptions = createOptionsParser(idGenerator)
 	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })
-	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMParagraph, MfMOptions, allBlocks: [ headingParser, MfMParagraph, ] })
+	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, allBlocks: [ headingParser, MfMParagraph, ] })
 	return parser
 }
 describe('MfMGeneralPurposeBlock parser', () => {
@@ -230,15 +230,19 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines).toHaveLength(1)
 			const line = result.lines[0]
 
-			expect(line.content).toHaveLength(2)
+			expect(line.content).toHaveLength(3)
 
 			expect(line.content[0]).toHaveProperty('start', 0)
-			expect(line.content[0]).toHaveProperty('length', 2)
-			expect(line.content[0]).toHaveProperty('asText', `>\t`)
+			expect(line.content[0]).toHaveProperty('length', 1)
+			expect(line.content[0]).toHaveProperty('asText', `>`)
 
-			expect(line.content[1]).toHaveProperty('start', 2)
-			expect(line.content[1]).toHaveProperty('length', 'a single line block'.length)
-			expect(line.content[1]).toHaveProperty('asText', 'a single line block')
+			expect(line.content[1]).toHaveProperty('start', 1)
+			expect(line.content[1]).toHaveProperty('length', 1)
+			expect(line.content[1]).toHaveProperty('asText', `\t`)
+
+			expect(line.content[2]).toHaveProperty('start', 2)
+			expect(line.content[2]).toHaveProperty('length', 'a single line block'.length)
+			expect(line.content[2]).toHaveProperty('asText', 'a single line block')
 		})
 
 		it('contains the full second line of a two-line block', () => {
@@ -251,15 +255,19 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines).toHaveLength(2)
 			const line = result.lines[1]
 
-			expect(line.content).toHaveLength(2)
+			expect(line.content).toHaveLength(3)
 
 			expect(line.content[0]).toHaveProperty('start', '>\tfirst line\n'.length)
-			expect(line.content[0]).toHaveProperty('length', 2)
-			expect(line.content[0]).toHaveProperty('asText', `> `)
+			expect(line.content[0]).toHaveProperty('length', 1)
+			expect(line.content[0]).toHaveProperty('asText', `>`)
 
-			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
-			expect(line.content[1]).toHaveProperty('length', 'second line'.length)
-			expect(line.content[1]).toHaveProperty('asText', 'second line')
+			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length+1)
+			expect(line.content[1]).toHaveProperty('length', 1)
+			expect(line.content[1]).toHaveProperty('asText', ` `)
+
+			expect(line.content[2]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
+			expect(line.content[2]).toHaveProperty('length', 'second line'.length)
+			expect(line.content[2]).toHaveProperty('asText', 'second line')
 		})
 	})
 
