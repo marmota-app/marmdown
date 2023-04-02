@@ -92,11 +92,15 @@ export class MfMHeadingParser extends MfMParser<
 	}
 
 	private hasValidSpace(heading: MfMHeading, text: string, start: number, length: number): { validSpace: boolean, skipSpaces: number, } {
-		//TODO should probably skip all whitespace in both valid cases
+		let skipped = 0
 
-		if(text.charAt(start) === ' ') {
-			heading.lines[heading.lines.length-1].content.push(new StringLineContent(' ', start, 1, heading))
-			return { validSpace: true, skipSpaces: 1, }
+		while(text.charAt(start+skipped) === ' ' || text.charAt(start+skipped) === '\t') {
+			skipped++
+		}
+		if(skipped > 0) {
+			const skippedText = text.substring(start, start+skipped)
+			heading.lines[heading.lines.length-1].content.push(new StringLineContent(skippedText, start, skipped, heading))
+			return { validSpace: true, skipSpaces: skipped, }
 		}
 
 		const isNthLineOfContinuedHeading = heading.lines.length > 1

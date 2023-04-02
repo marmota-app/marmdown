@@ -31,5 +31,11 @@ describe('asText - Reproduce the original document for headings', () => {
 			#### Some heading  
 			with three lines  
 			shoud reproduce document`)
+
+	md('a three-line heading with whitespace at the beginning of the lines')
+		.canReproduce(sanitized`
+			#### 	   	Some heading  
+			   	   	with three lines  
+			   shoud reproduce document`)
 })
 
