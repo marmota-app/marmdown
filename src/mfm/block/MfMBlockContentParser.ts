@@ -17,7 +17,8 @@ limitations under the License.
 import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { MfMBlockElements } from "$markdown/MfMDialect"
-import { EMPTY_OPTIONS, Options, MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { MfMParser } from "$mfm/MfMParser"
+import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { Parser } from "$parser/Parser"
 
 export type MfMBlockElementContent = MfMBlockElements
@@ -25,7 +26,7 @@ export type MfMBlockElementContent = MfMBlockElements
 export abstract class MfMBlockContentParser<
 	T extends GenericBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, options: MfMOptions },
 	P extends MfMBlockContentParser<T, P>,
-> extends Parser<T, T, MfMOptionsParser> {
+> extends MfMParser<T, T, MfMOptionsParser> {
 	abstract create(): T
 	abstract get token(): string
 	abstract get elementName(): string
@@ -46,9 +47,6 @@ export abstract class MfMBlockContentParser<
 				i++
 			}
 
-
-			//let lineStart = this.token
-
 			const previousContent = block.content.length > 0? block.content[block.content.length-1] : null
 			if(previous && previousContent && !previousContent.isFullyParsed) {
 				const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
@@ -59,7 +57,6 @@ export abstract class MfMBlockContentParser<
 					return block
 				}
 			}
-		
 
 			for(const contentParser of this.allBlocks) {
 				const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements

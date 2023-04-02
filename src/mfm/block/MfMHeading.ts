@@ -14,16 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock, GenericInline } from "$element/GenericElement"
+import { ParsedLine, StringLineContent } from "$element/Element"
+import { GenericBlock } from "$element/GenericElement"
 import { Heading } from "$element/MarkdownElements"
-import { ParseError } from "$markdown/LineByLineParser"
 import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMText } from "$mfm/inline/MfMText"
-import { EMPTY_OPTIONS, MfMOptions, MfMOptionsParser, Options } from "$mfm/options/MfMOptions"
-import { parseInlineContent } from "$parser/parse"
-import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
+import { MfMParser } from "$mfm/MfMParser"
+import { EMPTY_OPTIONS, MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { MfMSection, MfMSectionParser } from "./MfMSection"
 
 export type MfMHeadingContent = MfMContentLine
@@ -39,90 +35,77 @@ export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'hea
 }
 
 export const tokens = [ '######', '#####', '####', '###', '##', '#', ]
-export class MfMHeadingParser extends Parser<
+export class MfMHeadingParser extends MfMParser<
 	MfMHeading, MfMSection,
 	MfMOptionsParser | MfMContentLineParser | MfMSectionParser
 > {
 	public readonly elementName = 'MfMHeading'
 
 	parseLine(previous: MfMHeading | null, text: string, start: number, length: number): MfMSection | null {
+		let [ heading, i ] = this.useHeadingToParse(previous, text, start, length)
 		const { skipAtEnd, continueWithNextLine, textAtEnd, } = this.hasContinuationEnd(text, start, length)
 
-		//TODO somehow, this code has become too complicated. Maybe I can
-		//     factor parsing the optiosn out from here - but how? -> Check
-		//     again when there are more examples of options parsing, so
-		//     similarities are easier to see.
-		let i=0
-		if(previous != null && !previous.isFullyParsed) {
-			previous.lines.push(new ParsedLine(previous))
-			if(!previous.options.isFullyParsed) {
-				const options = this.parsers.MfMOptions.parseLine(previous.options, text, start+i, length-i)
-				if(options) {
-					const lastOptionLine = options.lines[options.lines.length-1]
-					previous.lines[previous.lines.length-1].content.push(lastOptionLine)
-					i += lastOptionLine.length
+		if(heading) {
+			i += this.parsers.MfMOptions.addOptionsTo(heading, text, start+i, length).parsedLength
+
+			const { validSpace, skipSpaces, } = this.hasValidSpace(heading, text, start+i, length-i)
+			if(validSpace) {
+				i += skipSpaces
+
+				const textContent = this.parsers.MfMContentLine.parseLine(null, text, start+i, length-i-skipAtEnd)
+				if(textContent != null) {
+					heading.addContent(textContent)
 				}
-			}
-			if(text.charAt(start+i) === ' ') {
-				//TODO should we skipp all whitespace here?
-				previous.lines[previous.lines.length-1].content.push(new StringLineContent(' ', start+i, 1, previous))
-				i++
-			}
-			const textContent = this.parsers.MfMContentLine.parseLine(null, text, start+i, length-i-skipAtEnd)
-			if(textContent != null) {
-				previous.addContent(textContent)
 				if(continueWithNextLine) { 
-					previous.lines[previous.lines.length-1].content.push(new StringLineContent(textAtEnd, start+length-2, 2, previous))
+					heading.lines[heading.lines.length-1].content.push(new StringLineContent(textAtEnd, start+length-2, 2, heading))
 				}
-				previous.continueWithNextLine = continueWithNextLine
-				return previous.section
-			} else {
-				previous.continueWithNextLine = false
-			}
-		} else {
-			for(let token of tokens) {
-				if(text.indexOf(token, start) === start) {
-					i += token.length
-					let options: Options = EMPTY_OPTIONS
-					let lastOptionLine: LineContent<MfMOptions> | undefined = undefined
-					if(text.charAt(start+i) === '{') {
-						options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i) ?? EMPTY_OPTIONS
-						lastOptionLine = options.lines[options.lines.length-1]
-						i += lastOptionLine.length
-					}
+				heading.continueWithNextLine = continueWithNextLine
 
-					if(text.charAt(start+i) === ' ' || options !== EMPTY_OPTIONS || i === length) {
-						const section = this.parsers.MfMSection.create(token.length)
-
-						const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, section, this)
-						heading.continueWithNextLine = continueWithNextLine
-						heading.lines.push(new ParsedLine(heading))
-						heading.lines[0].content.push(new StringLineContent(token, start, token.length, heading))
-
-						if(lastOptionLine) {
-							heading.lines[heading.lines.length-1].content.push(lastOptionLine)
-						}
-						if(i < length && text.charAt(start+i) === ' ') {
-							//TODO should we skipp all whitespace here?
-							heading.lines[0].content.push(new StringLineContent(' ', start+i, 1, heading))
-							i++
-						}
-	
-						section.addContent(heading)
-	
-						const textContent = (this.parsers.MfMContentLine as MfMContentLineParser).parseLine(null, text, start+i, length-i-skipAtEnd)
-						if(textContent != null) { heading.addContent(textContent) }
-						
-						if(continueWithNextLine) { 
-							heading.lines[heading.lines.length-1].content.push(new StringLineContent(textAtEnd, start+length-2, 2, heading))
-						}
-		
-						return section
-					}
-				}
+				return heading.section
 			}
 		}
-		return null
+
+		return null;
+	}
+
+	private useHeadingToParse(previous: MfMHeading | null, text: string, start: number, length: number): [ MfMHeading | null, number, ] {
+		if(previous && !previous.isFullyParsed) {
+			previous.lines.push(new ParsedLine(previous))
+			return [ previous, 0 ]
+		}
+
+		for(let token of tokens) {
+			if(text.indexOf(token, start) === start) {
+				const section = this.parsers.MfMSection.create(token.length)
+				const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, section, this)
+
+				heading.lines.push(new ParsedLine(heading))
+				heading.lines[0].content.push(new StringLineContent(token, start, token.length, heading))
+
+				section.addContent(heading)
+
+				return [ heading, token.length ]
+			}
+		}
+
+		return [ null, 0 ]
+	}
+
+	private hasValidSpace(heading: MfMHeading, text: string, start: number, length: number): { validSpace: boolean, skipSpaces: number, } {
+		//TODO should probably skip all whitespace in both valid cases
+
+		if(text.charAt(start) === ' ') {
+			heading.lines[heading.lines.length-1].content.push(new StringLineContent(' ', start, 1, heading))
+			return { validSpace: true, skipSpaces: 1, }
+		}
+
+		const isNthLineOfContinuedHeading = heading.lines.length > 1
+		const isAtEndOfCurrentLine = length === 0
+		if(isNthLineOfContinuedHeading || isAtEndOfCurrentLine) {
+			return { validSpace: true, skipSpaces: 0, }
+		}
+
+		return { validSpace: false, skipSpaces: 0, }
 	}
 
 	override parseLineUpdate(original: MfMHeading, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
@@ -131,11 +114,6 @@ export class MfMHeadingParser extends Parser<
 			return result.lines[0]
 		}
 		return null
-	}
-
-	//TODO Refactor: Should this be part of a base class for MfM Parsers? Probably!
-	override canUpdate(original: MfMHeading): boolean {
-		return original.options.isFullyParsed
 	}
 
 	private hasContinuationEnd(text: string, start: number, length: number) {

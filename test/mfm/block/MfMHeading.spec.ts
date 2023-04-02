@@ -138,6 +138,9 @@ describe('MfMHeading parser', () => {
 			expect(headingLine3.content[0]).toHaveProperty('text', 'even a third line')
 		})
 
+		it.skip('skips all spaces at the beginning of a line', () => {
+			
+		})
 	})
 
 	describe('parsing the content lines', () => {
@@ -204,6 +207,20 @@ describe('MfMHeading parser', () => {
 			expect(line.content[0]).toHaveProperty('start', `${first}\n${second}\n`.length)
 			expect(line.content[0]).toHaveProperty('length', third.length)
 			expect(line.content[0]).toHaveProperty('asText', third)
+		})
+
+		it.skip('adds the lines of a three-line "###" heading to the line structure of the section', () => {
+			const { headingParser, } = createHeadingParser()
+	
+			const first = '### Heading Text  '
+			const second = 'second line  '
+			const third = 'even a third line'
+			const text = `${first}\n${second}\n${third}`
+			let section = headingParser.parseLine(null, text, 0, first.length) as MfMSection
+			section = headingParser.parseLine(section.content[0] as MfMHeading, text, `${first}\n`.length, second.length) as MfMSection
+			section = headingParser.parseLine(section.content[0] as MfMHeading, text, `${first}\n${second}\n`.length, third.length) as MfMSection
+
+			//TODO check the line structure as above, but for the section. Might not work yet!
 		})
 	})
 
