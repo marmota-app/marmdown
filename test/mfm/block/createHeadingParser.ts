@@ -14,22 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Element } from "$element/Element"
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { MfMHeadingParser } from "$mfm/block/MfMHeading"
 import { MfMSectionParser } from "$mfm/block/MfMSection"
 import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMTextParser } from "$mfm/inline/MfMText"
 import { MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { Parser } from "$parser/Parser"
 import { Parsers } from "$parser/Parsers"
 import { createOptionsParser } from "../options/createOptionsParser"
 
-export function createHeadingParser() {
+export function createHeadingParser(sectionBlockParsers: Parser<Element<unknown, unknown, unknown, unknown>>[] = []) {
 	const idGenerator = new NumberedIdGenerator()
 	const textParser = new MfMTextParser({ idGenerator })
 	const tpParsers: Parsers<never> = { idGenerator, allInlines: [ textParser, ], }
 	const contentLineParser = new MfMContentLineParser(tpParsers)
 
-	const sectionParser = new MfMSectionParser({ idGenerator })
+	const sectionParser = new MfMSectionParser({ idGenerator, allBlocks: sectionBlockParsers })
 
 	const optionsParser = createOptionsParser(idGenerator)
 	const parsers: Parsers<MfMSectionParser | MfMContentLineParser | MfMOptionsParser> = {

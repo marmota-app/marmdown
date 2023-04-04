@@ -17,9 +17,11 @@ limitations under the License.
 import { ParsedLine } from "$element/Element"
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContainerParser } from "$mfm/MfMContainer"
+import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
 import { Parsers } from "$parser/Parsers"
 import { anyNumber, anyString, instance, mock, verify, when } from "omnimock"
+import { createHeadingParser } from "./block/createHeadingParser"
+import { createParagraphParser } from "./block/createParagraphParser"
 
 describe('MfMContainer parser', () => {
 	function createSectionParserMock() {
@@ -163,11 +165,90 @@ describe('MfMContainer parser', () => {
 			expect(container?.lines[container.lines.length-1]).toHaveProperty('asText', empty)
 		}));
 
-		it.skip('parses the document options', () => {})
-		it.skip('ignores empty lines between options and the first content line when there are options', () => {})	
+		it('contains the correct section content for document with different elements', () => {
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'The quick brown fox',
+				'jumps over the lazy dog',
+				'',
+				'Sphinx of black quartz',
+				'judge my vow',
+				'# A heading  ',
+				'with a second line',
+				'',
+				'And another paragraph',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+			expect(container?.content).toHaveLength(2)
+
+			expect(container?.content[0]).toHaveProperty('type', 'section')
+			expect(container?.content[0].content).toHaveLength(2)
+			expect(container?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			expect(container?.content[0].content[1]).toHaveProperty('type', 'paragraph')
+
+			expect(container?.content[1]).toHaveProperty('type', 'section')
+			expect(container?.content[1].content).toHaveLength(2)
+			expect(container?.content[1].content[0]).toHaveProperty('type', 'heading')
+			expect(container?.content[1].content[1]).toHaveProperty('type', 'paragraph')
+		})
+
 	})
-	describe.skip('parsing the content lines', () => {
-		//TODO implement me
+	describe('parsing the content lines', () => {
+		it('contains a line in the container for each line of the file content', () => {
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				[ 'The quick brown fox',     [0, 'paragraph'], ],
+				[ 'jumps over the lazy dog', [0, 'paragraph'], ],
+				[ '',                        [], ],
+				[ 'Sphinx of black quartz',  [0, 'paragraph'], ],
+				[ 'judge my vow',            [0, 'paragraph'], ],
+				[ '# A heading  ',           [1, 'heading'], ],
+				[ 'with a second line',      [1, 'heading'], ],
+				[ '',                        [], ],
+				[ 'And another paragraph',   [1, 'paragraph'], ],
+			]
+			const text = lines.map(l => l[0]).join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current[0].length),
+					start: previous.start + current[0].length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+
+			expect(container?.lines).toHaveLength(lines.length)
+			container?.lines.forEach((line, i) => {
+				expect(line.asText).toEqual(lines[i][0])
+				expect(line.belongsTo).toBe(container)
+				if(lines[i][1].length > 0) {
+					expect(line.content[0].belongsTo).toEqual(container.content[lines[i][1][0] as number])
+					expect((line.content[0] as ParsedLine<any, any>).content[0].belongsTo).toHaveProperty('type', lines[i][1][1])
+				}
+			})
+		})
+	})
+	describe.skip('parsing options and options lines', () => {
+		it.skip('parses the document options', () => {})
+		it.skip('ignores empty lines between options and the first content line when there are options', () => {})
 	})
 	describe.skip('parsing updates', () => {
 		//TODO implement me

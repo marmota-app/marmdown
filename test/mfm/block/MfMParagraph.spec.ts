@@ -14,30 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMParagraphParser } from "$mfm/block/MfMParagraph"
-import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { Parsers } from "$parser/Parsers"
-import { createHeadingParser } from "./createHeadingParser"
+import { createParagraphParser } from "./createParagraphParser"
 
 describe('MfMParagraph parser', () => {
-	function createParagraphParser() {
-		const idGenerator = new NumberedIdGenerator()
-		const parsers: Parsers<MfMContentLineParser> = {
-			idGenerator,
-			MfMContentLine: new MfMContentLineParser({ idGenerator, allInlines: [ new MfMTextParser({ idGenerator }), ], }),
-			allBlocks: [ createHeadingParser()['headingParser'], ]
-		}
-		const parser = new MfMParagraphParser(parsers)
-		return { parser }
-	}
 	describe('parsing the content', () => {
 		it('parses single-line simple text content', () => {
-			const { parser } = createParagraphParser()
+			const { paragraphParser } = createParagraphParser()
 
 			const text = 'hello world'
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = paragraphParser.parseLine(null, text, 0, text.length)
 
 			expect(result).not.toBeNull()
 			expect(result?.content).toHaveLength(1)
@@ -47,13 +32,13 @@ describe('MfMParagraph parser', () => {
 		})
 
 		it('parses a second text content line', () => {
-			const { parser } = createParagraphParser()
+			const { paragraphParser } = createParagraphParser()
 
 			const line1 = 'hello world'
 			const line2 = 'hello marmota'
 			const text = `${line1}\n${line2}`
-			const first = parser.parseLine(null, text, 0, line1.length)
-			const result = parser.parseLine(first, text, `${line1}\n`.length, line2.length)
+			const first = paragraphParser.parseLine(null, text, 0, line1.length)
+			const result = paragraphParser.parseLine(first, text, `${line1}\n`.length, line2.length)
 
 			expect(result).not.toBeNull()
 			expect(result?.content).toHaveLength(2)
@@ -70,24 +55,24 @@ describe('MfMParagraph parser', () => {
 		});
 
 		[ '', '    ', '\t', '  \t    \t ' ].forEach((empty: string) => it(`ends paragraph at an empty line "${empty.replaceAll('\t', '\\t')}"`, () => {
-			const { parser } = createParagraphParser()
+			const { paragraphParser } = createParagraphParser()
 			const line1 = 'hello world'
 			const text = `${line1}\n${empty}\n---ignore me---`
 
-			const first = parser.parseLine(null, text, 0, line1.length)
-			const result = parser.parseLine(first, text, `${line1}\n`.length, empty.length)
+			const first = paragraphParser.parseLine(null, text, 0, line1.length)
+			const result = paragraphParser.parseLine(first, text, `${line1}\n`.length, empty.length)
 
 			expect(result).toBeNull()
 			expect(first).toHaveProperty('isFullyParsed', true)
 		}))
 		it('ends paragraph on block content (e.g. heading)', () => {
-			const { parser } = createParagraphParser()
+			const { paragraphParser } = createParagraphParser()
 			const line1 = 'hello world'
 			const heading = '# I am a heading'
 			const text = `${line1}\n${heading}\n---ignore me---`
 
-			const first = parser.parseLine(null, text, 0, line1.length)
-			const result = parser.parseLine(first, text, `${line1}\n`.length, heading.length)
+			const first = paragraphParser.parseLine(null, text, 0, line1.length)
+			const result = paragraphParser.parseLine(first, text, `${line1}\n`.length, heading.length)
 
 			expect(result).toBeNull()
 			expect(first).toHaveProperty('isFullyParsed', true)

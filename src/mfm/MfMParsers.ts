@@ -60,7 +60,7 @@ export type KnownParsers =
 
 /**
  * A class for accessing all known parsers that form the MfM markdown dialect,
- * used by {@link MfMDialect} to find its parsers. 
+ * used by {@link ../MfMDialect} to find its parsers. 
  * 
  * All parsers are initialized lazily to avoid creating all parsers when
  * creating this object, which might result in a stack overflow considering
