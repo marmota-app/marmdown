@@ -22,6 +22,9 @@ import { Parsers } from "$parser/Parsers"
 import { anyNumber, anyString, instance, mock, verify, when } from "omnimock"
 import { createHeadingParser } from "./block/createHeadingParser"
 import { createParagraphParser } from "./block/createParagraphParser"
+import { createOptionsParser } from "./options/createOptionsParser"
+import { MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { UpdateParser } from "$markdown/UpdateParser"
 
 describe('MfMContainer parser', () => {
 	function createSectionParserMock() {
@@ -35,7 +38,8 @@ describe('MfMContainer parser', () => {
 		it('parses the file content into a section when there are no options (no previous section found)', () => {
 			const sectionParserMock = createSectionParserMock()
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(null).once()
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
@@ -45,7 +49,8 @@ describe('MfMContainer parser', () => {
 		it('returns null when section could not be parsed', () => {
 			const sectionParserMock = createSectionParserMock()
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(null).once()
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
@@ -56,7 +61,8 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(section).once()
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
@@ -74,7 +80,8 @@ describe('MfMContainer parser', () => {
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
 			when(sectionParserMock.parseLine(null, text, 'some container line\n'.length, 'second line'.length)).return(null).anyTimes()
 			
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, text, 0, 'some container line'.length)
@@ -93,7 +100,8 @@ describe('MfMContainer parser', () => {
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
 			when(sectionParserMock.parseLine(null, text, 'some container line\n'.length, 'second line'.length)).return(null).anyTimes()
 	
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			let container = containerParser.parseLine(null, text, 0, 'some container line'.length)
@@ -113,7 +121,8 @@ describe('MfMContainer parser', () => {
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
 			when(sectionParserMock.parseLine(null, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
 	
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, text, 0, 'some container line'.length)
@@ -133,7 +142,8 @@ describe('MfMContainer parser', () => {
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).never()
 			when(sectionParserMock.parseLine(null, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
 	
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, text, 0, 'some container line'.length)
@@ -146,7 +156,8 @@ describe('MfMContainer parser', () => {
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			section.lines.push(new ParsedLine(section))
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(section).once()
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, 'some container line', 0, 'some container line'.length)
@@ -155,7 +166,8 @@ describe('MfMContainer parser', () => {
 		});
 		[ '', '   ', '\t', '   \t  \t '].forEach(empty => it(`parses unmapped empty line "${empty.replaceAll('\t', '\\t')}" as line of the container`, () => {
 			const sectionParser = new MfMSectionParser({ idGenerator: new NumberedIdGenerator() })
-			const parsers: Parsers<MfMSectionParser> = { 'MfMSection': sectionParser, allBlocks: [ sectionParser ], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': sectionParser, allBlocks: [ sectionParser ], idGenerator: new NumberedIdGenerator(), }
 	
 			const containerParser = new MfMContainerParser(parsers)
 			const container = containerParser.parseLine(null, empty, 0, empty.length)
@@ -168,7 +180,8 @@ describe('MfMContainer parser', () => {
 		it('contains the correct section content for document with different elements', () => {
 			const { paragraphParser, } = createParagraphParser()
 			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
-			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers = { 'MfMOptions': optionsParser, 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
 			const containerParser = new MfMContainerParser(parsers)
 
 			const lines = [
@@ -210,7 +223,8 @@ describe('MfMContainer parser', () => {
 		it('contains a line in the container for each line of the file content', () => {
 			const { paragraphParser, } = createParagraphParser()
 			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
-			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const optionsParser = createOptionsParser()
+			const parsers = { 'MfMOptions': optionsParser, 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
 			const containerParser = new MfMContainerParser(parsers)
 
 			const lines = [
@@ -246,11 +260,359 @@ describe('MfMContainer parser', () => {
 			})
 		})
 	})
-	describe.skip('parsing options and options lines', () => {
-		it.skip('parses the document options', () => {})
-		it.skip('ignores empty lines between options and the first content line when there are options', () => {})
+	describe('parsing options and options lines', () => {
+		it('parses the document options', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value; key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+			expect(container?.content).toHaveLength(1)
+
+			expect(container?.options.get('default')).toEqual('default value')
+			expect(container?.options.get('key2')).toEqual('value2')
+		})
+		it('adds the correct document structure after the document options', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value; key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+			expect(container?.content).toHaveLength(1)
+
+			expect(container?.content[0].content).toHaveLength(1)
+			expect(container?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			expect(container?.content[0].content[0].lines).toHaveLength(2)
+			expect(container?.content[0].content[0].lines[0].asText).toEqual(lines[1])
+			expect(container?.content[0].content[0].lines[1].asText).toEqual(lines[2])
+		})
+		it('does not add options to the container if they do not appear on the first line', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'',
+				'{ default value; key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+			expect(container?.content).toHaveLength(1)
+
+			expect(container?.options.get('default')).toBeUndefined()
+			expect(container?.options.get('key2')).toBeUndefined()
+		})
+		it('adds two-line document options to the document, with all their lines', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+
+			expect(container?.content).toHaveLength(1)
+			expect(container?.content[0].lines).toHaveLength(2)
+
+			expect(container?.lines).toHaveLength(lines.length)
+			container?.lines.forEach((l, i) => expect(l.asText).toEqual(lines[i]))
+
+			expect(container?.options.lines[0].asText).toEqual(lines[0])
+			expect(container?.options.lines[1].asText).toEqual(lines[1])
+			expect(container?.options.get('default')).toEqual('default value')
+			expect(container?.options.get('key2')).toEqual('value2')
+		})
+		it('ignores empty lines between options and the first content line when there are options', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ key2 = value2}',
+				'  \t  ',
+				'',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+
+			expect(container?.content).toHaveLength(1)
+			expect(container?.content[0].lines).toHaveLength(2)
+
+			expect(container?.lines).toHaveLength(lines.length)
+
+			expect(container?.options.get('key2')).toEqual('value2')
+		})
 	})
-	describe.skip('parsing updates', () => {
-		//TODO implement me
+	describe('parsing updates', () => {
+		const updateParser = new UpdateParser()
+		
+		it('parses update inside a paragraph in the container', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: ', smart',
+				rangeOffset: lines[0].length+lines[1].length+2+'The quick'.length,
+				rangeLength: 0,
+			}) as MfMContainer
+
+			expect(updated).not.toBeNull()
+			const paragraph = updated.content[0].content[0]
+			expect(paragraph.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph.content[0].content[0]).toHaveProperty('text', 'The quick, smart brown fox')
+
+			expect(updated.lines[0].asText).toEqual(lines[0])
+			expect(updated.lines[1].asText).toEqual(lines[1])
+			expect(updated.lines[2].asText).toEqual('The quick, smart brown fox')
+			expect(updated.lines[3].asText).toEqual(lines[3])
+		})
+		it('parses an update with a newline inside a paragraph in the container', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: '\n',
+				rangeOffset: lines[0].length+lines[1].length+2+'The quick'.length,
+				rangeLength: 1,
+			})
+
+			expect(updated).toBeNull()
+		})
+		it('parses an update inside a closed, multi-line options block inside the container', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: ';key3=value3 ',
+				rangeOffset: lines[0].length+1+'key2 = value2'.length,
+				rangeLength: 0,
+			}) as MfMContainer
+
+			expect(updated).not.toBeNull()
+			expect(updated.options.get('key3')).toEqual('value3')
+
+			expect(updated.lines[0].asText).toEqual(lines[0])
+			expect(updated.lines[1].asText).toEqual('key2 = value2;key3=value3 }')
+			expect(updated.lines[2].asText).toEqual(lines[2])
+			expect(updated.lines[3].asText).toEqual(lines[3])
+		})
+
+		it('parses an update inside a un-closed, multi-line options block inside the container', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: ';key3=value3',
+				rangeOffset: lines[0].length+1+'key2 = value2'.length,
+				rangeLength: 0,
+			})
+
+			expect(updated).toBeNull()
+		})
+
+		it('parses an update after an un-closed, multi-line options block inside the container', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: ', smart',
+				rangeOffset: lines[0].length+lines[1].length+2+'The quick'.length,
+				rangeLength: 0,
+			})
+
+			expect(updated).toBeNull()
+		})
+
+		it('parses an update inside a closed, multi-line options block inside the container, removing the closing bracket', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2}',
+				'The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result as MfMContainer
+
+			const updated = updateParser.parse(container, { 
+				text: '',
+				rangeOffset: lines[0].length+1+'key2 = value2'.length,
+				rangeLength: 1,
+			})
+
+			expect(updated).toBeNull()
+		})
 	})
 })

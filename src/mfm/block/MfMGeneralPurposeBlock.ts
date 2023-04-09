@@ -14,22 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { GenericBlock } from "$element/GenericElement"
 import { BlockQuote } from "$element/MarkdownElements"
-import { EMPTY_OPTIONS, MfMOptions, Options } from "$mfm/options/MfMOptions"
+import { MfMGenericBlock } from "$mfm/MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
-export class MfMGeneralPurposeBlock extends GenericBlock<
+export class MfMGeneralPurposeBlock extends MfMGenericBlock<
 	MfMGeneralPurposeBlock, MfMBlockElementContent, 'block-quote', MfMGeneralPurposeBlockParser
 > implements BlockQuote<MfMGeneralPurposeBlock, MfMBlockElementContent> {
-	continueWithNextLine: boolean = true
 	constructor(id: string, pw: MfMGeneralPurposeBlockParser) { super(id, 'block-quote', pw) }
-	override get isFullyParsed(): boolean {
-		return !this.continueWithNextLine
-	}
-	get options(): MfMOptions {
-		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? EMPTY_OPTIONS
-	}
 }
 
 export class MfMGeneralPurposeBlockParser extends MfMBlockContentParser<MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser> {

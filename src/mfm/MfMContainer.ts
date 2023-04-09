@@ -14,21 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerBlock, ParsedLine, StringLineContent } from "$element/Element";
-import { GenericBlock, GenericInline } from "$element/GenericElement";
-import { Container, Paragraph, Section, Text } from "$element/MarkdownElements";
-import { IdGenerator } from "$markdown/IdGenerator";
+import { ParsedLine, StringLineContent } from "$element/Element";
+import { Container } from "$element/MarkdownElements";
 import { MfMBlockElements } from "$markdown/MfMDialect";
 import { isEmpty } from "$parser/find";
 import { parseBlock } from "$parser/parse";
-import { Parser } from "$parser/Parser";
-import { Parsers } from "$parser/Parsers";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
+import { MfMGenericBlock } from "./MfMGenericElement";
+import { MfMParser } from "./MfMParser";
+import { MfMOptionsParser } from "./options/MfMOptions";
 
 /**
  * Main container element for the "MfM" dialect. 
  */
-export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
+export class MfMContainer extends MfMGenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
 	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
 
 	override addContent(content: MfMBlockElements): void {
@@ -50,7 +49,7 @@ export class MfMContainer extends GenericBlock<MfMContainer, MfMBlockElements, '
  * a section as "previous content" to start with, which can be used when
  * the document does not start with a heading.
  */
-export class MfMContainerParser extends Parser<MfMContainer> {
+export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, MfMOptionsParser | MfMSectionParser> {
 	public readonly elementName = 'MfMContainer'
 
 	create() {
@@ -59,17 +58,28 @@ export class MfMContainerParser extends Parser<MfMContainer> {
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
 		const container = previous ?? this.create()
 
-		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, container, text, start, length, this.allBlocks)
-		if(result == null && isEmpty(text, start, length)) {
+		const { parsedLength } = this.parsers.MfMOptions.addOptionsTo(container, text, start, length, () => container.lines.push(new ParsedLine(container)))
+		
+		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, container, text, start+parsedLength, length-parsedLength, this.allBlocks)
+		if(result == null && isEmpty(text, start+parsedLength, length-parsedLength)) {
+			//Add the empty line to the container
 			result = container
 			
-			container.lines.push(new ParsedLine(container))
-			result.lines[result.lines.length-1].content.push(new StringLineContent(text.substring(start, start+length), start, length, result))
+			if(parsedLength === 0) { container.lines.push(new ParsedLine(container)) }
+			result.lines[result.lines.length-1].content.push(new StringLineContent(text.substring(start+parsedLength, start+length), start+parsedLength, length-parsedLength, result))
 		}
 
 		return result
 	}
 
 	private get allBlocks() { return this.parsers.allBlocks ?? [] }
+
+	override parseLineUpdate(original: MfMContainer, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+		//A container cannot be updated directly, only its contents can be updated.
+		//When an update bubbles up to this point, it is better to re-parse the
+		//whole document, so the container parser returns null here.
+		return null
+	}
+
 }
 

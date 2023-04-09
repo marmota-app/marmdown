@@ -20,35 +20,32 @@ import { isEmpty } from "$parser/find";
 import { Parser } from "$parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
 
+class EmptyOptionsParser extends Parser<MfMOptions> {
+	public readonly elementName = 'MfMEmptyOption'
+
+	parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null {
+		throw new Error('Cannot parse empty options: This is just a dummy parser to make sure we can create an empty options object.')
+	}
+}
+export const EMPTY_OPTIONS_PARSER = new EmptyOptionsParser({ idGenerator: { nextId: () => '__empty__'}})
+
 export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options'> {
 	keys: string[]
 	get(key: string): string | null | undefined
 }
 
-class EmptyOptionsParser extends Parser<MfMOptions> {
-	elementName = 'MfMOptions'
-	constructor() { super({ idGenerator: { nextId: () => { throw new Error('This ID generator must never be used!') }}}) }
-	override parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null { return null }
-}
+export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options', Parser<MfMOptions>> implements Options {
+	private _isFullyParsed: boolean
 
-export const EMPTY_OPTIONS: Options = {
-	id: '--empty--',
-	type: 'options',
-	content: [],
-	lines: [],
-	keys: [],
-	isFullyParsed: true,
-	parsedWith: new EmptyOptionsParser(),
-	get(key: string) { return null},
-}
-
-export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options', MfMOptionsParser> implements Options {
-	private _isFullyParsed = false
-
-	constructor(id: string, pw: MfMOptionsParser) { super(id, 'options', pw) }
+	constructor(id: string, pw: Parser<MfMOptions>, _isFullyParsed: boolean = false) {
+		super(id, 'options', pw)
+		this._isFullyParsed = _isFullyParsed
+	}
 
 	get isFullyParsed(): boolean { return this._isFullyParsed }
 	set isFullyParsed(fp: boolean) { this._isFullyParsed = fp }
+	
+	get isEmpty(): boolean { return this.content.length === 0 }
 
 	get(key: string) { return this.content.find(c => c.key===key)?.value }
 
@@ -61,29 +58,33 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 	public readonly elementName = 'MfMOptions';
 
 	addOptionsTo(
-		element: { options: MfMOptions | typeof EMPTY_OPTIONS, lines: ParsedLine<any, any>[],}, 
-		text: string, start: number, length: number
+		element: { options: MfMOptions, lines: ParsedLine<any, any>[],}, 
+		text: string, start: number, length: number,
+		addLine = () => {}
 	): { parsedLength: number} {
 		let i=0
 		let lastOptionLine: LineContent<MfMOptions> | undefined = undefined
 
 		const previousOptions = element.options
 
-		if(previousOptions===EMPTY_OPTIONS && text.charAt(start+i) === '{') {
+		if(previousOptions.id==='__empty__' && !previousOptions.isFullyParsed && text.charAt(start+i) === '{') {
 			const options = this.parseLine(null, text, start+i, length-i)
 			if(options != null) {
 				lastOptionLine = options.lines[options.lines.length-1]
 				i += lastOptionLine.length	
 			}
-		} else if(previousOptions!==EMPTY_OPTIONS && !previousOptions.isFullyParsed) {
+		} else if(!previousOptions.isEmpty && !previousOptions.isFullyParsed) {
 			const options = this.parseLine(previousOptions as MfMOptions, text, start+i, length-i)
 			if(options != null) {
 				lastOptionLine = options.lines[options.lines.length-1]
 				i += lastOptionLine.length
 			}
+		} else if(previousOptions.id==='__empty__') {
+			previousOptions.isFullyParsed = true
 		}
 
 		if(lastOptionLine) {
+			addLine()
 			element.lines[element.lines.length-1].content.push(lastOptionLine)
 		}
 
@@ -123,11 +124,11 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 	override isFullyParsedUpdate(update: LineContent<Element<unknown, unknown, unknown, unknown>>, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>): boolean {
 		const isLastLine = originalLine === originalLine.belongsTo.lines[originalLine.belongsTo.lines.length-1]
 
-		if(!isLastLine) {
+		if(isLastLine) {
+			return update.asText.endsWith('}')
+		} else {
 			return !update.belongsTo.isFullyParsed
 		}
-		
-		return true
 	}
 
 	private parseOptionsLine(options: MfMOptions, text: string, start: number, length: number, firstParser: MfMFirstOptionParser | MfMOptionParser, firstContent: StringLineContent<MfMOptions> | null) {

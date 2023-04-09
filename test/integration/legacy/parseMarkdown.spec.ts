@@ -585,38 +585,41 @@ describe('parseMarkdown', () => {
 
 
 	describe('document options', () => {
-		it.skip('parses options at the start of the document as document options', () => {/*
+		it('parses options at the start of the document as document options', () => {
 			const markdown = '{ foo=bar }\ntext'
 			
 			const result = parseMarkdown(markdown)
 			
-			expect(result.options).to.have.property('foo', 'bar')
-		*/})
+			expect(result.options.get('foo')).toEqual('bar')
+		})
 
-		it.skip('does not parse document options not at the start of the document', () => {/*
+		it('does not parse document options not at the start of the document', () => {
 			const markdown = '\n{ foo=bar }\ntext'
 			
 			const result = parseMarkdown(markdown)
 			
-			expect(result.options).to.not.have.property('foo', 'bar')
-		*/})
+			expect(result.options.isEmpty).toEqual(true)
+			expect(result.options.get('foo')).toBeUndefined()
+		})
 		
-		it.skip('does not parse document options on a different element', () => {/*
+		it('does not parse document options on a different element', () => {
 			const markdown = '#{ foo=bar }\ntext'
 			
 			const result = parseMarkdown(markdown)
 			
-			expect(result.options).to.not.have.property('foo', 'bar')
-		*/})
+			expect(result.options.isEmpty).toEqual(true)
+			expect(result.options.get('foo')).toBeUndefined()
+		})
 
-		it.skip('parses text after the document options as paragraph', () => {/*
+		it('parses text after the document options as paragraph', () => {
 			const markdown = '{ foo=bar }text'
 			
 			const result = parseMarkdown(markdown)
 			
-			assume(result.options).to.have.property('foo', 'bar')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text')
-		*/})
+			assume(result.options.get('foo')).toEqual('bar')
+			const paragraph = result.content[0].content[0] as MfMParagraph
+			expect(paragraph.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(paragraph.content[0].content[0]).toHaveProperty('text', 'text')
+		})
 	})
 })

@@ -15,23 +15,16 @@ limitations under the License.
 */
 
 import { ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
 import { Heading } from "$element/MarkdownElements"
 import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
+import { MfMGenericBlock } from "$mfm/MfMGenericElement"
 import { MfMParser } from "$mfm/MfMParser"
-import { EMPTY_OPTIONS, MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { MfMSection, MfMSectionParser } from "./MfMSection"
 
 export type MfMHeadingContent = MfMContentLine
-export class MfMHeading extends GenericBlock<MfMHeading, MfMHeadingContent, 'heading', MfMHeadingParser> implements Heading<MfMHeading, MfMHeadingContent> {
-	continueWithNextLine: boolean = false
+export class MfMHeading extends MfMGenericBlock<MfMHeading, MfMHeadingContent, 'heading', MfMHeadingParser> implements Heading<MfMHeading, MfMHeadingContent> {
 	constructor(id: string, public readonly level: number, public readonly section: MfMSection, pw: MfMHeadingParser) { super(id, 'heading', pw) }
-	override get isFullyParsed(): boolean {
-		return this.options.isFullyParsed? !this.continueWithNextLine : false
-	}
-	public get options(): MfMOptions { //FIXME return type should be options
-		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? EMPTY_OPTIONS
-	}
 }
 
 export const tokens = [ '######', '#####', '####', '###', '##', '#', ]
@@ -46,7 +39,7 @@ export class MfMHeadingParser extends MfMParser<
 		const { skipAtEnd, continueWithNextLine, textAtEnd, } = this.hasContinuationEnd(text, start, length)
 
 		if(heading) {
-			i += this.parsers.MfMOptions.addOptionsTo(heading, text, start+i, length).parsedLength
+			i += this.parsers.MfMOptions.addOptionsTo(heading, text, start+i, length-i).parsedLength
 
 			const { validSpace, skipSpaces, } = this.hasValidSpace(heading, text, start+i, length-i)
 			if(validSpace) {

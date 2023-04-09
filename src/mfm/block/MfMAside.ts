@@ -14,22 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { GenericBlock } from "$element/GenericElement"
-import { Aside, BlockQuote } from "$element/MarkdownElements"
-import { EMPTY_OPTIONS, MfMOptions, Options } from "$mfm/options/MfMOptions"
+import { Aside } from "$element/MarkdownElements"
+import { MfMGenericBlock } from "$mfm/MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
-export class MfMAside extends GenericBlock<
+export class MfMAside extends MfMGenericBlock<
 	MfMAside, MfMBlockElementContent, 'aside', MfMAsideParser
 > implements Aside<MfMAside, MfMBlockElementContent> {
-	continueWithNextLine: boolean = true
 	constructor(id: string, pw: MfMAsideParser) { super(id, 'aside', pw) }
-	override get isFullyParsed(): boolean {
-		return !this.continueWithNextLine
-	}
-	get options(): MfMOptions {
-		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? EMPTY_OPTIONS
-	}
 }
 
 export class MfMAsideParser extends MfMBlockContentParser<MfMAside, MfMAsideParser> {
