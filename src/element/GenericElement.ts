@@ -24,9 +24,13 @@ export abstract class GenericBlock<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
-	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
+	private _lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
+	public get lines(): ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] {
+		return this._lines
+	}
+
 	public get content(): CONTENT[] {
-		return this.lines
+		return this._lines
 			.flatMap(l => l.content)
 			.filter(lc => lc.belongsTo !== this && lc.belongsTo.type !== 'options')
 			.map(lc => lc.belongsTo as CONTENT)
@@ -39,19 +43,18 @@ export abstract class GenericBlock<
 	}
 
 	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
-		jsonTransient(this, 'lines')
 	}
 
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
-		if(this.lines.length === 0) { this.lines.push(new ParsedLine(this as unknown as THIS)) }
+		if(this._lines.length === 0) { this._lines.push(new ParsedLine(this as unknown as THIS)) }
 
 		const i = content as Element<unknown, unknown, unknown, unknown>
 		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
 
 		if(lastItemLine) {
-			this.lines[this.lines.length-1].content.push(lastItemLine)
+			this._lines[this._lines.length-1].content.push(lastItemLine)
 		}
 	}
 }

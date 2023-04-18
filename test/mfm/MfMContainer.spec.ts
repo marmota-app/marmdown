@@ -413,6 +413,37 @@ describe('MfMContainer parser', () => {
 
 			expect(container?.options.get('key2')).toEqual('value2')
 		})
+		it('can parse content after options in the same line', () => {
+			const optionsParser = createOptionsParser()
+			const { paragraphParser, } = createParagraphParser()
+			const { headingParser, sectionParser } = createHeadingParser([paragraphParser])
+			const parsers = { 'MfMHeading': headingParser, 'MfMSection': sectionParser, 'MfMParagraph': paragraphParser, 'MfMOptions': optionsParser, allBlocks: [ headingParser, paragraphParser], idGenerator: new NumberedIdGenerator(), }
+			const containerParser = new MfMContainerParser(parsers)
+
+			const lines = [
+				'{ key2 = value2} The quick brown fox',
+				'jumps over the lazy dog',
+			]
+			const text = lines.join('\n')
+
+			const container = lines.reduce((previous: { result: MfMContainer | null, start: number}, current) =>
+				({ 
+					result: containerParser.parseLine(previous.result, text, previous.start, current.length),
+					start: previous.start + current.length + 1,
+				})
+			, { result: null, start: 0, }).result
+
+			expect(container).not.toBeNull()
+
+			expect(container?.content).toHaveLength(1)
+			expect(container?.content[0].lines).toHaveLength(2)
+			expect(container?.content[0].lines[0].asText).toEqual(' The quick brown fox')
+			expect(container?.content[0].lines[1].asText).toEqual('jumps over the lazy dog')
+
+			expect(container?.lines).toHaveLength(lines.length)
+			expect(container?.lines[0].asText).toEqual(lines[0])
+			expect(container?.lines[1].asText).toEqual(lines[1])
+		})
 	})
 	describe('parsing updates', () => {
 		const updateParser = new UpdateParser()

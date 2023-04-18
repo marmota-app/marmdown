@@ -20,14 +20,14 @@ import { MfMBlockElements } from "$markdown/MfMDialect";
 import { isEmpty } from "$parser/find";
 import { parseBlock } from "$parser/parse";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
-import { MfMGenericBlock } from "./MfMGenericElement";
+import { MfMFlexibleGenericBlock, MfMGenericBlock } from "./MfMGenericElement";
 import { MfMParser } from "./MfMParser";
 import { MfMOptionsParser } from "./options/MfMOptions";
 
 /**
  * Main container element for the "MfM" dialect. 
  */
-export class MfMContainer extends MfMGenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
+export class MfMContainer extends MfMFlexibleGenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
 	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
 
 	override addContent(content: MfMBlockElements): void {
@@ -60,7 +60,8 @@ export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, Mf
 
 		const { parsedLength } = this.parsers.MfMOptions.addOptionsTo(container, text, start, length, () => container.lines.push(new ParsedLine(container)))
 		
-		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, container, text, start+parsedLength, length-parsedLength, this.allBlocks)
+		const addLine = () => { if(parsedLength === 0) { container.lines.push(new ParsedLine(container)) }}
+		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, container, text, start+parsedLength, length-parsedLength, this.allBlocks, { addLine }, )
 		if(result == null && isEmpty(text, start+parsedLength, length-parsedLength)) {
 			//Add the empty line to the container
 			result = container

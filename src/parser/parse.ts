@@ -24,14 +24,18 @@ export function parseBlock<
 	CONTENT extends Element<unknown, unknown, unknown, unknown>,
 >(
 	previous: B | null, container: B, text: string, start: number, length: number,
-	allBlocks: Parser<any>[], endsPrevious: (prev: B, c: CONTENT)=>boolean = ()=>false,
+	allBlocks: Parser<any>[],
+	optionalCallbacks: { endsPrevious?: (prev: B, c: CONTENT)=>boolean, addLine?: () => void}
 ): B | null {
+	const defaultCallbacks = { endsPrevious: ()=>false, addLine: () => { container.lines.push(new ParsedLine(container))} }
+	const callbacks = { ...defaultCallbacks, ...optionalCallbacks }
+
 	const previousContent = container.content.length > 0? container.content[container.content.length-1] : null
 	if(previousContent && !previousContent.isFullyParsed) {
 		const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
 		const content = parsedWith.parseLine(previousContent, text, start, length)
 		if(content) {
-			container.lines.push(new ParsedLine(container))
+			callbacks.addLine()
 			if(content as unknown === container) {
 				const inner = content.content[content.content.length-1] as Element<unknown, unknown, unknown, unknown>
 				const contentLine = inner.lines[inner.lines.length-1] as ParsedLine<unknown, Element<unknown, unknown, unknown, unknown>>
@@ -47,8 +51,8 @@ export function parseBlock<
 		const parser = allBlocks[i]
 		const content = parser.parseLine(null, text, start, length) as CONTENT
 		if(content) {
-			container.lines.push(new ParsedLine(container))
-			if(previous && endsPrevious(previous, content)) {
+			callbacks.addLine()
+			if(previous && callbacks.endsPrevious(previous, content)) {
 				return null
 			}
 			container.addContent(content)
