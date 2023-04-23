@@ -13,25 +13,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-export function sanitized(markdown: TemplateStringsArray, ...params: string[]) {
-	let result = markdown
-		.map((t, i) => i<params.length? t+params[i] : t)
-		.join('')
-	
-	if(!result) {
-		return ''
-	}
-
-	if(result.startsWith('\n')) {
-		result = result.substring(1)
-	}
-
-	const indentation = /^[\t]+/.exec(result)
-	if(indentation) {
-		const remove = new RegExp(`^${indentation[0]}`, 'gm')
-		result = result.replaceAll(remove, '')
-	}
-
-	return result
-}
