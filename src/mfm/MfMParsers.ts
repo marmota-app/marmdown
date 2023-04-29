@@ -21,6 +21,7 @@ import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
 import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
+import { MfMThematicBreak, MfMThematicBreakParser } from "./block/MfMThematicBreak";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
@@ -37,7 +38,8 @@ export type MfMContainerBlock =
 
 export type MfMLeafBlock =
 	MfMHeadingParser |
-	MfMParagraphParser
+	MfMParagraphParser |
+	MfMThematicBreakParser
 
 export type MfMContainerInline =
 	MfMContentLineParser
@@ -76,6 +78,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 
 	get MfMParagraph() { return this.getParser('MfMParagraph', () => new MfMParagraphParser(this)) }
 	get MfMHeading() { return this.getParser('MfMHeading', () => new MfMHeadingParser(this)) }
+	get MfMThematicBreak() { return this.getParser('MfMThematicBreak', () => new MfMThematicBreakParser(this)) }
 	
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
@@ -101,6 +104,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 		//IMPORTANT: Options are not part of leaf blocks!
 		this.MfMHeading,
 		this.MfMParagraph,
+		this.MfMThematicBreak,
 	] }
 
 	get allInlines(): KnownParsers[] { return [ ...this.allContainerInlines, ...this.allLeafInlines, ] }

@@ -32,6 +32,7 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'paragraph': return `<p${options(b)}>${inline(b.content)}</p>`
 			case 'block-quote': return `<blockquote${options(b)}>\n${all(b.content)}\n</blockquote>`
 			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
+			case 'thematic-break': return `<hr${options(b)} />`
 			default: return ''
 		}
 	}).join('\n')

@@ -29,13 +29,15 @@ import { UpdateParser } from "./UpdateParser";
 import { MfMContentLine } from "$mfm/inline/MfMContentLine";
 import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 import { MfMAside } from "$mfm/block/MfMAside";
+import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak";
 
 export type MfMBlockElements =
 	MfMSection |
 	MfMHeading |
 	MfMGeneralPurposeBlock |
 	MfMAside |
-	MfMParagraph
+	MfMParagraph |
+	MfMThematicBreak
 
 export type MfMInlineElements =
 	MfMContentLine |

@@ -22,7 +22,7 @@ import { sanitized } from "../sanitize"
 describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)', () => {
 	const md = new Marmdown(new MfMDialect())
 
-	test.skip('Three or more matching -, _, or * characters (https://github.github.com/gfm/#example-13)', () => {
+	test('Three or more matching -, _, or * characters (https://github.github.com/gfm/#example-13)', () => {
 		md.textContent = sanitized`
 			***
 			---
@@ -34,7 +34,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			<hr />`)
 	})
 
-	test.skip('Wrong characters (https://github.github.com/gfm/#example-14)', () => {
+	test('Wrong characters (https://github.github.com/gfm/#example-14)', () => {
 		md.textContent = sanitized`
 			+++
 			
@@ -45,7 +45,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			<p>===</p>`)
 	})
 
-	test.skip('Not enough characters (https://github.github.com/gfm/#example-16)', () => {
+	test('Not enough characters (https://github.github.com/gfm/#example-16)', () => {
 		md.textContent = sanitized`
 			--
 			**
@@ -57,7 +57,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			__</p>`)
 	})
 
-	test.skip('One to three spaces indent are allowed (https://github.github.com/gfm/#example-17)', () => {
+	test('One to three spaces indent are allowed (https://github.github.com/gfm/#example-17)', () => {
 		md.textContent = sanitized`
 			 ***
 			  ***
@@ -70,6 +70,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 	})
 
 	test.skip('Four spaces is too many (https://github.github.com/gfm/#example-18)', () => {
+		//Must wait until indented code blocks are implemented
 		md.textContent = sanitized`
 			    ***`
 		
@@ -78,17 +79,17 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			</code></pre>`)
 	})
 
-	test.skip('Four spaces is too many (paragraph) (https://github.github.com/gfm/#example-19)', () => {
+	test('Four spaces is too many (paragraph) (https://github.github.com/gfm/#example-19)', () => {
 		md.textContent = sanitized`
 			Foo
 			    ***`
 		
 		expect(html(md)).toEqual(sanitized`
 			<p>Foo
-			***</p>`)
+			    ***</p>`)
 	})
 
-	test.skip('More than three characters may be used (https://github.github.com/gfm/#example-20)', () => {
+	test('More than three characters may be used (https://github.github.com/gfm/#example-20)', () => {
 		md.textContent = sanitized`
 			_____________________________________`
 		
@@ -96,7 +97,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			<hr />`)
 	});
 
-	[' - - -', ' **  * ** * ** * **', '-     -      -      -'].forEach(b => test.skip(`Spaces are allowed between the characters ("${b}") (https://github.github.com/gfm/#example-21)`, () => {
+	[' - - -', ' **  * ** * ** * **', '-     -      -      -'].forEach(b => test(`Spaces are allowed between the characters ("${b}") (https://github.github.com/gfm/#example-21)`, () => {
 		md.textContent = sanitized`
 			${b}`
 
@@ -104,7 +105,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			<hr />`)
 	}))
 
-	test.skip('Spaces are allowed at the end (https://github.github.com/gfm/#example-24)', () => {
+	test('Spaces are allowed at the end (https://github.github.com/gfm/#example-24)', () => {
 		md.textContent = sanitized`
 			- - - -    `
 		
@@ -112,7 +113,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			<hr />`)
 	})
 
-	test.skip('However, no other characters may occur in the line (https://github.github.com/gfm/#example-25)', () => {
+	test('However, no other characters may occur in the line (https://github.github.com/gfm/#example-25)', () => {
 		md.textContent = sanitized`
 			_ _ _ _ a
 
@@ -127,6 +128,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 	})
 
 	test.skip('It is required that all of the non-whitespace characters be the same (https://github.github.com/gfm/#example-26)', () => {
+		//Must wait until emphasis is implemented
 		md.textContent = sanitized`
 			 *-*`
 		
@@ -135,6 +137,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 	})
 
 	test.skip('Thematic breaks do not need blank lines before or after (https://github.github.com/gfm/#example-27)', () => {
+		//Must wait until lists are implemented
 		md.textContent = sanitized`
 			- foo
 			***
@@ -150,7 +153,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 			</ul>`)
 	})
 
-	test.skip('Thematic breaks can interrupt a paragraph (https://github.github.com/gfm/#example-28)', () => {
+	test('Thematic breaks can interrupt a paragraph (https://github.github.com/gfm/#example-28)', () => {
 		md.textContent = sanitized`
 			Foo
 			***
@@ -167,6 +170,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 	})
 
 	test.skip('When both a thematic break and a list item are possible interpretations of a line, the thematic break takes precedence (https://github.github.com/gfm/#example-30)', () => {
+		//Must wait until lists are implemented
 		md.textContent = sanitized`
 			* Foo
 			* * *
@@ -183,6 +187,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 	})
 
 	test.skip('If you want a thematic break in a list item, use a different bullet (https://github.github.com/gfm/#example-31)', () => {
+		//Must wait until lists are implemented
 		md.textContent = sanitized`
 			- Foo
 			- * * *`

@@ -32,6 +32,10 @@ export interface Heading<
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
 > extends LeafBlock<THIS, CONTENT, 'heading'> {}
 
+export interface ThematicBreak<
+	THIS extends ThematicBreak<THIS>,
+> extends LeafBlock<THIS, never, 'thematic-break'> {}
+
 export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
