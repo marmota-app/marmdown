@@ -106,7 +106,7 @@ describe('MfMOption', () => {
 	describe('parsing updates', () => {
 		const parsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), }
 		const optionParser = new MfMFirstOptionParser(parsers)
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 		it('parses update to a default option', () => {
 			const option = optionParser.parseLine(null, '--ignore me--the value', '--ignore me--'.length, 'the value'.length) as MfMOption<MfMFirstOptionParser>

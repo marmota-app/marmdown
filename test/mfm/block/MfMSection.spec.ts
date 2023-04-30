@@ -83,7 +83,7 @@ describe('MfMSection parser', () => {
 
 	describe('parsing updates', () => {
 		it('cannot update a section directyl (e.g. changing heading to paragraph), must be a re-parse', () => {
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const headingParserMock = mock(MfMHeadingParser)
 			when(headingParserMock.elementName).return('MfMHeading')

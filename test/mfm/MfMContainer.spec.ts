@@ -446,7 +446,7 @@ describe('MfMContainer parser', () => {
 		})
 	})
 	describe('parsing updates', () => {
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 		
 		it('parses update inside a paragraph in the container', () => {
 			const optionsParser = createOptionsParser()

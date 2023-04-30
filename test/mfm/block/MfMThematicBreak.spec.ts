@@ -218,7 +218,7 @@ describe('MfMThematicBreak parser', () => {
 
 	describe('parsing updates', () => {
 		[['***'], ['***{key=value}'], ['***{key1=value1', 'key2=value2}']].forEach(lines => {
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 			function parseLines(_lines: string[] = lines) {
 				const { parser } = createThematicBreakParser()
 

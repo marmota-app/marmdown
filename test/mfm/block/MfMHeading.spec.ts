@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
 import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMSection } from "$mfm/block/MfMSection"
@@ -238,7 +239,7 @@ describe('MfMHeading parser', () => {
 	describe('parsing updates', () => {
 		it('can change the text of a parsed heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = '---ignore me---# the original heading---ignore me---'
 			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
@@ -264,7 +265,7 @@ describe('MfMHeading parser', () => {
 
 		it('cannot change the heading into a simple paragraph', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = '---ignore me---# the original heading---ignore me---'
 			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
@@ -276,7 +277,7 @@ describe('MfMHeading parser', () => {
 
 		it('cannot change the level of a heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = '---ignore me---# the original heading---ignore me---'
 			const originalSection = headingParser.parseLine(null, text, '---ignore me---'.length, '# the original heading'.length) as MfMSection
@@ -288,7 +289,7 @@ describe('MfMHeading parser', () => {
 
 		it('can change the first line of a three-line heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const first = '### Heading Text  '
 			const second = 'second line  '
@@ -325,7 +326,7 @@ describe('MfMHeading parser', () => {
 		})
 		it('can change the second line of a three-line heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const first = '### Heading Text  '
 			const second = 'second line  '
@@ -362,7 +363,7 @@ describe('MfMHeading parser', () => {
 		})
 		it('can change the third line of a three-line heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const first = '### Heading Text  '
 			const second = 'second line  '
@@ -400,7 +401,7 @@ describe('MfMHeading parser', () => {
 
 		it('parses an update in an options block of a heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = `#{ the default value;\nkey2 = value2 } Heading Text  \nsecond line`
 			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
@@ -429,7 +430,7 @@ describe('MfMHeading parser', () => {
 		})
 		it('parses an update after an options block of a heading', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = `#{ the default value;\nkey2 = value2 } Heading Text  \nsecond line`
 			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection
@@ -458,7 +459,7 @@ describe('MfMHeading parser', () => {
 		})
 		it('rejects update to heading if there is an un-closed options block', () => {
 			const { headingParser, } = createHeadingParser()
-			const updateParser = new UpdateParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 			const text = `#{ the default value;\nkey 2 value2 } Heading Text  \nsecond line`
 			let section = headingParser.parseLine(null, text, 0, '#{ the default value;'.length) as MfMSection

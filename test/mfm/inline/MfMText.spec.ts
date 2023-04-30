@@ -45,7 +45,7 @@ describe('MfMText', () => {
 		const parsers: Parsers<never> = { idGenerator: new NumberedIdGenerator(), }
 		const textParser = new MfMTextParser(parsers)
 		const originalText = textParser.parseLine(null, '---ignore---the original text---ignore---', '---ignore---'.length, 'the original text'.length) as MfMText
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 
 		it('parses update to text content when update is in range', () => {
 			const updated = updateParser.parse(originalText, { text: 'simple ', rangeOffset: '---ignore---'.length+'the '.length, rangeLength: 0, })

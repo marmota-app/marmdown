@@ -51,7 +51,7 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		private idGenerator: IdGenerator = new NumberedIdGenerator(),
 		private parsers: MfMParsers = new MfMParsers(idGenerator),
 		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(parsers['MfMContainer']),
-		private updateParser: UpdateParser<MfMContainer> = new UpdateParser(),
+		private updateParser: UpdateParser<MfMContainer> = new UpdateParser(idGenerator),
 	) {}
 
 	createEmptyDocument(): MfMContainer {

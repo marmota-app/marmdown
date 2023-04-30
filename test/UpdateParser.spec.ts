@@ -24,7 +24,7 @@ import { instance, mock } from "omnimock"
 
 describe('UpdateParser', () => {
 	[ '\r', '\n' ].forEach(nl => it(`does not parse a document that contains the newline character ${nl.replaceAll('\r', '\\r').replaceAll('\n', '\\n')}`, () => {
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 		const containerParserMock = mock(MfMContainerParser)
 		const sectionParserMock = mock(MfMSectionParser)
 		const dummy = new MfMContainer('dummy', instance(containerParserMock), instance(sectionParserMock))

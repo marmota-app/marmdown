@@ -197,7 +197,7 @@ describe('MfMOptions', () => {
 	})
 
 	describe('parsing updates', () => {
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 		it('parses an update to a default option', () => {
 			const parser = createOptionsParser()
 
@@ -378,7 +378,7 @@ describe('MfMOptions', () => {
 	})
 
 	describe('parsing updates to multi-line content', () => {
-		const updateParser = new UpdateParser()
+		const updateParser = new UpdateParser(new NumberedIdGenerator())
 		it('parses adding an option in the first line', () => {
 			const parser = createOptionsParser()
 

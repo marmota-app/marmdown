@@ -46,22 +46,29 @@ import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unknown>> {
 	//TODO is it dangerous to set the id generator to a default value here?
 	//     That default value must never be used in production!
-	constructor(private idGenerator: IdGenerator = new NumberedIdGenerator()) {}
+	constructor(private idGenerator: IdGenerator) {}
 
 	parse(element: ELEMENT, update: ContentUpdate): ELEMENT | null {
 		if(update.text.indexOf('\r') >= 0 || update.text.indexOf('\n') >= 0) {
 			return null
 		}
 
-		for(let i=0; i<element.lines.length; i++) {
-			const updatedLine = this.parseContent(element.lines[i] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
-			if(updatedLine) {
-				element.lines[i] = updatedLine as ParsedLine<unknown, unknown>
-				return element
+		try {
+			for(let i=0; i<element.lines.length; i++) {
+				const updatedLine = this.parseContent(element.lines[i] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
+				if(updatedLine) {
+					element.lines[i] = updatedLine as ParsedLine<unknown, unknown>
+					return element
+				}
 			}
+	
+			return null
+		} catch(e) {
+			if((e as Error).message === 'update-would-change-document-structure') {
+				return null
+			}
+			throw e
 		}
-
-		return null
 	}
 
 	private parseContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
@@ -72,6 +79,17 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
 			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo)) {
+				if(this.updateCouldChangeElementType(content, update)) {
+					//TODO can we solve this without an exception?
+					//TODO Also, should we even? Returning an object with the 
+					//     result and a boolean would work, but is that really
+					//     better? Then we'd have to pass the  boolean up the
+					//     call chain correctly, and the code would become more
+					//     convoluted.
+					//     Also, this is actually an exceptional situation,
+					//     from the point-of-view of this code!
+					throw new Error('update-would-change-document-structure')
+				}
 				for(var i=0; i<content.content.length; i++) {
 					const innerContent = content.content[i]
 					const result = this.parseContent(innerContent, update)
@@ -95,6 +113,18 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		}
 
 		return null
+	}
+
+	updateCouldChangeElementType(content: ParsedLine<any, any>, update: ContentUpdate) {
+		if(content.belongsTo.type === 'paragraph') {
+			//For a paragraph, when there is text inserted at the very beginning
+			//of a line, the element type of this line might change: e.g.
+			//the update might insert a "#", making the current line a heading.
+			//See UpdatesThatChangeElements.spec.ts
+			return update.rangeOffset === content.start && update.text.length > 0
+		}
+
+		return false
 	}
 
 	private parseInnerContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
