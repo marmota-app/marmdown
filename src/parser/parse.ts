@@ -16,6 +16,7 @@ limitations under the License.
 
 import { Block, Element, LineContent, ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
+import { IdGenerator } from "$markdown/IdGenerator"
 import { Parser } from "./Parser"
 import { Parsers } from "./Parsers"
 
@@ -25,9 +26,10 @@ export function parseBlock<
 >(
 	previous: B | null, container: B, text: string, start: number, length: number,
 	allBlocks: Parser<any>[],
-	optionalCallbacks: { endsPrevious?: (prev: B, c: CONTENT)=>boolean, addLine?: () => void}
+	idGenerator: IdGenerator,
+	optionalCallbacks: { endsPrevious?: (prev: B, c: CONTENT)=>boolean, addLine?: () => void},
 ): B | null {
-	const defaultCallbacks = { endsPrevious: ()=>false, addLine: () => { container.lines.push(new ParsedLine(container))} }
+	const defaultCallbacks = { endsPrevious: ()=>false, addLine: () => { container.lines.push(new ParsedLine(idGenerator.nextLineId(), container))} }
 	const callbacks = { ...defaultCallbacks, ...optionalCallbacks }
 
 	const previousContent = container.content.length > 0? container.content[container.content.length-1] : null

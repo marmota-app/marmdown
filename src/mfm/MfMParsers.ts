@@ -15,13 +15,14 @@ limitations under the License.
 */
 
 import { IdGenerator } from "$markdown/IdGenerator";
+import { EmptyElementParser } from "$parser/EmptyElementParser";
 import { Parsers } from "$parser/Parsers";
 import { MfMAsideParser } from "./block/MfMAside";
 import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
 import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
-import { MfMThematicBreak, MfMThematicBreakParser } from "./block/MfMThematicBreak";
+import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
@@ -39,7 +40,8 @@ export type MfMContainerBlock =
 export type MfMLeafBlock =
 	MfMHeadingParser |
 	MfMParagraphParser |
-	MfMThematicBreakParser
+	MfMThematicBreakParser |
+	EmptyElementParser
 
 export type MfMContainerInline =
 	MfMContentLineParser
@@ -91,14 +93,19 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this))}
 	get MfMOptions() { return this.getParser('MfMOptions', () => new MfMOptionsParser(this))}
 	
+	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this))}
+
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
+		//EmptyElement has priority over all other blocks: When a line is
+		//empty, it is never part of another element.
+		this.EmptyElement,
+		this.MfMGeneralPurposeBlock,
+		this.MfMAside,
 		//IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
 		//           not be part of this list, because they are created on-the-fly
 		//           when needed by other parsers. Parsing them explicitly would
 		//           create infiniterecursion or unnecessarily nested blocks.
-		this.MfMGeneralPurposeBlock,
-		this.MfMAside,
 	] }
 	get allLeafBlocks(): KnownParsers[] { return [
 		//IMPORTANT: Options are not part of leaf blocks!

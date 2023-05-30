@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { StringLineContent } from "$element/Element"
 import { BlockQuote } from "$element/MarkdownElements"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
+import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
-export class MfMGeneralPurposeBlock extends MfMGenericBlock<
+export class MfMGeneralPurposeBlock extends MfMGenericContainerBlock<
 	MfMGeneralPurposeBlock, MfMBlockElementContent, 'block-quote', MfMGeneralPurposeBlockParser
 > implements BlockQuote<MfMGeneralPurposeBlock, MfMBlockElementContent> {
+	protected self: MfMGeneralPurposeBlock = this
 	constructor(id: string, pw: MfMGeneralPurposeBlockParser) { super(id, 'block-quote', pw) }
 }
 

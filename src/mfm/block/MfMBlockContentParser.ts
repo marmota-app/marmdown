@@ -17,6 +17,7 @@ limitations under the License.
 import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { MfMBlockElements } from "$markdown/MfMDialect"
+import { DynamicLine, MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
 import { MfMParser } from "$mfm/MfMParser"
 import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { Parser } from "$parser/Parser"
@@ -24,7 +25,7 @@ import { Parser } from "$parser/Parser"
 export type MfMBlockElementContent = MfMBlockElements
 
 export abstract class MfMBlockContentParser<
-	T extends GenericBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, options: MfMOptions },
+	T extends MfMGenericContainerBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, options: MfMOptions },
 	P extends MfMBlockContentParser<T, P>,
 > extends MfMParser<T, T, MfMOptionsParser> {
 	abstract create(): T
@@ -34,16 +35,37 @@ export abstract class MfMBlockContentParser<
 	parseLine(previous: T | null, text: string, start: number, length: number): T | null {
 		if(text.charAt(start) === this.token) {
 			let i=this.token.length
+			let lineStart: string | null = this.token
+			let optionsParsed = false
 
 			const block = previous ?? this.create()
-			block.lines.push(new ParsedLine(block))
-			block.lines[block.lines.length-1].content.push(new StringLineContent(this.token, start, this.token.length, block))
 
-			i += this.parsers.MfMOptions.addOptionsTo(block, text, start+i, length-1).parsedLength
+			const addOptionsLine = (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => {
+				block.options = line.belongsTo
+				if(lineStart) { block.prependTo(line.id, new StringLineContent(lineStart, start, lineStart.length, block)) }
+				const nextChar = text.charAt(start+i+parsedLength)
+				if(nextChar === ' ' || nextChar === '\t') {
+					block.appendTo(line.id, new StringLineContent(nextChar, start+i+parsedLength, 1, block))
+					parsedLength++
+				}
+				lineStart = null
+				optionsParsed = true
+				return parsedLength
+			}
+			i += this.parsers.MfMOptions.addOptionsTo(block, text, start+i, length-i, addOptionsLine).parsedLength
+
+			if(optionsParsed && i === length) {
+				//Current line was already fully parsed after parsing the options
+				return block
+			}
 
 			const nextChar = text.charAt(start+i)
-			if(nextChar === ' ' || nextChar === '\t') { 
-				block.lines[block.lines.length-1].content.push(new StringLineContent(nextChar, start+i, 1, block))
+			//The parser adds only the first whitespace character to the
+			//block itself. The rest of the characters belongs to the inner
+			//elements - Otherwise, it would not be possible to have, e.g.,
+			//indented code blocks.
+			if(lineStart && (nextChar === ' ' || nextChar === '\t')) {
+				lineStart = `${this.token}${nextChar}`
 				i++
 			}
 
@@ -52,8 +74,7 @@ export abstract class MfMBlockContentParser<
 				const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
 				const content = parsedWith.parseLine(previousContent, text, start+i, length-i)
 				if(content) {
-					const contentLine = content.lines[content.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
-					previous.lines[previous.lines.length-1].content.push(contentLine)
+					if(lineStart) { block.prependToLastLine(new StringLineContent(lineStart, start, lineStart.length, block)) }
 					return block
 				}
 			}
@@ -61,7 +82,8 @@ export abstract class MfMBlockContentParser<
 			for(const contentParser of this.allBlocks) {
 				const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
 				if(content) {
-					block.addContent(content)
+					block.addContent(content);
+					if(lineStart) { block.prependToLastLine(new StringLineContent(lineStart, start, lineStart.length, block)) }
 					break
 				}
 			}

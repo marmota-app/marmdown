@@ -15,12 +15,13 @@ limitations under the License.
 */
 
 import { Aside } from "$element/MarkdownElements"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
+import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
-export class MfMAside extends MfMGenericBlock<
+export class MfMAside extends MfMGenericContainerBlock<
 	MfMAside, MfMBlockElementContent, 'aside', MfMAsideParser
 > implements Aside<MfMAside, MfMBlockElementContent> {
+	protected self: MfMAside = this
 	constructor(id: string, pw: MfMAsideParser) { super(id, 'aside', pw) }
 }
 

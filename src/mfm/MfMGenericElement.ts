@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Block, Element } from "$element/Element"
+import { Block, Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { Parser } from "$parser/Parser"
 import { EMPTY_OPTIONS_PARSER, MfMOptions } from "./options/MfMOptions"
 
 /**
- * Abstract base class for MfM elements. 
+ * Abstract base class for MfM block elements. 
  */
 export abstract class MfMGenericBlock<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
@@ -50,10 +50,131 @@ export abstract class MfMGenericBlock<
  * content directly, they only add content. The line content is then always
  * created dynamically from the content.
  */
-export abstract class MfMFlexibleGenericBlock<
-	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
+export abstract class MfMGenericContainerBlock<
+	THIS extends Block<THIS, CONTENT, TYPE>,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > extends MfMGenericBlock<THIS, CONTENT, TYPE, PARSER> {
+	protected abstract readonly self: THIS
+	#content: CONTENT[] = []
+	#prependedContent: { [key: string]: LineContent<THIS> } = {}
+	#appendedContent: { [key: string]: LineContent<THIS> } = {}
+	#options = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
+
+	constructor(
+		id: string, readonly type: TYPE, readonly parsedWith: PARSER,
+	) { super(id, type, parsedWith) }
+
+	public override get content(): CONTENT[] {
+		return this.#content
+	}
+
+	public override get options(): MfMOptions {
+		return this.#options
+	}
+	public set options(o: MfMOptions) {
+		this.#options = o
+	}
+
+	//TODO we should definitely cache the dynamic lines!
+	override get lines() {
+		const dynamicLines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
+
+		this.options.lines.forEach((l, i) => {
+			if(i < this.options.lines.length-1) {
+				const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+				dynamicLines.push(new DynamicLine<THIS>(
+					line.id, [ line ],
+					this.self, this.#prependedContent[l.id], this.#appendedContent[l.id]))
+			}
+		})
+
+		let contentStart = 0
+		if(this.options.lines.length > 0) {
+			const lastOptionsLine = this.options.lines[this.options.lines.length-1]
+			//FIXME get rid of the casts!
+			const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+
+			const middleLine = new DynamicLine<THIS>(
+				lastOptionsLine.id,
+				[
+					lastOptionsLine,
+					this.#appendedContent[lastOptionsLine?.id ?? ''],
+					firstContentLine,
+				],
+				this.self, this.#prependedContent[lastOptionsLine?.id ?? ''], null
+			)
+			dynamicLines.push(middleLine)
+	
+			contentStart = 1
+		}
+
+		this.#content.forEach((c, ci) => {
+			(c as Element<unknown, unknown, unknown, unknown>).lines.forEach((l, li) => {
+				if(ci > 0 || li >= contentStart) {
+					const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+					dynamicLines.push(new DynamicLine<THIS>(
+						line.id, [ line ],
+						this.self, this.#prependedContent[l.id], this.#appendedContent[l.id]))
+				}
+			})
+		})
+
+		dynamicLines.push = () => {
+			console.warn('Do not push to dynamically created lines of a container block!')
+			return 0
+		}
+		return dynamicLines
+	}
+
+	override addContent(content: CONTENT): void {
+		this.#content.push(content)
+	}
+
+	/** @deprecated maybe... the caller should decide on the line to be prepended? */
+	prependToLastLine(content: LineContent<THIS>) {
+		const lastContent = this.#content[this.content.length-1] as Element<unknown, unknown, unknown, unknown>
+		const lastLine = lastContent.lines[lastContent.lines.length-1]
+
+		if(lastLine) {
+			this.#prependedContent[lastLine.id] = content
+		}
+	}
+	prependTo(id: string, content: LineContent<THIS>) {
+		this.#prependedContent[id] = content
+	}
+	appendTo(id: string, content: LineContent<THIS>) {
+		this.#appendedContent[id] = content
+	}
+}
+
+/**
+ * A line that is dynamically created from another line, usually from the content of the inner element. 
+ * 
+ * In order to support [dynamically created line content]{@tutorial container-blocks-line-content},
+ * container blocks must be able to derive their line content from their
+ * children's line content. For each line of a child, the container then
+ * creates an object of this class dynamically.
+ */
+export class DynamicLine<THIS extends Element<unknown, unknown, unknown, unknown>> extends ParsedLine<
+	LineContent<Element<unknown, unknown, unknown, unknown>>,
+	THIS
+> {
+	#content: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
+
+	constructor(
+		id: string,
+		originalLines: LineContent<Element<unknown, unknown, unknown, unknown>>[], 
+		belongsTo: THIS,
+		prefix: LineContent<THIS> | null, suffix: LineContent<THIS> | null,
+	) {
+		super(id, belongsTo)
+
+		if(prefix != null) { this.#content.push(prefix) }
+		originalLines.forEach(originalLine => this.#content.push(originalLine))
+		if(suffix != null) { this.#content.push(suffix) }
+	}
+
+	override get content() { return this.#content }
 }

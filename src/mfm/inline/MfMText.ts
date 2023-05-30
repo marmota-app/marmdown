@@ -31,7 +31,7 @@ export class MfMTextParser extends InlineParser<MfMText> {
 	parseInline(text: string, start: number, length: number): MfMText | null {
 		const result = new MfMText(this.parsers.idGenerator.nextId(), this)
 
-		result.lines.push(new ParsedLine(result))
+		result.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), result))
 		result.lines[0].content.push(new StringLineContent(text.substring(start, start+length), start, length, result))
 
 		return result

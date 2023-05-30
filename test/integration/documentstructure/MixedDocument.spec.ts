@@ -45,22 +45,26 @@ describe('Document Structure - Headings', () => {
 						text
 					content-line
 						text
+			
 				paragraph
 					content-line
 						text
 					content-line
 						text
+			
 			section 1
 				heading 1
 					content-line
 						text
 					content-line
 						text
+			
 				paragraph
 					content-line
 						text
 					content-line
 						text
+			
 				paragraph
 					content-line
 						text`)

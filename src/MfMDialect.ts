@@ -19,7 +19,6 @@ import { Dialect } from "$parser/Dialect";
 import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 import { LineByLineParser } from "./LineByLineParser";
-import { Parser } from "$parser/Parser";
 import { MfMParsers } from "$mfm/MfMParsers";
 import { MfMSection } from "$mfm/block/MfMSection";
 import { MfMHeading, } from "$mfm/block/MfMHeading";
@@ -30,6 +29,7 @@ import { MfMContentLine } from "$mfm/inline/MfMContentLine";
 import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 import { MfMAside } from "$mfm/block/MfMAside";
 import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak";
+import { EmptyElement } from "$parser/EmptyElementParser";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -37,7 +37,8 @@ export type MfMBlockElements =
 	MfMGeneralPurposeBlock |
 	MfMAside |
 	MfMParagraph |
-	MfMThematicBreak
+	MfMThematicBreak |
+	EmptyElement
 
 export type MfMInlineElements =
 	MfMContentLine |

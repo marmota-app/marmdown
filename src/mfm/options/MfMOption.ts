@@ -61,7 +61,7 @@ abstract class MfMGenericOptionParser<P extends MfMGenericOptionParser<P>> exten
 	parseInline(text: string, start: number, length: number): MfMOption<P> | null {
 		const option = new MfMOption<P>(this.parsers.idGenerator.nextId(), this as unknown as P)
 		
-		const optionLine = new ParsedLine<MfMOptionKey | MfMOptionValue | StringLineContent<MfMOption<P>>, MfMOption<P>>(option)
+		const optionLine = new ParsedLine<MfMOptionKey | MfMOptionValue | StringLineContent<MfMOption<P>>, MfMOption<P>>(this.parsers.idGenerator.nextLineId(), option)
 		
 		const openingBracketIndex = text.indexOf('{', start)
 		if(openingBracketIndex >= start && openingBracketIndex < start+length) {

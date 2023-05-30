@@ -111,7 +111,9 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 	
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
+
 			<p>foo</p>
+			
 			</blockquote>`)
 	})
 
@@ -125,6 +127,7 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 			<blockquote>
 			<p>foo</p>
 			</blockquote>
+			
 			<blockquote>
 			<p>bar</p>
 			</blockquote>`)
@@ -141,6 +144,7 @@ describe('GfM: Block quotes (https://github.github.com/gfm/#block-quote-marker)'
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
 			<p>foo</p>
+
 			<p>bar</p>
 			</blockquote>`)
 	})

@@ -164,9 +164,10 @@ export class ParsedLine<
 	LINE_CONTENT extends LineContent<Element<unknown, unknown, unknown, unknown>> | unknown,
 	BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown,
 > implements LineContent<BELONGS_TO> {
-	public readonly content: LINE_CONTENT[] = []
+	#content: LINE_CONTENT[] = []
+	public get content(): LINE_CONTENT[] { return this.#content }
 
-	constructor(public readonly belongsTo: BELONGS_TO) {
+	constructor(public readonly id: string, public readonly belongsTo: BELONGS_TO) {
 		jsonTransient(this, 'belongsTo')
 	}
 

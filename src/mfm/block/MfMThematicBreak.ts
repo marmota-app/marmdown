@@ -33,7 +33,7 @@ export class MfMThematicBreakParser extends MfMParser<
 	override parseLine(previous: MfMThematicBreak | null, text: string, start: number, length: number): MfMThematicBreak | null {
 		if(previous != null) {
 			if(!previous.options.isFullyParsed) {
-				previous.lines.push(new ParsedLine(previous))
+				previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), previous))
 				const optionsLength = this.parsers.MfMOptions.addOptionsTo(previous, text, start, length).parsedLength
 
 				const [ foundWhitespaceOnly, whitespaceLength, ] = this.findWhitespace(text, start+optionsLength, length-optionsLength)
@@ -54,7 +54,7 @@ export class MfMThematicBreakParser extends MfMParser<
 		const [ foundThematicBreak, foundLength, ] = this.findThematicBreak(text, start+i, length-i)
 		if(foundThematicBreak) {
 			const thematicBreak = new MfMThematicBreak(this.parsers.idGenerator.nextId(), this)
-			thematicBreak.lines.push(new ParsedLine(thematicBreak))
+			thematicBreak.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), thematicBreak))
 			thematicBreak.lines[thematicBreak.lines.length-1].content.push(new StringLineContent(text.substring(start+i, start+i+foundLength), start+i, foundLength, thematicBreak))
 			i += foundLength
 

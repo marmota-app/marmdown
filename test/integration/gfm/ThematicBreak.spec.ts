@@ -42,6 +42,7 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 		
 		expect(html(md)).toEqual(sanitized`
 			<p>+++</p>
+			
 			<p>===</p>`)
 	})
 
@@ -123,7 +124,9 @@ describe('GfM: Thematic Breaks (https://github.github.com/gfm/#thematic-breaks)'
 		
 		expect(html(md)).toEqual(sanitized`
 			<p>_ _ _ _ a</p>
+
 			<p>a------</p>
+
 			<p>---a---</p>`)
 	})
 

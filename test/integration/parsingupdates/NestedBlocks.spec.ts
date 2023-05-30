@@ -34,6 +34,7 @@ describe('MfM: Parsing updates - Nested Blocks', () => {
 			<blockquote>
 			<p>the first paragraph
 			has two lines</p>
+			
 			<p>the updated second paragraph</p>
 			</blockquote>`)
 	})
@@ -48,6 +49,7 @@ describe('MfM: Parsing updates - Nested Blocks', () => {
 		expect(html(md)).toEqual(sanitized`
 			<blockquote>
 			<h1>the updated heading</h1>
+
 			<p>the original paragraph</p>
 			</blockquote>`)
 	})
@@ -68,6 +70,7 @@ describe('MfM: Parsing updates - Nested Blocks', () => {
 			</blockquote>
 			</blockquote>
 			</aside>
+
 			<p>the original paragraph</p>
 			</blockquote>`)
 	})

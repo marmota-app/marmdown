@@ -27,7 +27,7 @@ class EmptyOptionsParser extends Parser<MfMOptions> {
 		throw new Error('Cannot parse empty options: This is just a dummy parser to make sure we can create an empty options object.')
 	}
 }
-export const EMPTY_OPTIONS_PARSER = new EmptyOptionsParser({ idGenerator: { nextId: () => '__empty__'}})
+export const EMPTY_OPTIONS_PARSER = new EmptyOptionsParser({ idGenerator: { nextId: () => '__empty__', nextLineId: () => '__empty_line__',}})
 
 export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options'> {
 	keys: string[]
@@ -60,23 +60,26 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 	addOptionsTo(
 		element: { options: MfMOptions, lines: ParsedLine<any, any>[],}, 
 		text: string, start: number, length: number,
-		addLine = () => {}
+		addLine = (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => {
+			element.lines[element.lines.length-1].content.push(line)
+			return parsedLength
+		}
 	): { parsedLength: number} {
 		let i=0
-		let lastOptionLine: LineContent<MfMOptions> | undefined = undefined
+		let lastOptionLine: ParsedLine<StringLineContent<MfMOptions>, MfMOptions> | undefined = undefined
 
 		const previousOptions = element.options
 
 		if(previousOptions.id==='__empty__' && !previousOptions.isFullyParsed && text.charAt(start+i) === '{') {
 			const options = this.parseLine(null, text, start+i, length-i)
 			if(options != null) {
-				lastOptionLine = options.lines[options.lines.length-1]
-				i += lastOptionLine.length	
+				lastOptionLine = options.lines[options.lines.length-1] as ParsedLine<StringLineContent<MfMOptions>, MfMOptions>
+				i += lastOptionLine.length
 			}
 		} else if(!previousOptions.isEmpty && !previousOptions.isFullyParsed) {
 			const options = this.parseLine(previousOptions as MfMOptions, text, start+i, length-i)
 			if(options != null) {
-				lastOptionLine = options.lines[options.lines.length-1]
+				lastOptionLine = options.lines[options.lines.length-1] as ParsedLine<StringLineContent<MfMOptions>, MfMOptions>
 				i += lastOptionLine.length
 			}
 		} else if(previousOptions.id==='__empty__') {
@@ -84,8 +87,7 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 		}
 
 		if(lastOptionLine) {
-			addLine()
-			element.lines[element.lines.length-1].content.push(lastOptionLine)
+			i = addLine(lastOptionLine, i)
 		}
 
 		return { parsedLength: i }
@@ -135,7 +137,7 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 		const closingBracketIndex = this.findClosingBracket(text, start, length)
 		const parseLength = closingBracketIndex >= 0? (closingBracketIndex-start) : length
 
-		const line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions> = new ParsedLine(options)
+		const line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions> = new ParsedLine(this.parsers.idGenerator.nextLineId(), options)
 		if(firstContent) { line.content.push(firstContent) }
 		options.lines.push(line)
 

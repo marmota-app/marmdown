@@ -38,7 +38,7 @@ export class MfMParagraphParser extends Parser<MfMParagraph> {
 
 	parseLine(previous: MfMParagraph | null, text: string, start: number, length: number): MfMParagraph | null {
 		if(previous) {
-			previous.lines.push(new ParsedLine(previous))
+			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
 		}
 		const paragraph = previous? previous : new MfMParagraph(this.parsers.idGenerator.nextId(), this)
 

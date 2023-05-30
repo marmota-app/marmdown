@@ -74,7 +74,7 @@ describe('MfMContainer parser', () => {
 			
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
-			section.lines.push(new ParsedLine(section))
+			section.lines.push(new ParsedLine('__dummy__', section))
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
@@ -94,7 +94,7 @@ describe('MfMContainer parser', () => {
 	
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
-			section.lines.push(new ParsedLine(section))
+			section.lines.push(new ParsedLine('__dummy__', section))
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
@@ -115,7 +115,7 @@ describe('MfMContainer parser', () => {
 	
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
-			section.lines.push(new ParsedLine(section))
+			section.lines.push(new ParsedLine('__dummy__', section))
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
 			when(sectionParserMock.parseLine(section, text, 'some container line\n'.length, 'second line'.length)).return(null).once()
@@ -135,7 +135,7 @@ describe('MfMContainer parser', () => {
 	
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
-			section.lines.push(new ParsedLine(section))
+			section.lines.push(new ParsedLine('__dummy__', section))
 			section.sectionCompleted = true
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
@@ -154,7 +154,7 @@ describe('MfMContainer parser', () => {
 		it('only contains one section when the first parsed line comes from a section', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
-			section.lines.push(new ParsedLine(section))
+			section.lines.push(new ParsedLine('__dummy__', section))
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(section).once()
 			const optionsParser = createOptionsParser()
 			const parsers: Parsers<MfMSectionParser | MfMOptionsParser> = { 'MfMOptions': optionsParser, 'MfMSection': instance(sectionParserMock), allBlocks: [ instance(sectionParserMock) ], idGenerator: new NumberedIdGenerator(), }

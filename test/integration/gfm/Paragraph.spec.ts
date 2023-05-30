@@ -30,6 +30,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		
 		expect(html(md)).toEqual(sanitized`
 			<p>aaa</p>
+
 			<p>bbb</p>`)
 	})
 
@@ -44,6 +45,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		expect(html(md)).toEqual(sanitized`
 			<p>aaa
 			bbb</p>
+
 			<p>ccc
 			ddd</p>`)
 	})
@@ -57,6 +59,7 @@ describe('GfM: Paragraphs (https://github.github.com/gfm/#paragraphs)', () => {
 		
 		expect(html(md)).toEqual(sanitized`
 			<p>aaa</p>
+			
 			<p>bbb</p>`)
 	})
 

@@ -56,7 +56,7 @@ describe('parseMarkdown', () => {
 			})
 		})
 
-		const texts: string[] = [ 'Foobar\n', 'Foobar', 'Foo bar', 'Foo\r\n', 'Foo\n\r', 'foo # foobar', ]
+		const texts: string[] = [ 'Foobar\n', 'Foobar', 'Foo bar', 'Foo\r\n', 'foo # foobar', ]
 		texts.forEach((text: string) => {
 			it(`heading create Headling with text ${text}`, () => {
 				const markdown = '# ' + text
@@ -122,13 +122,14 @@ describe('parseMarkdown', () => {
 
 			const result = parseMarkdown(markdown).content[0] as MfMSection
 
-			expect(result.content).toHaveLength(2)
+			expect(result.content).toHaveLength(3)
 			expect(result.content[0]).toHaveProperty('type', 'paragraph')
-			expect(result.content[1]).toHaveProperty('type', 'paragraph')
+			expect(result.content[1]).toHaveProperty('type', '--empty--')
+			expect(result.content[2]).toHaveProperty('type', 'paragraph')
 			expect((result.content[0] as MfMParagraph).content).toHaveLength(1)
-			expect((result.content[1] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[2] as MfMParagraph).content).toHaveLength(1)
 			expect((result.content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
-			expect((result.content[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+			expect((result.content[2] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
 		})
 
 		it('create new paragraph for every empty line that contains only whitespaces', () => {
@@ -136,13 +137,14 @@ describe('parseMarkdown', () => {
 
 			const result = parseMarkdown(markdown).content[0] as MfMSection
 
-			expect(result.content).toHaveLength(2)
+			expect(result.content).toHaveLength(3)
 			expect(result.content[0]).toHaveProperty('type', 'paragraph')
-			expect(result.content[1]).toHaveProperty('type', 'paragraph')
+			expect(result.content[1]).toHaveProperty('type', '--empty--')
+			expect(result.content[2]).toHaveProperty('type', 'paragraph')
 			expect((result.content[0] as MfMParagraph).content).toHaveLength(1)
-			expect((result.content[1] as MfMParagraph).content).toHaveLength(1)
+			expect((result.content[2] as MfMParagraph).content).toHaveLength(1)
 			expect((result.content[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
-			expect((result.content[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+			expect((result.content[2] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
 		})
 	})
 
@@ -236,11 +238,11 @@ describe('parseMarkdown', () => {
 				assume(result.content[0]).toHaveProperty('type', block[1])
 
 				const blockContent = (result.content[0] as GenericBlock<any, any, any, any>).content
-				expect(blockContent).toHaveLength(2)
+				expect(blockContent).toHaveLength(3)
 				expect(blockContent[0]).toHaveProperty('type', 'paragraph')
-				expect(blockContent[1]).toHaveProperty('type', 'paragraph')
+				expect(blockContent[2]).toHaveProperty('type', 'paragraph')
 				expect((blockContent[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
-				expect((blockContent[1] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
+				expect((blockContent[2] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'ipsum')
 			})
 
 			it(`creates a second ${block[0]} when there is content in between`, () => {
@@ -248,7 +250,7 @@ describe('parseMarkdown', () => {
 
 				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				expect(result.content).toHaveLength(2)
+				expect(result.content).toHaveLength(3)
 
 				const blockContent1 = (result.content[0] as GenericBlock<any, any, any, any>).content
 				expect(blockContent1).toHaveLength(1)
@@ -256,7 +258,7 @@ describe('parseMarkdown', () => {
 				expect((blockContent1[0] as MfMParagraph).content).toHaveLength(1)
 				expect((blockContent1[0] as MfMParagraph).content[0].content[0]).toHaveProperty('text', 'lorem')
 
-				const blockContent2 = (result.content[1] as GenericBlock<any, any, any, any>).content
+				const blockContent2 = (result.content[2] as GenericBlock<any, any, any, any>).content
 				expect(blockContent2).toHaveLength(1)
 				expect(blockContent2[0]).toHaveProperty('type', 'paragraph')
 				expect((blockContent2[0] as MfMParagraph).content).toHaveLength(1)

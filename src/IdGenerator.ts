@@ -27,13 +27,14 @@ limitations under the License.
 export interface IdGenerator {
 	/** The next unique ID. */
 	nextId(): string,
+	nextLineId(): string,
 }
 
 /**
  * An ID generator that returns a simple sequence of numbers formatted
  * with dashes (`0000-0000-0000-0042`).
  */
-export class NumberedIdGenerator {
+export class NumberedIdGenerator implements IdGenerator {
 	private current = 0
 
 	nextId() {
@@ -45,5 +46,9 @@ export class NumberedIdGenerator {
 
 		this.current++
 		return id
+	}
+
+	nextLineId(): string {
+		return 'line-'+this.nextId()
 	}
 }

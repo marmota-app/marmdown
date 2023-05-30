@@ -63,7 +63,7 @@ export class MfMHeadingParser extends MfMParser<
 
 	private useHeadingToParse(previous: MfMHeading | null, text: string, start: number, length: number): [ MfMHeading | null, number, ] {
 		if(previous && !previous.isFullyParsed) {
-			previous.lines.push(new ParsedLine(previous))
+			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), previous))
 			return [ previous, 0 ]
 		}
 
@@ -72,7 +72,7 @@ export class MfMHeadingParser extends MfMParser<
 				const section = this.parsers.MfMSection.create(token.length)
 				const heading = new MfMHeading(this.parsers.idGenerator.nextId(), token.length, section, this)
 
-				heading.lines.push(new ParsedLine(heading))
+				heading.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), heading))
 				heading.lines[0].content.push(new StringLineContent(token, start, token.length, heading))
 
 				section.addContent(heading)

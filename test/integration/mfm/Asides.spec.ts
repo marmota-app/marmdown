@@ -108,7 +108,9 @@ describe('MfM: Asides (which are similar to GfM block quotes (https://github.git
 	
 		expect(html(md)).toEqual(sanitized`
 			<aside>
+
 			<p>foo</p>
+			
 			</aside>`)
 	})
 
@@ -122,6 +124,7 @@ describe('MfM: Asides (which are similar to GfM block quotes (https://github.git
 			<aside>
 			<p>foo</p>
 			</aside>
+
 			<aside>
 			<p>bar</p>
 			</aside>`)
@@ -136,6 +139,7 @@ describe('MfM: Asides (which are similar to GfM block quotes (https://github.git
 		expect(html(md)).toEqual(sanitized`
 			<aside>
 			<p>foo</p>
+
 			<p>bar</p>
 			</aside>`)
 	})

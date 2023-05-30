@@ -20,6 +20,7 @@ import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMParagraph, MfMParagraphParser } from "$mfm/block/MfMParagraph"
 import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
 import { MfMTextParser } from "$mfm/inline/MfMText"
+import { EmptyElementParser } from "$parser/EmptyElementParser"
 import { createOptionsParser } from "../options/createOptionsParser"
 import { createHeadingParser } from "./createHeadingParser"
 
@@ -29,7 +30,8 @@ function createGeneralPurposeBlockParser() {
 	const { headingParser } = createHeadingParser()
 	const MfMOptions = createOptionsParser(idGenerator)
 	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })
-	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, allBlocks: [ headingParser, MfMParagraph, ] })
+	const EmptyElement = new EmptyElementParser({ idGenerator })
+	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, allBlocks: [ EmptyElement, headingParser, MfMParagraph, ] })
 	return parser
 }
 describe('MfMGeneralPurposeBlock parser', () => {
@@ -104,8 +106,10 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const result = parser.parseLine(second, text, '> text content\n>\n'.length, '> more content'.length)
 
 			expect(result).not.toBeNull()
-			expect(result?.content).toHaveLength(2)
+			expect(result?.content).toHaveLength(3)
 			expect(result?.content[0]).toHaveProperty('type', 'paragraph')
+			expect(result?.content[1]).toHaveProperty('type', '--empty--')
+			expect(result?.content[2]).toHaveProperty('type', 'paragraph')
 
 			const paragraph1 = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph1.content).toHaveLength(1)
@@ -114,7 +118,7 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(paragraph1?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph1?.content[0].content[0]).toHaveProperty('text', 'text content')
 
-			const paragraph2 = result?.content[1] as unknown as MfMParagraph
+			const paragraph2 = result?.content[2] as unknown as MfMParagraph
 			expect(paragraph2.content).toHaveLength(1)
 
 			expect(paragraph2?.content[0]).toHaveProperty('type', 'content-line')
@@ -214,11 +218,32 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines).toHaveLength(1)
 			const line = result.lines[0]
 
-			expect(line.content).toHaveLength(1)
+			expect(line).toHaveProperty('start', 0)
+			expect(line).toHaveProperty('length', 1)
+			expect(line).toHaveProperty('asText', `>`)
+		})
+
+		it('contains the empty line when a block consists only of an empty line', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const result = parser.parseLine(null, '>   ', 0, 4) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(1)
+			const line = result.lines[0]
+
+			expect(line).toHaveProperty('start', 0)
+			expect(line).toHaveProperty('length', 4)
+			expect(line).toHaveProperty('asText', `>   `)
+
+			expect(line.content).toHaveLength(2)
 
 			expect(line.content[0]).toHaveProperty('start', 0)
-			expect(line.content[0]).toHaveProperty('length', 1)
-			expect(line.content[0]).toHaveProperty('asText', `>`)
+			expect(line.content[0]).toHaveProperty('length', 2)
+			expect(line.content[0]).toHaveProperty('asText', `> `)
+
+			expect(line.content[1]).toHaveProperty('start', 2)
+			expect(line.content[1]).toHaveProperty('length', 2)
+			expect(line.content[1]).toHaveProperty('asText', `  `)
 		})
 
 		it('contains the full line of a single-line block', () => {
@@ -230,19 +255,15 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines).toHaveLength(1)
 			const line = result.lines[0]
 
-			expect(line.content).toHaveLength(3)
+			expect(line.content).toHaveLength(2)
 
 			expect(line.content[0]).toHaveProperty('start', 0)
-			expect(line.content[0]).toHaveProperty('length', 1)
-			expect(line.content[0]).toHaveProperty('asText', `>`)
+			expect(line.content[0]).toHaveProperty('length', 2)
+			expect(line.content[0]).toHaveProperty('asText', `>\t`)
 
-			expect(line.content[1]).toHaveProperty('start', 1)
-			expect(line.content[1]).toHaveProperty('length', 1)
-			expect(line.content[1]).toHaveProperty('asText', `\t`)
-
-			expect(line.content[2]).toHaveProperty('start', 2)
-			expect(line.content[2]).toHaveProperty('length', 'a single line block'.length)
-			expect(line.content[2]).toHaveProperty('asText', 'a single line block')
+			expect(line.content[1]).toHaveProperty('start', 2)
+			expect(line.content[1]).toHaveProperty('length', 'a single line block'.length)
+			expect(line.content[1]).toHaveProperty('asText', 'a single line block')
 		})
 
 		it('contains the full second line of a two-line block', () => {
@@ -255,19 +276,15 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines).toHaveLength(2)
 			const line = result.lines[1]
 
-			expect(line.content).toHaveLength(3)
+			expect(line.content).toHaveLength(2)
 
 			expect(line.content[0]).toHaveProperty('start', '>\tfirst line\n'.length)
-			expect(line.content[0]).toHaveProperty('length', 1)
-			expect(line.content[0]).toHaveProperty('asText', `>`)
+			expect(line.content[0]).toHaveProperty('length', 2)
+			expect(line.content[0]).toHaveProperty('asText', `> `)
 
-			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length+1)
-			expect(line.content[1]).toHaveProperty('length', 1)
-			expect(line.content[1]).toHaveProperty('asText', ` `)
-
-			expect(line.content[2]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
-			expect(line.content[2]).toHaveProperty('length', 'second line'.length)
-			expect(line.content[2]).toHaveProperty('asText', 'second line')
+			expect(line.content[1]).toHaveProperty('start', '>\tfirst line\n'.length + 2)
+			expect(line.content[1]).toHaveProperty('length', 'second line'.length)
+			expect(line.content[1]).toHaveProperty('asText', 'second line')
 		})
 	})
 
@@ -315,6 +332,34 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines[0].content[0].length).toEqual(1)
 		})
 
+		it('parses both lines correctly when there is content after the options', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine = '>{ default value;key2=  value2 } first line'
+			const secondLine = '> second line'
+			const text = `${firstLine}\n${secondLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(2)
+
+			expect(result.lines[0].content).toHaveLength(4)
+			expect(result.lines[0].content[0].asText).toEqual('>')
+			expect(result.lines[0].content[0].start).toEqual(0)
+			expect(result.lines[0].content[1].asText).toEqual('{ default value;key2=  value2 }')
+			expect(result.lines[0].content[1].start).toEqual(1)
+			expect(result.lines[0].content[2].asText).toEqual(' ')
+			expect(result.lines[0].content[2].start).toEqual(32)
+			expect(result.lines[0].content[3].asText).toEqual('first line')
+			expect(result.lines[0].content[3].start).toEqual(33)
+
+			expect(result.lines[1].content).toHaveLength(2)
+			expect(result.lines[1].content[0].asText).toEqual('> ')
+			expect(result.lines[1].content[1].asText).toEqual('second line')
+
+		})
+
 		it('adds multi-line options block to the beginning of a block', () => {
 			const parser = createGeneralPurposeBlockParser()
 
@@ -332,7 +377,7 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.options.get('key2')).toEqual('value2')
 			expect(result.options.get('key3')).toEqual('value3')
 
-			//make sure parsing the contena **after** options works
+			//make sure parsing the content **after** options works
 			expect(result.content).toHaveLength(1)
 			expect(result?.content[0]).toHaveProperty('type', 'paragraph')
 			const paragraph = result?.content[0] as unknown as MfMParagraph

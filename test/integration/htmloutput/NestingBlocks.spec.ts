@@ -32,6 +32,7 @@ describe('MfM: Nesting blocks', () => {
 			<blockquote>
 			<p>Sphinx of black quartz,
 			judge my vow.</p>
+			
 			<p>And another paragraph</p>
 			</blockquote>`)
 	})
@@ -61,6 +62,7 @@ describe('MfM: Nesting blocks', () => {
 			<p>Sphinx of black quartz,
 			judge my vow.</p>
 			</blockquote>
+
 			<blockquote>
 			<p>And another paragraph</p>
 			</blockquote>

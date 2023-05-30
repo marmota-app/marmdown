@@ -48,7 +48,8 @@ export abstract class GenericBlock<
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
-		if(this._lines.length === 0) { this._lines.push(new ParsedLine(this as unknown as THIS)) }
+		const newId = this.parsedWith.parsers.idGenerator.nextLineId()
+		if(this._lines.length === 0) { this._lines.push(new ParsedLine(newId, this as unknown as THIS)) }
 
 		const i = content as Element<unknown, unknown, unknown, unknown>
 		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
@@ -76,7 +77,8 @@ export abstract class GenericInline<
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
-		if(this.lines.length === 0) { this.lines.push(new ParsedLine(this as unknown as THIS)) }
+		const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
+		if(this.lines.length === 0) { this.lines.push(new ParsedLine(newId, this as unknown as THIS)) }
 		
 		const i = content as Element<unknown, unknown, unknown, unknown>
 		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>

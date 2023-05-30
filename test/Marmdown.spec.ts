@@ -62,7 +62,7 @@ describe('Marmdown', () => {
 	it('recreates the document text from the stored document structure (does NOT return the original text)', () => {
 		const expectedText = 'some updated text'
 		const documentMock = mock(TestContainer)
-		const parsedLine = new ParsedLine<LineContent<TestContainer>, TestContainer>(instance(documentMock))
+		const parsedLine = new ParsedLine<LineContent<TestContainer>, TestContainer>('__dummy__', instance(documentMock))
 		parsedLine.content.push(new StringLineContent(expectedText, 0, expectedText.length, instance(documentMock)))
 		when(documentMock.lines).return([ parsedLine ])
 		const dialectMock = mock(TestDialect)

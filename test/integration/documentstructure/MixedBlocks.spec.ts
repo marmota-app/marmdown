@@ -42,6 +42,7 @@ describe('Document Structure - Mixed Blocks', () => {
 						text
 					content-line
 						text
+			
 			section 1
 				heading 1
 					content-line
@@ -49,10 +50,12 @@ describe('Document Structure - Mixed Blocks', () => {
 				paragraph
 					content-line
 						text
+			
 				section 2
 					heading 2
 						content-line
 							text
+			
 					paragraph
 						content-line
 							text
@@ -96,6 +99,7 @@ describe('Document Structure - Mixed Blocks', () => {
 							text
 						content-line
 							text
+			
 					section 1
 						heading 1
 							content-line

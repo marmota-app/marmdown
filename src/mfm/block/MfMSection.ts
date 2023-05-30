@@ -39,7 +39,7 @@ export class MfMSectionParser extends Parser<MfMSection> {
 	parseLine(previous: MfMSection | null, text: string, start: number, length: number): MfMSection | null {
 		const container = previous ?? this.create()
 
-		const result = parseBlock<MfMSection, MfMSectionContent>(previous, container, text, start, length, this.allBlocks, { endsPrevious: this.endsPrevious })
+		const result = parseBlock<MfMSection, MfMSectionContent>(previous, container, text, start, length, this.allBlocks, this.parsers.idGenerator, { endsPrevious: this.endsPrevious })
 
 		return result
 	}
