@@ -15,14 +15,16 @@ limitations under the License.
 */
 
 import { ParsedLine } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
 import { Section } from "$element/MarkdownElements"
 import { MfMBlockElements } from "$markdown/MfMDialect"
-import { parseBlock } from "$parser/parse"
+import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
+import { parseBlock, parseContainerBlock } from "$parser/parse"
 import { Parser } from "$parser/Parser"
 
 export type MfMSectionContent = MfMBlockElements
-export class MfMSection extends GenericBlock<MfMSection, MfMSectionContent, 'section', MfMSectionParser> implements Section<MfMSection, MfMSectionContent> {
+export class MfMSection extends MfMGenericContainerBlock<MfMSection, MfMSectionContent, 'section', MfMSectionParser> implements Section<MfMSection, MfMSectionContent> {
+	protected self: MfMSection = this
+
 	constructor(id: string, pw: MfMSectionParser, public readonly level: number = 1) { super(id, 'section', pw) }
 
 	sectionCompleted: boolean = false
@@ -39,7 +41,7 @@ export class MfMSectionParser extends Parser<MfMSection> {
 	parseLine(previous: MfMSection | null, text: string, start: number, length: number): MfMSection | null {
 		const container = previous ?? this.create()
 
-		const result = parseBlock<MfMSection, MfMSectionContent>(previous, container, text, start, length, this.allBlocks, this.parsers.idGenerator, { endsPrevious: this.endsPrevious })
+		const result = parseContainerBlock<MfMSection, MfMSectionContent>(previous, container, text, start, length, this.allBlocks, this.parsers.idGenerator, { endsPrevious: this.endsPrevious })
 
 		return result
 	}

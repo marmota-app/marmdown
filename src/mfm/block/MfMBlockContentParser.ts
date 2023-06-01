@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
+import { ParsedLine, StringLineContent } from "$element/Element"
 import { MfMBlockElements } from "$markdown/MfMDialect"
-import { DynamicLine, MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
+import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
 import { MfMParser } from "$mfm/MfMParser"
 import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { Parser } from "$parser/Parser"

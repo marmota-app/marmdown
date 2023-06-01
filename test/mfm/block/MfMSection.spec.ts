@@ -19,8 +19,10 @@ import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
 import { MfMHeading, MfMHeadingParser } from "$mfm/block/MfMHeading"
 import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
+import { EmptyElement } from "$parser/EmptyElementParser"
 import { Parsers } from "$parser/Parsers"
 import { anyObject, anything, instance, mock, when } from "omnimock"
+import { createEmptyElementParser } from "../../parser/createEmptyElementParser"
 
 describe('MfMSection parser', () => {
 	describe('parsing the content', () => {
@@ -33,7 +35,11 @@ describe('MfMSection parser', () => {
 	
 			const text = `${new Array(level+1).fill('#')} Heading Text`
 			const innerSection = new MfMSection('inner', sectionParser, level+1)
-			innerSection.lines.push(new ParsedLine('__dummy__', innerSection))
+			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
+			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('__dummy__', emptyElement)
+			parsedLine.content.push(new StringLineContent('foo', 10, 3, emptyElement))
+			emptyElement.lines.push(parsedLine)
+			innerSection.addContent(emptyElement)
 			when(headingParserMock.parseLine(anything(), text, 0, text.length)).return(innerSection)
 	
 			const previousSection = new MfMSection('prev', sectionParser, level)
@@ -92,9 +98,11 @@ describe('MfMSection parser', () => {
 			const sectionParser = new MfMSectionParser(parsers)
 			const section = sectionParser.create()
 
-			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, MfMSection>('__dummy__', section)
-			parsedLine.content.push(new StringLineContent('foo', 10, 3, section))
-			section.lines.push(parsedLine)
+			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
+			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('__dummy__', emptyElement)
+			parsedLine.content.push(new StringLineContent('foo', 10, 3, emptyElement))
+			emptyElement.lines.push(parsedLine)
+			section.addContent(emptyElement)
 
 			const updated = updateParser.parse(section, { text: 'bar', rangeOffset: 10, rangeLength: 0, })
 

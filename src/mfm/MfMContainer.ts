@@ -20,7 +20,7 @@ import { MfMBlockElements } from "$markdown/MfMDialect";
 import { isEmpty } from "$parser/find";
 import { parseBlock } from "$parser/parse";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
-import { MfMGenericContainerBlock, MfMGenericBlock } from "./MfMGenericElement";
+import { MfMGenericBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
 import { MfMParser } from "./MfMParser";
 import { MfMOptionsParser } from "./options/MfMOptions";
 
@@ -28,6 +28,8 @@ import { MfMOptionsParser } from "./options/MfMOptions";
  * Main container element for the "MfM" dialect. 
  */
 export class MfMContainer extends MfMGenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
+	//protected self: MfMContainer = this
+
 	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
 
 	override addContent(content: MfMBlockElements): void {

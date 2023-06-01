@@ -17,16 +17,12 @@ limitations under the License.
 import { NumberedIdGenerator } from "$markdown/IdGenerator"
 import { UpdateParser } from "$markdown/UpdateParser"
 import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser"
+import { createEmptyElementParser } from "./createEmptyElementParser"
 
 describe('EmptyElement parser', () => {
-	function createEmptaElementParser() {
-		const idGenerator = new NumberedIdGenerator()
-		return new EmptyElementParser({idGenerator})
-	}
-
 	describe('parsing the content', () => {
 		it('parses a completely empty line as an empty element', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 
 			const result = parser.parseLine(null, 'hello\n\nworld', 'hello\n'.length, ''.length)
 
@@ -35,14 +31,14 @@ describe('EmptyElement parser', () => {
 			expect(result?.lines[0]).toHaveProperty('asText', '')
 		})
 		it('does not parse empty line when the line is not empty', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 
 			const result = parser.parseLine(null, 'hello\nwonderful\nworld', 'hello\n'.length, 'wonderful'.length)
 
 			expect(result).toBeNull()
 		})
 		it('returns whitespace content when the line is whitespace only', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 
 			const result = parser.parseLine(null, 'hello\n  \t \t\t\nworld', 'hello\n'.length, '  \t \t\t'.length)
 
@@ -51,7 +47,7 @@ describe('EmptyElement parser', () => {
 			expect(result?.lines[0]).toHaveProperty('asText', '  \t \t\t')
 		})
 		it('parses a second empty line', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const text = 'hello\n  \t \t\t\n    \nworld'
 
 			const intermediate = parser.parseLine(null, text, 'hello\n'.length, '  \t \t\t'.length)
@@ -63,7 +59,7 @@ describe('EmptyElement parser', () => {
 			expect(result?.lines[1]).toHaveProperty('asText', '    ')
 		})
 		it('sets fully parsed when it encounters a non-empty line', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const text = 'hello\n  \t \t\t\nbeautiful\n    \nworld'
 
 			const intermediate = parser.parseLine(null, text, 'hello\n'.length, '  \t \t\t'.length)
@@ -76,7 +72,7 @@ describe('EmptyElement parser', () => {
 
 	describe('parsing updates', () => {
 		it('updates a line that contains only whitespace, adding a tab', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const updateParser = new UpdateParser(new NumberedIdGenerator())
 			const text = 'hello\n  \t \t\t\n    \nworld'
 
@@ -92,7 +88,7 @@ describe('EmptyElement parser', () => {
 		})
 
 		it('updates a line that contains only whitespace, removing all content', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const updateParser = new UpdateParser(new NumberedIdGenerator())
 			const text = 'hello\n  \t \t\t\n    \nworld'
 
@@ -108,7 +104,7 @@ describe('EmptyElement parser', () => {
 		})
 
 		it('does not update when a line is removed completely', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const updateParser = new UpdateParser(new NumberedIdGenerator())
 			const text = 'hello\n  \t \t\t\n    \nworld'
 
@@ -121,7 +117,7 @@ describe('EmptyElement parser', () => {
 		})
 
 		it('does not update when text is added ', () => {
-			const parser = createEmptaElementParser()
+			const parser = createEmptyElementParser()
 			const updateParser = new UpdateParser(new NumberedIdGenerator())
 			const text = 'hello\n  \t \t\t\n    \nworld'
 

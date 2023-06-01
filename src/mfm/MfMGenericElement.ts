@@ -94,6 +94,7 @@ export abstract class MfMGenericContainerBlock<
 		if(this.options.lines.length > 0) {
 			const lastOptionsLine = this.options.lines[this.options.lines.length-1]
 			//FIXME get rid of the casts!
+			//FIXME is there always some content? Probably some --empty-- after the options? What if not?
 			const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
 
 			const middleLine = new DynamicLine<THIS>(
@@ -122,8 +123,7 @@ export abstract class MfMGenericContainerBlock<
 		})
 
 		dynamicLines.push = () => {
-			console.warn('Do not push to dynamically created lines of a container block!')
-			return 0
+			throw new Error('Do not push to dynamically created lines of a container block!')
 		}
 		return dynamicLines
 	}
