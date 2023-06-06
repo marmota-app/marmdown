@@ -72,7 +72,7 @@ export function parseContainerBlock<
 	previous: B | null, container: B, text: string, start: number, length: number,
 	allBlocks: Parser<any>[],
 	idGenerator: IdGenerator,
-	optionalCallbacks: { endsPrevious?: (prev: B, c: CONTENT)=>boolean, addLine?: () => void},
+	optionalCallbacks: { endsPrevious?: (prev: B, c: CONTENT)=>boolean} = {},
 ): B | null {
 	const defaultCallbacks = { endsPrevious: ()=>false }
 	const callbacks = { ...defaultCallbacks, ...optionalCallbacks }

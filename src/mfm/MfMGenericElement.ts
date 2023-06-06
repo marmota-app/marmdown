@@ -17,7 +17,8 @@ limitations under the License.
 import { Block, Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { Parser } from "$parser/Parser"
-import { EMPTY_OPTIONS_PARSER, MfMOptions } from "./options/MfMOptions"
+import { Parsers } from "$parser/Parsers"
+import { EMPTY_OPTIONS_PARSER, MfMOptions, MfMOptionsParser } from "./options/MfMOptions"
 
 /**
  * Abstract base class for MfM block elements. 
@@ -58,8 +59,7 @@ export abstract class MfMGenericContainerBlock<
 > extends MfMGenericBlock<THIS, CONTENT, TYPE, PARSER> {
 	protected abstract readonly self: THIS
 	#content: CONTENT[] = []
-	#prependedContent: { [key: string]: LineContent<THIS> } = {}
-	#appendedContent: { [key: string]: LineContent<THIS> } = {}
+	#attachments: { [lineId: string]: { [key: string]: any }} = {}
 	#options = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
 
 	constructor(
@@ -77,7 +77,6 @@ export abstract class MfMGenericContainerBlock<
 		this.#options = o
 	}
 
-	//TODO we should definitely cache the dynamic lines!
 	override get lines() {
 		const dynamicLines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 
@@ -86,7 +85,7 @@ export abstract class MfMGenericContainerBlock<
 				const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
 				dynamicLines.push(new DynamicLine<THIS>(
 					line.id, [ line ],
-					this.self, this.#prependedContent[l.id], this.#appendedContent[l.id]))
+					this.self, this.#attachments[l.id]?.['prepend'], this.#attachments[l.id]?.['append']))
 			}
 		})
 
@@ -95,20 +94,24 @@ export abstract class MfMGenericContainerBlock<
 			const lastOptionsLine = this.options.lines[this.options.lines.length-1]
 			//FIXME get rid of the casts!
 			//FIXME is there always some content? Probably some --empty-- after the options? What if not?
-			const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+			const middleLineContent: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
+
+			middleLineContent.push(lastOptionsLine)
+			const toAppend = this.#attachments[lastOptionsLine.id]?.['append']
+			if(toAppend) { middleLineContent.push(toAppend) }
+
+			if(!this.#attachments[lastOptionsLine.id]?.['lineFullyParsed']) {
+				const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+				middleLineContent.push(firstContentLine)
+				contentStart = 1
+			}
 
 			const middleLine = new DynamicLine<THIS>(
 				lastOptionsLine.id,
-				[
-					lastOptionsLine,
-					this.#appendedContent[lastOptionsLine?.id ?? ''],
-					firstContentLine,
-				],
-				this.self, this.#prependedContent[lastOptionsLine?.id ?? ''], null
+				middleLineContent,
+				this.self, this.#attachments[lastOptionsLine?.id ?? '']?.['prepend'], null
 			)
 			dynamicLines.push(middleLine)
-	
-			contentStart = 1
 		}
 
 		this.#content.forEach((c, ci) => {
@@ -117,7 +120,7 @@ export abstract class MfMGenericContainerBlock<
 					const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
 					dynamicLines.push(new DynamicLine<THIS>(
 						line.id, [ line ],
-						this.self, this.#prependedContent[l.id], this.#appendedContent[l.id]))
+						this.self, this.#attachments[l.id]?.['prepend'], this.#attachments[l.id]?.['append']))
 				}
 			})
 		})
@@ -132,20 +135,59 @@ export abstract class MfMGenericContainerBlock<
 		this.#content.push(content)
 	}
 
-	/** @deprecated maybe... the caller should decide on the line to be prepended? */
-	prependToLastLine(content: LineContent<THIS>) {
+	get lastLine() {
 		const lastContent = this.#content[this.content.length-1] as Element<unknown, unknown, unknown, unknown>
 		const lastLine = lastContent.lines[lastContent.lines.length-1]
+		return lastLine
+	}
 
-		if(lastLine) {
-			this.#prependedContent[lastLine.id] = content
+	attach(lineId: string, attachments: { [key: string]: any }) {
+		const previousAttachments = this.#attachments[lineId] ?? {}
+		this.#attachments[lineId] = { ...previousAttachments, ...attachments }
+	}
+
+	reattach(previousLineId: string | undefined, newLineId: string) {
+		if(previousLineId) {
+			this.#attachments[newLineId] = this.#attachments[previousLineId]
 		}
 	}
-	prependTo(id: string, content: LineContent<THIS>) {
-		this.#prependedContent[id] = content
+}
+
+/**
+ * Adds options to a generic container block and handles prepending text accordingly. 
+ * 
+ * @param block The block where the options should be added to. 
+ * @param text The original text of the document. 
+ * @param start The start of the potential options line. 
+ * @param length The length of the potential options line. 
+ * @param parsers A `Parsers` object that contains at least the MfM options parser. 
+ * @param onLineAdded A callback that will be called when an options line was added to the block. 
+ * @returns Meta information of the added line (whether it was fully parsed and the parsed length).
+ */
+export function addOptionsToContainerBlock(
+	block: MfMGenericContainerBlock<any, unknown, unknown, Parser<any, Element<unknown, unknown, unknown, unknown>>>,
+	text: string, start: number, length: number, parsers: Parsers<MfMOptionsParser>,
+	onLineAdded?: (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => unknown
+): { lineFullyParsed: boolean, parsedLength: number } {
+	let optionsParsed = false
+	const addOptionsLine = (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => {
+		block.options = line.belongsTo
+		const nextChar = text.charAt(start+parsedLength)
+		if(nextChar === ' ' || nextChar === '\t') {
+			block.attach(line.id, { append: new StringLineContent(nextChar, start+parsedLength, 1, block) })
+			parsedLength++
+		}
+		if(parsedLength === length) { block.attach(line.id, { lineFullyParsed: true, }) }
+		optionsParsed = true
+		onLineAdded?.(line, parsedLength)
+
+		return parsedLength
 	}
-	appendTo(id: string, content: LineContent<THIS>) {
-		this.#appendedContent[id] = content
+	const parsedLength = parsers.MfMOptions.addOptionsTo(block, text, start, length, addOptionsLine).parsedLength
+
+	return {
+		lineFullyParsed: (optionsParsed && parsedLength === length),
+		parsedLength,
 	}
 }
 

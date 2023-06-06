@@ -14,19 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element"
+import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
 import { MfMBlockElements } from "$markdown/MfMDialect"
-import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
+import { MfMGenericContainerBlock, addOptionsToContainerBlock } from "$mfm/MfMGenericElement"
 import { MfMParser } from "$mfm/MfMParser"
 import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser"
 import { Parser } from "$parser/Parser"
+import { Parsers } from "$parser/Parsers"
 
 export type MfMBlockElementContent = MfMBlockElements
 
 export abstract class MfMBlockContentParser<
 	T extends MfMGenericContainerBlock<T, MfMBlockElementContent, string, P> & { continueWithNextLine: boolean, options: MfMOptions },
 	P extends MfMBlockContentParser<T, P>,
-> extends MfMParser<T, T, MfMOptionsParser> {
+> extends MfMParser<T, T, MfMOptionsParser | EmptyElementParser> {
 	abstract create(): T
 	abstract get token(): string
 	abstract get elementName(): string
@@ -35,26 +37,17 @@ export abstract class MfMBlockContentParser<
 		if(text.charAt(start) === this.token) {
 			let i=this.token.length
 			let lineStart: string | null = this.token
-			let optionsParsed = false
 
 			const block = previous ?? this.create()
 
-			const addOptionsLine = (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => {
-				block.options = line.belongsTo
-				if(lineStart) { block.prependTo(line.id, new StringLineContent(lineStart, start, lineStart.length, block)) }
-				const nextChar = text.charAt(start+i+parsedLength)
-				if(nextChar === ' ' || nextChar === '\t') {
-					block.appendTo(line.id, new StringLineContent(nextChar, start+i+parsedLength, 1, block))
-					parsedLength++
+			const optionsResult = addOptionsToContainerBlock(
+				block, text, start+i, length-i, this.parsers, (line, parsedLength) => {
+					i += parsedLength
+					if(lineStart) { block.attach(line.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, block) }) }
+					lineStart = null
 				}
-				lineStart = null
-				optionsParsed = true
-				return parsedLength
-			}
-			i += this.parsers.MfMOptions.addOptionsTo(block, text, start+i, length-i, addOptionsLine).parsedLength
-
-			if(optionsParsed && i === length) {
-				//Current line was already fully parsed after parsing the options
+			)
+			if(optionsResult.lineFullyParsed) {
 				return block
 			}
 
@@ -73,7 +66,7 @@ export abstract class MfMBlockContentParser<
 				const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
 				const content = parsedWith.parseLine(previousContent, text, start+i, length-i)
 				if(content) {
-					if(lineStart) { block.prependToLastLine(new StringLineContent(lineStart, start, lineStart.length, block)) }
+					if(lineStart) { block.attach(block.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, block) }) }
 					return block
 				}
 			}
@@ -82,7 +75,7 @@ export abstract class MfMBlockContentParser<
 				const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
 				if(content) {
 					block.addContent(content);
-					if(lineStart) { block.prependToLastLine(new StringLineContent(lineStart, start, lineStart.length, block)) }
+					if(lineStart) { block.attach(block.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, block) }) }
 					break
 				}
 			}

@@ -31,7 +31,7 @@ function createGeneralPurposeBlockParser() {
 	const MfMOptions = createOptionsParser(idGenerator)
 	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })
 	const EmptyElement = new EmptyElementParser({ idGenerator })
-	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, allBlocks: [ EmptyElement, headingParser, MfMParagraph, ] })
+	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, EmptyElement, allBlocks: [ EmptyElement, headingParser, MfMParagraph, ] })
 	return parser
 }
 describe('MfMGeneralPurposeBlock parser', () => {
@@ -409,5 +409,23 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines[1].asText).toEqual(secondLine)
 			expect(result.lines[2].asText).toEqual(thirdLine)
 		})
+		it('adds the correct line representations for multi-line options block to the beginning of a block, with no content after options', () => {
+			const parser = createGeneralPurposeBlockParser()
+
+			const firstLine  = '>{ default value;key2=  value2 '
+			const secondLine = '> key3 = value3}'
+			const thirdLine  = '> first block line'
+			const text = `${firstLine}\n${secondLine}\n${thirdLine}`
+
+			const first = parser.parseLine(null, text, 0, firstLine.length) as MfMGeneralPurposeBlock
+			const second = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMGeneralPurposeBlock
+			const result = parser.parseLine(second, text, firstLine.length+1+secondLine.length+1, thirdLine.length) as MfMGeneralPurposeBlock
+
+			expect(result.lines).toHaveLength(3)
+			expect(result.lines[0].asText).toEqual(firstLine)
+			expect(result.lines[1].asText).toEqual(secondLine)
+			expect(result.lines[2].asText).toEqual(thirdLine)
+		})
+
 	})
 })

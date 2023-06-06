@@ -16,19 +16,21 @@ limitations under the License.
 
 import { ParsedLine, StringLineContent } from "$element/Element";
 import { Container } from "$element/MarkdownElements";
+import { ParseError } from "$markdown/LineByLineParser";
 import { MfMBlockElements } from "$markdown/MfMDialect";
+import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser";
 import { isEmpty } from "$parser/find";
-import { parseBlock } from "$parser/parse";
+import { parseBlock, parseContainerBlock } from "$parser/parse";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
-import { MfMGenericBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
+import { addOptionsToContainerBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
 import { MfMParser } from "./MfMParser";
 import { MfMOptionsParser } from "./options/MfMOptions";
 
 /**
  * Main container element for the "MfM" dialect. 
  */
-export class MfMContainer extends MfMGenericBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
-	//protected self: MfMContainer = this
+export class MfMContainer extends MfMGenericContainerBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
+	protected self: MfMContainer = this
 
 	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
 
@@ -51,7 +53,7 @@ export class MfMContainer extends MfMGenericBlock<MfMContainer, MfMBlockElements
  * a section as "previous content" to start with, which can be used when
  * the document does not start with a heading.
  */
-export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, MfMOptionsParser | MfMSectionParser> {
+export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, MfMOptionsParser | MfMSectionParser | EmptyElementParser> {
 	public readonly elementName = 'MfMContainer'
 
 	create() {
@@ -60,21 +62,12 @@ export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, Mf
 	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
 		const container = previous ?? this.create()
 
-		const { parsedLength } = this.parsers.MfMOptions.addOptionsTo(container, text, start, length, (line, parsedLength) => {
-			container.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), container))
-			container.lines[container.lines.length-1].content.push(line)
-			return parsedLength
-		})
-		
-		const addLine = () => { if(parsedLength === 0) { container.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), container)) }}
-		let result = parseBlock<MfMContainer, MfMBlockElements>(previous, container, text, start+parsedLength, length-parsedLength, this.allBlocks, this.parsers.idGenerator, { addLine })
-		if(result == null && isEmpty(text, start+parsedLength, length-parsedLength)) {
-			//Add the empty line to the container
-			result = container
-			
-			if(parsedLength === 0) { container.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), container)) }
-			result.lines[result.lines.length-1].content.push(new StringLineContent(text.substring(start+parsedLength, start+length), start+parsedLength, length-parsedLength, result))
+		const optionsResult = addOptionsToContainerBlock(container, text, start, length, this.parsers)
+		if(optionsResult.lineFullyParsed) {
+			return container
 		}
+
+		let result = parseContainerBlock<MfMContainer, MfMBlockElements>(previous, container, text, start+optionsResult.parsedLength, length-optionsResult.parsedLength, this.allBlocks, this.parsers.idGenerator)
 
 		return result
 	}
@@ -87,6 +80,4 @@ export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, Mf
 		//whole document, so the container parser returns null here.
 		return null
 	}
-
 }
-

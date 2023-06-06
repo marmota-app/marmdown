@@ -165,6 +165,9 @@ export class ParsedLine<
 	BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown,
 > implements LineContent<BELONGS_TO> {
 	#content: LINE_CONTENT[] = []
+	/** For an updated line, unique id of the original line content, before the update. */
+	public originalId: string | undefined;
+
 	public get content(): LINE_CONTENT[] { return this.#content }
 
 	constructor(public readonly id: string, public readonly belongsTo: BELONGS_TO) {

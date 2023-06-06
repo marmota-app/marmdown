@@ -99,3 +99,16 @@ container -> paragraph -> The quick brown <- p1 line 1
 
 Our **solution** to this problem is to add an `Empty` element to a block when
 no content could be parsed.
+
+## Is it Bad that Lines are Always Created Dynamically?
+
+During normal operation, the array of lines should be accessed only occasionally
+for a container block: A container block can only occur within another container
+block, and those do not need their line content for their normal operation.
+
+That is, those other container blocks do not access their line content to
+determine their content, as a leaf block would do.
+
+So, the `lines` array of a container block is only ever needed when we want
+to re-create the text of the document, which is not an operation that markdown
+parsers or editors should perform very often.

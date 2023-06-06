@@ -87,7 +87,7 @@ export class ParseError<CONTAINER extends ContainerBlock<unknown, unknown, unkno
 	 * @param errorLineNumber The line number of the errornous line
 	 * @param incompleteDocument The document that has been parsed up unti the error
 	 */
-	constructor(errorLine: string, errorLineNumber: number, public readonly incompleteDocument: CONTAINER | null) {
+	constructor(errorLine: string, errorLineNumber: number | null, public readonly incompleteDocument: CONTAINER | null) {
 		super(`Could not parse document completely, bailed out at line  ${errorLineNumber} "${errorLine}"`)
 	}
 }

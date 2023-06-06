@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
+import { MfMGenericBlock, MfMGenericContainerBlock } from "$mfm/MfMGenericElement";
 import { ContentUpdate } from "./ContentUpdate";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 
@@ -96,6 +97,13 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 					if(result) {
 						content.content[i] = result
 
+						if((content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach) {
+							(content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach(
+								(result as ParsedLine<unknown, unknown>).originalId,
+								(result as ParsedLine<unknown, unknown>).id,
+							)
+						}
+
 						//TODO we probably need better tests for updating the
 						//     start index of all following elements!
 						let start = result.start+result.length
@@ -139,6 +147,9 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			content.belongsTo.parsedWith.isFullyParsedUpdate(updated as LineContent<Element<unknown, unknown, unknown, unknown>>, content)
 
 		if(updated && isFullyParsed) {
+			//Set the ID of the parsed line, or `undefined` if it's not a ParsedLine
+			updated.originalId = (content as ParsedLine<unknown, unknown>).id
+
 			let lineFound = false
 			for(let i=0; i<content.belongsTo.lines.length; i++) {
 				if(content.belongsTo.lines[i] === content) {

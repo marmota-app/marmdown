@@ -37,9 +37,6 @@ export class MfMParagraphParser extends Parser<MfMParagraph> {
 	public readonly elementName = 'MfMParagraph'
 
 	parseLine(previous: MfMParagraph | null, text: string, start: number, length: number): MfMParagraph | null {
-		if(previous) {
-			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
-		}
 		const paragraph = previous? previous : new MfMParagraph(this.parsers.idGenerator.nextId(), this)
 
 		if(isEmpty(text, start, length)) {
@@ -48,6 +45,9 @@ export class MfMParagraphParser extends Parser<MfMParagraph> {
 		} else if(isStartOfToplevelBlock(paragraph, text, start, length, this.parsers)) {
 			paragraph.continueWithNextLine = false
 			return null
+		}
+		if(previous) {
+			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
 		}
 
 		const textContent = (this.parsers.MfMContentLine as MfMContentLineParser).parseLine(null, text, start, length)
