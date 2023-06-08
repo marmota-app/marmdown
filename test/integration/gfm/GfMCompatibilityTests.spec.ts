@@ -35,7 +35,13 @@ interface ImplementedSection {
 const __escaping__ = 'Escaping is not yet implemented'
 const __emphasis__ = 'Emphasis is not yet implemented'
 const __fenced__ = 'Fenced code blocks are not yet implemented'
-const __paragraph_leading__ = 'Leading spaces are not yet removed correctly for paragraphs'
+const __leading__ = 'Leading spaces are not yet removed correctly'
+const __laziness__ = 'Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented'
+const __indented_code_blocks__ = 'Indented code blocks are not yet implemented'
+const __hard_break__ = 'Hard line breaks (<br/>) are not yet implemented'
+const __paragraph_indentation__ = 'Indentation after the first line of a paragraph is not yet removed correctly'
+const __lists__ = 'Lists are not yet implemented'
+const __setext_headings__ = 'Setext headings are not supported'
 
 const implementedSections: ImplementedSection[] = [
 	{ chapter: '1.1', name: 'What is GitHub Flavored Markdown?', notYetImplemented: [], incompatible: []},
@@ -51,7 +57,7 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 37', reason: 'Leading & trailing whitespace for headings is not yet removed' },
 			{ name: 'Example 38', reason: 'Indentation for headings is not yet supported' },
 			{ name: 'Example 39', reason: __fenced__ },
-			{ name: 'Example 40', reason: __paragraph_leading__ },
+			{ name: 'Example 40', reason: __leading__ },
 			{ name: 'Example 41', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 42', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 43', reason: 'Optional closing sequences are not yet supported' },
@@ -59,6 +65,51 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 49', reason: 'Optional closing sequences are not yet supported' },
 		],
 		incompatible: [],
+	},
+	{
+		chapter: '4.1', name: 'Thematic breaks',
+		notYetImplemented: [
+			{ name: 'Example 18', reason: __indented_code_blocks__ },
+			{ name: 'Example 19', reason: __paragraph_indentation__ },
+			{ name: 'Example 26', reason: __emphasis__ },
+			{ name: 'Example 27', reason: __lists__ },
+			{ name: 'Example 30', reason: __lists__ },
+			{ name: 'Example 31', reason: __lists__ },
+		],
+		incompatible: [
+			{ name: 'Example 29', reason: __setext_headings__ },
+		],
+	},
+	{ 
+		chapter: '4.8', name: 'Paragraphs',
+		notYetImplemented: [
+			{ name: 'Example 192', reason: __leading__ },
+			{ name: 'Example 193', reason: __paragraph_indentation__ },
+			{ name: 'Example 194', reason: __leading__ },
+			{ name: 'Example 195', reason: __fenced__ },
+			{ name: 'Example 196', reason: __hard_break__ },
+		],
+		incompatible: [],
+	},
+	{ 
+		chapter: '5.1', name: 'Block quotes',
+		notYetImplemented: [
+			{ name: 'Example 208', reason: __leading__ },
+			{ name: 'Example 209', reason: __fenced__ },
+			{ name: 'Example 230', reason: __indented_code_blocks__ },
+		],
+		incompatible: [
+			{ name: 'Example 210', reason: __laziness__ },
+			{ name: 'Example 211', reason: __laziness__ },
+			{ name: 'Example 212', reason: __laziness__ },
+			{ name: 'Example 213', reason: __laziness__ },
+			{ name: 'Example 214', reason: __laziness__ },
+			{ name: 'Example 215', reason: __laziness__ },
+			{ name: 'Example 216', reason: __laziness__ },
+			{ name: 'Example 225', reason: __laziness__ },
+			{ name: 'Example 228', reason: __laziness__ },
+			{ name: 'Example 229', reason: __laziness__ },
+		]
 	},
 ]
 
@@ -88,19 +139,12 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 				const sectionInfo = implementedSections.filter(s => s.chapter===number)[0]
 
 				compatibility.push('## '+sectionInfo.chapter+' '+sectionInfo.name+' - Implemented')
-				if(sectionInfo.notYetImplemented.length > 0) {
+				if(sectionInfo.notYetImplemented.length > 0 || sectionInfo.incompatible.length > 0) {
 					compatibility.push('')
-					compatibility.push('Except **not yet implemented** functionality:')
+					compatibility.push('Except **not yet implemented** functionality and known **incompatibilities**:')
 					compatibility.push('')
-					sectionInfo.notYetImplemented.forEach(nyi => compatibility.push('* '+nyi.name+': '+nyi.reason))
 				}
 
-				if(sectionInfo.incompatible.length > 0) {
-					compatibility.push('')
-					compatibility.push('Known **incompatibilities**:')
-					compatibility.push('')
-					sectionInfo.incompatible.forEach(nyi => compatibility.push('* '+nyi.name+': '+nyi.reason))
-				}
 				describe(number+': '+text, describeSection(children, i+1, sectionInfo))
 			} else {
 				compatibility.push('## '+number+' NOT yet Implemented')
@@ -135,10 +179,21 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 	
 	function testExample(name: string, md: string, expected: string, sectionInfo?: ImplementedSection) {
 		if(sectionInfo?.notYetImplemented.filter(nyi => nyi.name === name)?.length??0 > 0) {
-			it.skip(name+'(-- '+sectionInfo?.notYetImplemented?.filter(nyi => nyi.name === name)[0].reason+' --)', () => {
+			const info = sectionInfo?.notYetImplemented?.filter(nyi => nyi.name === name)[0] as ImplementedExample
+			compatibility.push('* '+info.name+': '+info.reason)
+			writeExample('Markdown input', 'markdown', md)
+			writeExample('Expected HTML', 'html', expected)
+			it.skip(name+'(-- '+info.reason+' --)', () => {
 				marmdown.textContent = md
 				expect(withoutEmptyLines(html(marmdown))).toEqual(withoutEmptyLines(expected))
 			})
+		} else if(sectionInfo?.incompatible.filter(nyi => nyi.name === name)?.length??0 > 0) {
+			const info = sectionInfo?.incompatible?.filter(nyi => nyi.name === name)[0] as ImplementedExample
+			compatibility.push('* INCOMPATIBLE - '+info.name+': '+info.reason)
+			writeExample('Markdown', 'markdown', md)
+			writeExample('HTML', 'html', expected)
+			//In this case, the example is not a test, since we don't add
+			//tests for known incompatibilities.
 		} else {
 			it(name, () => {
 				marmdown.textContent = md
@@ -154,5 +209,12 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 			.split('\n')
 			.filter(s => s.length > 0)
 			.join('\n')
+	}
+
+	function writeExample(label: string, format: string, content: string) {
+		compatibility.push('  '+label+':')
+		compatibility.push('  ```'+format)
+		content.split('\n').forEach(l => compatibility.push('  '+l))
+		compatibility.push('  ```')
 	}
 })
