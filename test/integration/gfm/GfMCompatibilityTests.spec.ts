@@ -180,7 +180,7 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 	function testExample(name: string, md: string, expected: string, sectionInfo?: ImplementedSection) {
 		if(sectionInfo?.notYetImplemented.filter(nyi => nyi.name === name)?.length??0 > 0) {
 			const info = sectionInfo?.notYetImplemented?.filter(nyi => nyi.name === name)[0] as ImplementedExample
-			compatibility.push('* '+info.name+': '+info.reason)
+			compatibility.push('* '+info.name+': '+info.reason+';  ')
 			writeExample('Markdown input', 'markdown', md)
 			writeExample('Expected HTML', 'html', expected)
 			it.skip(name+'(-- '+info.reason+' --)', () => {
@@ -189,9 +189,9 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 			})
 		} else if(sectionInfo?.incompatible.filter(nyi => nyi.name === name)?.length??0 > 0) {
 			const info = sectionInfo?.incompatible?.filter(nyi => nyi.name === name)[0] as ImplementedExample
-			compatibility.push('* INCOMPATIBLE - '+info.name+': '+info.reason)
-			writeExample('Markdown', 'markdown', md)
-			writeExample('HTML', 'html', expected)
+			compatibility.push('* INCOMPATIBLE - '+info.name+': '+info.reason+';  ')
+			writeExample('Markdown input', 'markdown', md)
+			writeExample('Expected HTML', 'html', expected)
 			//In this case, the example is not a test, since we don't add
 			//tests for known incompatibilities.
 		} else {

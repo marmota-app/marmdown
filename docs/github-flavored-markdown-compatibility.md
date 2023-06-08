@@ -13,7 +13,7 @@
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 18: Indented code blocks are not yet implemented
+* Example 18: Indented code blocks are not yet implemented;  
   Markdown input:
   ```markdown
       ***
@@ -25,7 +25,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </code></pre>
   
   ```
-* Example 19: Indentation after the first line of a paragraph is not yet removed correctly
+* Example 19: Indentation after the first line of a paragraph is not yet removed correctly;  
   Markdown input:
   ```markdown
   Foo
@@ -38,7 +38,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   ***</p>
   
   ```
-* Example 26: Emphasis is not yet implemented
+* Example 26: Emphasis is not yet implemented;  
   Markdown input:
   ```markdown
    *-*
@@ -49,7 +49,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p><em>-</em></p>
   
   ```
-* Example 27: Lists are not yet implemented
+* Example 27: Lists are not yet implemented;  
   Markdown input:
   ```markdown
   - foo
@@ -68,21 +68,21 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </ul>
   
   ```
-* INCOMPATIBLE - Example 29: Setext headings are not supported
-  Markdown:
+* INCOMPATIBLE - Example 29: Setext headings are not supported;  
+  Markdown input:
   ```markdown
   Foo
   ---
   bar
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <h2>Foo</h2>
   <p>bar</p>
   
   ```
-* Example 30: Lists are not yet implemented
+* Example 30: Lists are not yet implemented;  
   Markdown input:
   ```markdown
   * Foo
@@ -101,7 +101,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </ul>
   
   ```
-* Example 31: Lists are not yet implemented
+* Example 31: Lists are not yet implemented;  
   Markdown input:
   ```markdown
   - Foo
@@ -122,7 +122,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 35: Escaping is not yet implemented
+* Example 35: Escaping is not yet implemented;  
   Markdown input:
   ```markdown
   \## foo
@@ -133,7 +133,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>## foo</p>
   
   ```
-* Example 36: Emphasis is not yet implemented, Escaping is not yet implemented
+* Example 36: Emphasis is not yet implemented, Escaping is not yet implemented;  
   Markdown input:
   ```markdown
   # foo *bar* \*baz\*
@@ -144,7 +144,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h1>foo <em>bar</em> *baz*</h1>
   
   ```
-* Example 37: Leading & trailing whitespace for headings is not yet removed
+* Example 37: Leading & trailing whitespace for headings is not yet removed;  
   Markdown input:
   ```markdown
   #                  foo                     
@@ -155,7 +155,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h1>foo</h1>
   
   ```
-* Example 38: Indentation for headings is not yet supported
+* Example 38: Indentation for headings is not yet supported;  
   Markdown input:
   ```markdown
    ### foo
@@ -170,7 +170,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h1>foo</h1>
   
   ```
-* Example 39: Fenced code blocks are not yet implemented
+* Example 39: Fenced code blocks are not yet implemented;  
   Markdown input:
   ```markdown
       # foo
@@ -182,7 +182,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </code></pre>
   
   ```
-* Example 40: Leading spaces are not yet removed correctly
+* Example 40: Leading spaces are not yet removed correctly;  
   Markdown input:
   ```markdown
   foo
@@ -195,7 +195,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   # bar</p>
   
   ```
-* Example 41: Optional closing sequences are not yet supported
+* Example 41: Optional closing sequences are not yet supported;  
   Markdown input:
   ```markdown
   ## foo ##
@@ -208,7 +208,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h3>bar</h3>
   
   ```
-* Example 42: Optional closing sequences are not yet supported
+* Example 42: Optional closing sequences are not yet supported;  
   Markdown input:
   ```markdown
   # foo ##################################
@@ -221,7 +221,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h5>foo</h5>
   
   ```
-* Example 43: Optional closing sequences are not yet supported
+* Example 43: Optional closing sequences are not yet supported;  
   Markdown input:
   ```markdown
   ### foo ###     
@@ -232,7 +232,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h3>foo</h3>
   
   ```
-* Example 46: Escaping is not yet implemented
+* Example 46: Escaping is not yet implemented;  
   Markdown input:
   ```markdown
   ### foo \###
@@ -247,7 +247,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h1>foo #</h1>
   
   ```
-* Example 49: Optional closing sequences are not yet supported
+* Example 49: Optional closing sequences are not yet supported;  
   Markdown input:
   ```markdown
   ## 
@@ -271,7 +271,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 192: Leading spaces are not yet removed correctly
+* Example 192: Leading spaces are not yet removed correctly;  
   Markdown input:
   ```markdown
     aaa
@@ -284,7 +284,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   bbb</p>
   
   ```
-* Example 193: Indentation after the first line of a paragraph is not yet removed correctly
+* Example 193: Indentation after the first line of a paragraph is not yet removed correctly;  
   Markdown input:
   ```markdown
   aaa
@@ -299,7 +299,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   ccc</p>
   
   ```
-* Example 194: Leading spaces are not yet removed correctly
+* Example 194: Leading spaces are not yet removed correctly;  
   Markdown input:
   ```markdown
      aaa
@@ -312,7 +312,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   bbb</p>
   
   ```
-* Example 195: Fenced code blocks are not yet implemented
+* Example 195: Fenced code blocks are not yet implemented;  
   Markdown input:
   ```markdown
       aaa
@@ -326,7 +326,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>bbb</p>
   
   ```
-* Example 196: Hard line breaks (<br/>) are not yet implemented
+* Example 196: Hard line breaks (<br/>) are not yet implemented;  
   Markdown input:
   ```markdown
   aaa     
@@ -344,7 +344,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 208: Leading spaces are not yet removed correctly
+* Example 208: Leading spaces are not yet removed correctly;  
   Markdown input:
   ```markdown
      > # Foo
@@ -361,7 +361,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* Example 209: Fenced code blocks are not yet implemented
+* Example 209: Fenced code blocks are not yet implemented;  
   Markdown input:
   ```markdown
       > # Foo
@@ -377,15 +377,15 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </code></pre>
   
   ```
-* INCOMPATIBLE - Example 210: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 210: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > # Foo
   > bar
   baz
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <h1>Foo</h1>
@@ -394,15 +394,15 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* INCOMPATIBLE - Example 211: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 211: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > bar
   baz
   > foo
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <p>bar
@@ -411,14 +411,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* INCOMPATIBLE - Example 212: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 212: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > foo
   ---
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <p>foo</p>
@@ -426,14 +426,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <hr />
   
   ```
-* INCOMPATIBLE - Example 213: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 213: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > - foo
   - bar
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <ul>
@@ -445,14 +445,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </ul>
   
   ```
-* INCOMPATIBLE - Example 214: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 214: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   >     foo
       bar
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <pre><code>foo
@@ -462,15 +462,15 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </code></pre>
   
   ```
-* INCOMPATIBLE - Example 215: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 215: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > ```
   foo
   ```
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <pre><code></code></pre>
@@ -479,14 +479,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <pre><code></code></pre>
   
   ```
-* INCOMPATIBLE - Example 216: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 216: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > foo
       - bar
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <p>foo
@@ -494,14 +494,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* INCOMPATIBLE - Example 225: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 225: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > bar
   baz
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <p>bar
@@ -509,14 +509,14 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* INCOMPATIBLE - Example 228: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 228: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   > > > foo
   bar
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <blockquote>
@@ -528,15 +528,15 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* INCOMPATIBLE - Example 229: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented
-  Markdown:
+* INCOMPATIBLE - Example 229: Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented;  
+  Markdown input:
   ```markdown
   >>> foo
   > bar
   >>baz
   
   ```
-  HTML:
+  Expected HTML:
   ```html
   <blockquote>
   <blockquote>
@@ -549,7 +549,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </blockquote>
   
   ```
-* Example 230: Indented code blocks are not yet implemented
+* Example 230: Indented code blocks are not yet implemented;  
   Markdown input:
   ```markdown
   >     code
