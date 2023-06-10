@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { ContentUpdate } from "$markdown/ContentUpdate";
-import { Block, ContainerBlock, Element, Inline, LeafBlock, LeafInline, LineContent } from "./Element";
+import { Block, ContainerBlock, ContainerInline, Element, Inline, LeafBlock, LeafInline, LineContent } from "./Element";
 
 export interface Container<
 	THIS extends Container<THIS, CONTENT>, 
@@ -50,6 +50,16 @@ export interface Aside<
 	THIS extends Aside<THIS, CONTENT>,
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'aside'> {}
+
+export interface Emphasis<
+	THIS extends Emphasis<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
+> extends ContainerInline<THIS, CONTENT, 'emphasis'> {}
+export interface StrongEmphasis<
+	THIS extends StrongEmphasis<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
+> extends ContainerInline<THIS, CONTENT, 'strong'> {}
+export interface StrikeThrough<
+	THIS extends StrikeThrough<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
+> extends ContainerInline<THIS, CONTENT, 'strike-through'> {}
 
 export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
 	readonly text: string,
