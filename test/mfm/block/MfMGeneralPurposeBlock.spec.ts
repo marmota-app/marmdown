@@ -54,7 +54,7 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result?.content).toHaveLength(1)
 			expect(result?.content[0]).toHaveProperty('type', 'paragraph')
 			const paragraph = result?.content[0] as unknown as MfMParagraph
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'text content')
 		}))
@@ -69,7 +69,7 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result?.content[0]).toHaveProperty('type', 'section')
 			expect(result?.content[0].content[0]).toHaveProperty('type', 'heading')
 			const heading = result?.content[0].content[0] as unknown as MfMHeading
-			expect(heading?.content[0]).toHaveProperty('type', 'content-line')
+			expect(heading?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(heading?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(heading?.content[0].content[0]).toHaveProperty('text', 'text content')
 		})
@@ -89,11 +89,11 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph.content).toHaveLength(2)
 
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'text content')
 
-			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'more content')
 		})
@@ -114,14 +114,14 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph1 = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph1.content).toHaveLength(1)
 
-			expect(paragraph1?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph1?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph1?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph1?.content[0].content[0]).toHaveProperty('text', 'text content')
 
 			const paragraph2 = result?.content[2] as unknown as MfMParagraph
 			expect(paragraph2.content).toHaveLength(1)
 
-			expect(paragraph2?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph2?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph2?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph2?.content[0].content[0]).toHaveProperty('text', 'more content')
 		})
@@ -140,14 +140,14 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph.content).toHaveLength(1)
 
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'text content')
 
 			expect(result?.content[1]).toHaveProperty('type', 'section')
 			expect(result?.content[1].content[0]).toHaveProperty('type', 'heading')
 			const heading = result?.content[1].content[0] as unknown as MfMHeading
-			expect(heading?.content[0]).toHaveProperty('type', 'content-line')
+			expect(heading?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(heading?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(heading?.content[0].content[0]).toHaveProperty('text', 'heading content')
 		})
@@ -166,11 +166,11 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const heading = result?.content[0].content[0] as unknown as MfMHeading
 			expect(heading.content).toHaveLength(2)
 
-			expect(heading?.content[0]).toHaveProperty('type', 'content-line')
+			expect(heading?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(heading?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(heading?.content[0].content[0]).toHaveProperty('text', 'text content')
 
-			expect(heading?.content[1]).toHaveProperty('type', 'content-line')
+			expect(heading?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(heading?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(heading?.content[1].content[0]).toHaveProperty('text', 'more content')
 		})
@@ -192,7 +192,7 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const heading = result?.content[0].content[0] as unknown as MfMHeading
 			expect(heading.content).toHaveLength(1)
 
-			expect(heading?.content[0]).toHaveProperty('type', 'content-line')
+			expect(heading?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(heading?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(heading?.content[0].content[0]).toHaveProperty('text', 'heading content')
 
@@ -200,11 +200,11 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph = result?.content[1] as unknown as MfMParagraph
 			expect(paragraph.content).toHaveLength(2)
 
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'text content')
 
-			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'more content')
 		})
@@ -309,11 +309,11 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph.content).toHaveLength(2)
 
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'first line')
 
-			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'second line')
 		})
@@ -383,11 +383,11 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			const paragraph = result?.content[0] as unknown as MfMParagraph
 			expect(paragraph.content).toHaveLength(2)
 
-			expect(paragraph?.content[0]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[0].content[0]).toHaveProperty('text', 'first block line')
 
-			expect(paragraph?.content[1]).toHaveProperty('type', 'content-line')
+			expect(paragraph?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(paragraph?.content[1].content[0]).toHaveProperty('text', 'second block line')
 		})

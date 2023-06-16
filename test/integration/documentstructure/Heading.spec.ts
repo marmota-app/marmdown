@@ -31,15 +31,15 @@ describe('Document Structure - Headings', () => {
 		expect(structure(md)).toEqual(sanitized`
 			section 1
 				heading 1
-					content-line
+					--content-line--
 						text
 				section 2
 					heading 2
-						content-line
+						--content-line--
 							text
 					section 3
 						heading 3
-							content-line
+							--content-line--
 								text`)
 	})
 	test('Simple headings (https://github.github.com/gfm/#example-32)', () => {
@@ -52,19 +52,19 @@ describe('Document Structure - Headings', () => {
 		expect(structure(md)).toEqual(sanitized`
 			section 1
 				heading 1
-					content-line
+					--content-line--
 						text
 				section 2
 					heading 2
-						content-line
+						--content-line--
 							text
 			section 1
 				heading 1
-					content-line
+					--content-line--
 						text
 				section 3
 					heading 3
-						content-line
+						--content-line--
 							text`)
 	})
 })

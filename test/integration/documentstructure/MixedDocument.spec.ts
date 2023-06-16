@@ -41,32 +41,32 @@ describe('Document Structure - Headings', () => {
 		expect(structure(md)).toEqual(sanitized`
 			section 1
 				paragraph
-					content-line
+					--content-line--
 						text
-					content-line
+					--content-line--
 						text
 			
 				paragraph
-					content-line
+					--content-line--
 						text
-					content-line
+					--content-line--
 						text
 			
 			section 1
 				heading 1
-					content-line
+					--content-line--
 						text
-					content-line
-						text
-			
-				paragraph
-					content-line
-						text
-					content-line
+					--content-line--
 						text
 			
 				paragraph
-					content-line
+					--content-line--
+						text
+					--content-line--
+						text
+			
+				paragraph
+					--content-line--
 						text`)
 	})
 })

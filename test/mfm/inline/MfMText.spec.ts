@@ -38,7 +38,7 @@ describe('MfMText', () => {
 			const text = textParser.parseLine(prev, 'the text', 0, 'the text'.length)
 
 			expect(text).toBeNull()
-		})
+		});
 	})
 
 	describe('parsing updates', () => {

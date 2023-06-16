@@ -65,7 +65,7 @@ function aside(aside: MfMAside, indentation: number) {
 function inline(inlines: MfMInlineElements[], indentation: number): string {
 	return inlines.map(i => {
 		switch(i.type) {
-			case 'content-line': return `${indent(indentation)}content-line\n${inline(i.content, indentation+1)}`
+			case '--content-line--': return `${indent(indentation)}--content-line--\n${inline(i.content, indentation+1)}`
 			case 'text': return `${indent(indentation)}text`
 			default: return ''
 		}

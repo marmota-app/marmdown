@@ -16,13 +16,14 @@ limitations under the License.
 
 import { LineContent } from "$element/Element"
 import { GenericInline } from "$element/GenericElement"
+import { MfMInlineElements } from "$markdown/MfMDialect"
 import { parseInlineContent } from "$parser/parse"
 import { Parser } from "$parser/Parser"
 import { MfMText } from "./MfMText"
 
-export type MfMContentLineContent = MfMText //TODO actually, all container leaf elements are allowed here!
-export class MfMContentLine extends GenericInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, 'content-line', MfMContentLineParser> {
-	constructor(id: string, pw: MfMContentLineParser) { super(id, 'content-line', pw) }
+export type MfMContentLineContent = MfMInlineElements
+export class MfMContentLine extends GenericInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, '--content-line--', MfMContentLineParser> {
+	constructor(id: string, pw: MfMContentLineParser) { super(id, '--content-line--', pw) }
 }
 /**
  * Parses the text content of a single line of the heading. 

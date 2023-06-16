@@ -74,7 +74,7 @@ describe('MfMHeading parser', () => {
 
 			expect(result.content[0].content).toHaveLength(1)
 			const headingContent = result.content[0].content[0]
-			expect(headingContent).toHaveProperty('type', 'content-line')
+			expect(headingContent).toHaveProperty('type', '--content-line--')
 			expect(headingContent.content).toHaveLength(1)
 			expect(headingContent.content[0]).toHaveProperty('text', 'Heading Text')
 		})
@@ -90,12 +90,12 @@ describe('MfMHeading parser', () => {
 			expect(result.content[0].content).toHaveLength(2)
 
 			const headingLine1 = result.content[0].content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = result.content[0].content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -124,17 +124,17 @@ describe('MfMHeading parser', () => {
 			expect(result.content[0].content).toHaveLength(3)
 
 			const headingLine1 = result.content[0].content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = result.content[0].content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 
 			const headingLine3 = result.content[0].content[2]
-			expect(headingLine3).toHaveProperty('type', 'content-line')
+			expect(headingLine3).toHaveProperty('type', '--content-line--')
 			expect(headingLine3.content).toHaveLength(1)
 			expect(headingLine3.content[0]).toHaveProperty('text', 'even a third line')
 		})
@@ -153,17 +153,17 @@ describe('MfMHeading parser', () => {
 			expect(result.content[0].content).toHaveLength(3)
 
 			const headingLine1 = result.content[0].content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = result.content[0].content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 
 			const headingLine3 = result.content[0].content[2]
-			expect(headingLine3).toHaveProperty('type', 'content-line')
+			expect(headingLine3).toHaveProperty('type', '--content-line--')
 			expect(headingLine3.content).toHaveLength(1)
 			expect(headingLine3.content[0]).toHaveProperty('text', 'even a third line')
 		})
@@ -419,12 +419,12 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(2)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = heading.content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -448,12 +448,12 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(2)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = heading.content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'the second line')
 		})
@@ -494,12 +494,12 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(2)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = heading.content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -521,12 +521,12 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(2)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'Heading Text')
 
 			const headingLine2 = heading.content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -548,7 +548,7 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(1)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'second line')
 		})
@@ -569,12 +569,12 @@ describe('MfMHeading parser', () => {
 			expect(heading.content).toHaveLength(2)
 
 			const headingLine1 = heading.content[0]
-			expect(headingLine1).toHaveProperty('type', 'content-line')
+			expect(headingLine1).toHaveProperty('type', '--content-line--')
 			expect(headingLine1.content).toHaveLength(1)
 			expect(headingLine1.content[0]).toHaveProperty('text', 'key 2 value2 } Heading Text')
 
 			const headingLine2 = heading.content[1]
-			expect(headingLine2).toHaveProperty('type', 'content-line')
+			expect(headingLine2).toHaveProperty('type', '--content-line--')
 			expect(headingLine2.content).toHaveLength(1)
 			expect(headingLine2.content[0]).toHaveProperty('text', 'second line')
 		})

@@ -139,8 +139,9 @@ export abstract class Parser<
  * result has exactly one line.
  */
 export abstract class InlineParser<
-	RESULT extends Element<unknown, unknown, unknown, unknown>
-> extends Parser<RESULT, RESULT> {
+	RESULT extends Element<unknown, unknown, unknown, unknown>,
+	REQUIRED_PARSERS extends Parser<Element<unknown, unknown, unknown, unknown>> = any
+> extends Parser<RESULT, RESULT, REQUIRED_PARSERS> {
 	abstract parseInline(text: string, start: number, length: number): RESULT | null
 
 	override parseLine(previous: RESULT | null, text: string, start: number, length: number): RESULT | null {

@@ -33,7 +33,7 @@ export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent
 	}
 }
 
-export class MfMParagraphParser extends Parser<MfMParagraph> {
+export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMContentLineParser> {
 	public readonly elementName = 'MfMParagraph'
 
 	parseLine(previous: MfMParagraph | null, text: string, start: number, length: number): MfMParagraph | null {
@@ -50,7 +50,7 @@ export class MfMParagraphParser extends Parser<MfMParagraph> {
 			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
 		}
 
-		const textContent = (this.parsers.MfMContentLine as MfMContentLineParser).parseLine(null, text, start, length)
+		const textContent = this.parsers.MfMContentLine.parseLine(null, text, start, length)
 		if(textContent != null) { paragraph.addContent(textContent) }
 
 		return paragraph

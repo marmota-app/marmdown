@@ -45,7 +45,7 @@ function heading(heading: MfMHeading) {
 function inline(inlines: MfMInlineElements[]): string {
 	return inlines.map((element, index) => {
 		switch(element.type) {
-			case 'content-line': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
+			case '--content-line--': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
 			case 'text': return element.text
 			default: return ''
 		}

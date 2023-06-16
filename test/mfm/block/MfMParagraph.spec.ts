@@ -26,7 +26,7 @@ describe('MfMParagraph parser', () => {
 
 			expect(result).not.toBeNull()
 			expect(result?.content).toHaveLength(1)
-			expect(result?.content[0]).toHaveProperty('type', 'content-line')
+			expect(result?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(result?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(result?.content[0].content[0]).toHaveProperty('text', text)
 		})
@@ -42,10 +42,10 @@ describe('MfMParagraph parser', () => {
 
 			expect(result).not.toBeNull()
 			expect(result?.content).toHaveLength(2)
-			expect(result?.content[0]).toHaveProperty('type', 'content-line')
+			expect(result?.content[0]).toHaveProperty('type', '--content-line--')
 			expect(result?.content[0].content[0]).toHaveProperty('type', 'text')
 			expect(result?.content[0].content[0]).toHaveProperty('text', line1)
-			expect(result?.content[1]).toHaveProperty('type', 'content-line')
+			expect(result?.content[1]).toHaveProperty('type', '--content-line--')
 			expect(result?.content[1].content[0]).toHaveProperty('type', 'text')
 			expect(result?.content[1].content[0]).toHaveProperty('text', line2)
 

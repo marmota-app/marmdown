@@ -36,11 +36,11 @@ describe('Document Structure - Options', () => {
 						option[default]
 						option[key2]
 						option[key3]
-					content-line
+					--content-line--
 						text
-					content-line
+					--content-line--
 						text
-					content-line
+					--content-line--
 						text`)
 	})
 })
