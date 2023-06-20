@@ -21,6 +21,7 @@ import { Emphasis, StrongEmphasis } from "$element/MarkdownElements";
 import { MfMInlineElements } from "$markdown/MfMDialect";
 import { finiteLoop } from "$markdown/finiteLoop";
 import { InlineParser, Parser } from "$parser/Parser";
+import { parseInnerInlineElement } from "$parser/parse";
 
 export interface DelimiterRun {
 	start: number,
@@ -71,11 +72,19 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 			let elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough | null = null
 			let openingDelimiter: string | null = null
 			if(nextLeftRun.character === '~') {
+				//Here, we are incompatible with GfM: MfM treats tilde characters
+				//in exactly the same way as _ and *, and thus allows more than
+				//two tildes.
 				elementToCreate = MfMStrikeThrough
-				openingDelimiter = new Array(nextLeftRun.length).fill(nextLeftRun.character).join('')
-				i += nextLeftRun.length
+				if(nextLeftRun.length % 2 === 0) {
+					openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
+					i += 2
+				} else {
+					openingDelimiter = nextLeftRun.character
+					i += 1
+				}
 			} else {
-				if(nextLeftRun.length === 2) {
+				if(nextLeftRun.length % 2 === 0) {
 					elementToCreate = MfMStrongEmphasis
 					openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
 					i += 2
@@ -102,7 +111,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				// * it belongs to the current text content
 				if(this.isSpecialCharacter(currentChar)) {
 					let endsCurrent = false
-					nextRightDelimiterRun = this.findRightDelimiterRun(text, start+i, length-i)
+					nextRightDelimiterRun = this.findRightDelimiterRun(text, start, start+i, length-i)
 					if(nextRightDelimiterRun && nextRightDelimiterRun.start === start+i) {
 						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length) {
 							endsCurrent = true
@@ -118,7 +127,20 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 						}
 						textLength = 0
 						break
-					//} else if(parseInlineElement(this.parsers.allInlines, text, start+i, length-i)) {
+					} else {
+						const innerElement = parseInnerInlineElement<MfMInlineElements>(text, start+i, length-i, this.parsers)
+						if(innerElement != null) {
+							if(textLength > 0) {
+								const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
+								foundContents.push(textContent)
+							}
+							textLength = 0
+
+							foundContents.push(innerElement)
+							i += innerElement.lines[innerElement.lines.length-1].length
+							textStart = start+i
+							continue;
+						}
 					}
 				}
 				i++
@@ -159,30 +181,64 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 	findNext(text: string, start: number, length: number): number | null {
 		return this.findLeftDelimiterRun(text, start, length)?.start ?? null
 	}
-	findLeftDelimiterRun(text: string, start: number, length: number): DelimiterRun | null {
-		return this.findDelimiterRun(text, start, length, (earliestDelimiterIndex: number, delimiterLength: number) => {
+	findLeftDelimiterRun(text: string, searchStart: number, length: number): DelimiterRun | null {
+		//Left-flanking delimiter runs are always searched from the start of
+		//the line.
+		const textStart = searchStart
+
+		return this.findDelimiterRun(text, searchStart, length, (earliestDelimiterIndex: number, delimiterLength: number) => {
 			const nextChar = text.charAt(earliestDelimiterIndex+delimiterLength)
 			//No whitespace allowed after a left-flanking delimiter run
-			if(nextChar === ' ' || nextChar === '\t' || earliestDelimiterIndex+delimiterLength >= start+length) { return false}
+			//BUT '\\' and '{' are allowed here: We need to support options on
+			//    all delimiter runs, hence '{' is allowed. But we must also
+			//    be able to escape the options character, so '\\' must also
+			//    be allowed.
+			if(nextChar === ' ' || nextChar === '\t' || earliestDelimiterIndex+delimiterLength >= searchStart+length) { return false}
 			//No punctuation allowed after a left-flanking delimiter run...
-			if(PUNCTUATION.find(p => p===nextChar)) {
+			if(PUNCTUATION.filter(p => p!=='\\' && p!=='{').find(p => p===nextChar)) {
 				//... when there is NO whitespace before the delimiter run
+				//    (the start of the line counts as whitespace)
 				const charBefore = text.charAt(earliestDelimiterIndex-1)
-				if(charBefore !== ' ' && charBefore !== '\t') { return false }
+				if(earliestDelimiterIndex !== textStart && charBefore !== ' ' && charBefore !== '\t') { return false }
 			}
 			return true
 		})
 	}
-	findRightDelimiterRun(text: string, start: number, length: number): DelimiterRun | null {
-		return this.findDelimiterRun(text, start, length, (earliestDelimiterIndex: number, delimiterLength: number) => {
-			const previousChar = text.charAt(earliestDelimiterIndex - 1)
+	findRightDelimiterRun(text: string, textStart: number, searchStart: number, searchLength: number): DelimiterRun | null {
+		return this.findDelimiterRun(text, searchStart, searchLength, (earliestDelimiterIndex: number, delimiterLength: number) => {
+			const currentChar = text.charAt(earliestDelimiterIndex)
+
+			//Find the character before the current delimiter run, considering:
+			// - The search might have started inside the delimiter run
+			// - We must not extend the search beyond the start of the text
+			//Also find the real start index of the delimiter run, that is,
+			//the index where the current sequence of delimiter characters
+			//begins (needed later for determining whether the current run
+			//begins at the start of the line).
+			let i=1
+			let realDelimiterStartIndex = earliestDelimiterIndex
+			let previousChar = text.charAt(earliestDelimiterIndex - i)
+			while(realDelimiterStartIndex > textStart && previousChar === currentChar) {
+				i++
+				realDelimiterStartIndex--
+				if(earliestDelimiterIndex-i >= textStart) {
+					previousChar = text.charAt(earliestDelimiterIndex - i)
+				}
+			}
+
 			//No whitespace allowed before a right-flanking delimiter run
-			if(previousChar === ' ' || previousChar === '\t') { return false}
+			//The beginning of the line counts as whitespace!
+			if(realDelimiterStartIndex === textStart || previousChar === ' ' || previousChar === '\t') { return false}
 			//No punctuation allowed before a right-flanking delimiter run...
 			if(PUNCTUATION.find(p => p===previousChar)) {
-				//... when there is NO whitespace after the delimiter run
+				//... when there is NO whitespace or punctuation character
+				//    after the delimiter run.
+				//    But: The end of the line counts as whitespace!
 				const charAfter = text.charAt(earliestDelimiterIndex+delimiterLength)
-				if(charAfter !== ' ' && charAfter !== '\t') { return false }
+				const isNotAtEndOfLine = (earliestDelimiterIndex+delimiterLength) !== (searchStart+searchLength)
+				if(charAfter !== ' ' && charAfter !== '\t' && !PUNCTUATION.find(p => p===charAfter) && isNotAtEndOfLine) {
+					return false 
+				}
 			}
 			return true
 		})
@@ -225,8 +281,4 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		}
 		return false
 	}
-}
-
-function parseInlineElement(parsers: Parser<MfMInlineElements>[], text: string, start: number, length: number) {
-
 }

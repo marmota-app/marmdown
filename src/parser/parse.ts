@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Block, Element, LineContent, ParsedLine } from "$element/Element"
+import { Element, LineContent, ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { IdGenerator } from "$markdown/IdGenerator"
 import { Parser } from "./Parser"
@@ -136,4 +136,16 @@ export function parseInlineContent(
 			throw Error(`Could not parse content ${text.substring(start, start+length)} with inline parsers`)
 		}
 	}
+}
+
+export function parseInnerInlineElement<T extends Element<unknown, unknown, unknown, unknown>>(text: string, start: number, length: number, parsers: Parsers<any>): T | null {
+	if(parsers.allInnerInlines == null) { return null }
+
+	for(const parser of parsers.allInnerInlines) {
+		const parsed = parser.parseLine(null, text, start, length)
+		if(parsed) {
+			return parsed as T
+		}
+	}
+	return null
 }

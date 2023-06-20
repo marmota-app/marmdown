@@ -24,6 +24,7 @@ import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
 import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
+import { MfMEmphasisParser } from "./inline/MfMEmphasis";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
@@ -43,10 +44,11 @@ export type MfMLeafBlock =
 	MfMThematicBreakParser |
 	EmptyElementParser
 
-export type MfMContainerInline =
-	MfMContentLineParser
+export type MfMInnerInline =
+	MfMEmphasisParser
 
-export type MfMLeafInline =
+export type MfMOtherInline =
+	MfMContentLineParser |
 	MfMTextParser
 
 export type MfMOptions =
@@ -58,8 +60,8 @@ export type KnownParsers =
 	MfMMetaBlock |
 	MfMContainerBlock |
 	MfMLeafBlock |
-	MfMContainerInline |
-	MfMLeafInline |
+	MfMInnerInline |
+	MfMOtherInline |
 	MfMOptions
 
 /**
@@ -84,8 +86,6 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
-	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
-
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
 	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this))}
 	
@@ -94,6 +94,9 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMOptions() { return this.getParser('MfMOptions', () => new MfMOptionsParser(this))}
 	
 	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this))}
+
+	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
+	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
@@ -114,9 +117,13 @@ export class MfMParsers implements Parsers<KnownParsers> {
 		this.MfMThematicBreak,
 	] }
 
-	get allInlines(): KnownParsers[] { return [ ...this.allContainerInlines, ...this.allLeafInlines, ] }
-	get allContainerInlines(): KnownParsers[] { return [] }
-	get allLeafInlines(): KnownParsers[] { return [
+	get allInlines(): KnownParsers[] { return [ ...this.allInnerInlines, ...this.allOtherInlines, ] }
+	get allInnerInlines(): KnownParsers[] { return [
+		this.MfMEmphasis,
+	] }
+	get allOtherInlines(): KnownParsers[] { return [
+		//MfMContentLine is not part of this list because it will never be
+		//parsed directly by iterating over one of those lists.
 		this.MfMText,
 	] }
 

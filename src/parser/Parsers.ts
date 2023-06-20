@@ -34,14 +34,29 @@ import { Parser } from './Parser'
  */
 export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown, unknown>>> = {
 	[key in PARSER['elementName']]: Extract<PARSER, Record<'elementName', key>>
-} & { 
+} & {
+	/** A generator that can be used to generate new line ids and element
+	 * ids. 
+	 */
 	idGenerator: IdGenerator,
 
+	/** All known block parsers. */
 	allBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	/** All parsers for container blocks (blocks that can contain other
+	 * blocks). 
+	 */
 	allContainerBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	/** All parsers for leaf blocks (blocks that can only contain inline
+	 * elements). 
+	 */
 	allLeafBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
 
+	/** All known parsers for inline elements. */
 	allInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
-	allContainerInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
-	allLeafInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	/** All parsers for inline elements that can be directly parsed by looking
+	 * at the first few characters of the remaining text. 
+	 */
+	allInnerInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
+	/** All other inline parsers. */
+	allOtherInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],
 }
