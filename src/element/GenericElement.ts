@@ -48,8 +48,10 @@ export abstract class GenericBlock<
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
-		const newId = this.parsedWith.parsers.idGenerator.nextLineId()
-		if(this._lines.length === 0) { this._lines.push(new ParsedLine(newId, this as unknown as THIS)) }
+		if(this._lines.length === 0) {
+			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
+			this._lines.push(new ParsedLine(newId, this as unknown as THIS))
+		}
 
 		const i = content as Element<unknown, unknown, unknown, unknown>
 		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
@@ -60,7 +62,7 @@ export abstract class GenericBlock<
 	}
 }
 
-export abstract class GenericInline<
+export abstract class GenericLeafInline<
 	THIS extends Inline<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
 	LINE_CONTENT extends LineContent<THIS>,
@@ -77,13 +79,55 @@ export abstract class GenericInline<
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
-		const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
-		if(this.lines.length === 0) { this.lines.push(new ParsedLine(newId, this as unknown as THIS)) }
+		if(this.lines.length === 0) {
+			const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
+			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
+		}
 		
 		const i = content as Element<unknown, unknown, unknown, unknown>
 		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
 		this.lines[this.lines.length-1].content.push(lastItemLine)
 
 		this.content.push(content)
+	}
+}
+
+export class GenericContainerInline<
+	THIS extends Inline<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
+	LINE_CONTENT extends LineContent<THIS>,
+	TYPE extends string | unknown,
+	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
+> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
+
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
+		jsonTransient(this, 'lines')
+	}
+
+	get isFullyParsed() { return true }
+
+	addContent(content: CONTENT) {
+		if(this.lines.length === 0) {
+			const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
+			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
+		}
+		
+		const i = content as Element<unknown, unknown, unknown, unknown>
+		const lastItemLine = i.lines[i.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
+		this.lines[this.lines.length-1].content.push(lastItemLine)
+	}
+
+	get content(): CONTENT[] {
+		return this.lines
+		.flatMap(l => l.content)
+		.filter(lc => lc.belongsTo !== this && lc.belongsTo.type !== 'options')
+		.map(lc => lc.belongsTo as CONTENT)
+		.reduce((result: CONTENT[], current: CONTENT) => {
+			if(result.length === 0 || result[result.length-1] !== current) {
+				result.push(current)
+			}
+			return result
+		}, [] as CONTENT[])
 	}
 }

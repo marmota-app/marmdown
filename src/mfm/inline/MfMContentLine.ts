@@ -15,14 +15,14 @@ limitations under the License.
 */
 
 import { LineContent } from "$element/Element"
-import { GenericInline } from "$element/GenericElement"
+import { GenericContainerInline } from "$element/GenericElement"
 import { MfMInlineElements } from "$markdown/MfMDialect"
 import { parseInlineContent } from "$parser/parse"
 import { Parser } from "$parser/Parser"
 import { MfMText } from "./MfMText"
 
 export type MfMContentLineContent = MfMInlineElements
-export class MfMContentLine extends GenericInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, '--content-line--', MfMContentLineParser> {
+export class MfMContentLine extends GenericContainerInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, '--content-line--', MfMContentLineParser> {
 	constructor(id: string, pw: MfMContentLineParser) { super(id, '--content-line--', pw) }
 }
 /**

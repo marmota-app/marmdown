@@ -142,11 +142,11 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const afterChange = originalText.substring(rangeStartWithin+update.rangeLength)
 		const updatedText = beforeChange + update.text + afterChange
 
-		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length, content)
+		const updated = content.belongsTo.parsedWith.parseLineUpdate(content.belongsTo, updatedText, 0, updatedText.length, content) as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
 		const isFullyParsed = updated?.length === updatedText.length && 
 			content.belongsTo.parsedWith.isFullyParsedUpdate(updated as LineContent<Element<unknown, unknown, unknown, unknown>>, content)
 
-		if(updated && isFullyParsed) {
+		if(updated && isFullyParsed && updated.belongsTo.type === content.belongsTo.type) {
 			//Set the ID of the parsed line, or `undefined` if it's not a ParsedLine
 			updated.originalId = (content as ParsedLine<unknown, unknown>).id
 

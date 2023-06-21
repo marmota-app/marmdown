@@ -15,14 +15,14 @@ limitations under the License.
 */
 
 import { LeafInline, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericInline } from "$element/GenericElement"
+import { GenericLeafInline } from "$element/GenericElement"
 import { findTrimmed } from "$parser/find"
 import { InlineParser, Parser } from "$parser/Parser"
 
 export interface Option<P extends MfMGenericOptionParser<P>> extends LeafInline<MfMOption<P>, 'option'> {
 }
 
-export class MfMOption<P extends MfMGenericOptionParser<P>> extends GenericInline<MfMOption<P>, never, StringLineContent<MfMOption<P>>, 'option', P> implements Option<P> {
+export class MfMOption<P extends MfMGenericOptionParser<P>> extends GenericLeafInline<MfMOption<P>, never, StringLineContent<MfMOption<P>>, 'option', P> implements Option<P> {
 	constructor(id: string, pw: P) { super(id, 'option', pw) }
 
 	get key() { 

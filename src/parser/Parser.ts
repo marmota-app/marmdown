@@ -142,12 +142,12 @@ export abstract class InlineParser<
 	RESULT extends Element<unknown, unknown, unknown, unknown>,
 	REQUIRED_PARSERS extends Parser<Element<unknown, unknown, unknown, unknown>> = any
 > extends Parser<RESULT, RESULT, REQUIRED_PARSERS> {
-	abstract parseInline(text: string, start: number, length: number): RESULT | null
+	abstract parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any }): RESULT | null
 
-	override parseLine(previous: RESULT | null, text: string, start: number, length: number): RESULT | null {
+	override parseLine(previous: RESULT | null, text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): RESULT | null {
 		if(previous != null) { return null }
 
-		const result = this.parseInline(text, start, length)
+		const result = this.parseInline(text, start, length, additionalParams)
 
 		if(result && result.lines.length !== 1) {
 			throw new Error(`Could not parse ${text.substring(start, start+length)}: Expected inline to return 1 line, but it returned ${result.lines.length}`)

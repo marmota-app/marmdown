@@ -16,14 +16,18 @@ limitations under the License.
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
 import { NumberedIdGenerator } from "$markdown/IdGenerator";
-import { MfMEmphasis, MfMEmphasisParser } from "$mfm/inline/MfMEmphasis"
+import { UpdateParser } from "$markdown/UpdateParser";
+import { MfMEmphasis, MfMEmphasisParser, TextSpan } from "$mfm/inline/MfMEmphasis"
 import { MfMText, MfMTextParser } from "$mfm/inline/MfMText";
+import { MfMOptionsParser } from "$mfm/options/MfMOptions";
 import { Parsers } from "$parser/Parsers";
+import { createOptionsParser } from "../options/createOptionsParser";
 
-class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser> {
-	private knownParsers: { [key in (MfMTextParser | MfMEmphasisParser)['elementName']]?: MfMTextParser | MfMEmphasisParser } = {}
+class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser | MfMOptionsParser> {
+	private knownParsers: { [key in (MfMTextParser | MfMEmphasisParser | MfMOptionsParser)['elementName']]?: MfMTextParser | MfMEmphasisParser | MfMOptionsParser } = {}
 	idGenerator = new NumberedIdGenerator()
 
+	get MfMOptions() { return this.getParser('MfMOptions', () => createOptionsParser(this.idGenerator) )}
 	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
@@ -31,7 +35,7 @@ class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser> {
 		this.MfMEmphasis,
 	] }
 
-	private getParser<T extends MfMTextParser | MfMEmphasisParser>(name: T['elementName'], create: ()=>T): T {
+	private getParser<T extends MfMTextParser | MfMEmphasisParser | MfMOptionsParser>(name: T['elementName'], create: ()=>T): T {
 		if(this.knownParsers[name] == null) {
 			this.knownParsers[name] = create()
 		}
@@ -342,9 +346,6 @@ describe('MfMEmphasis', () => {
 					expect(result?.lines[0].content[2]).toHaveProperty('asText', token)
 				})
 				it('parses emphasis until the closing delimiter, with other delimiters in-between', () => {
-					//TODO: Test, where there is a left-flanking delimiter run
-					//      e.g. '_some *emphazised_ with more text...'
-					//      But what should happen in that case???
 					const parser = createEmphasisParser()
 					const text = `${token}some${otherToken} emphazised${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
@@ -410,10 +411,7 @@ describe('MfMEmphasis', () => {
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', 'emphazised')
 					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${token}${token}`)
 				})
-				it('parses strong emphasis until the closing delimiter, with other delimiters in-between', () => {
-					//TODO: Test, where there is a left-flanking delimiter run
-					//      e.g. '__some **emphazised__ with more text...'
-					//      But what should happen in that case???
+				it('parses strong emphasis until the closing delimiter, with other delimiters (right-flanking) in-between', () => {
 					const parser = createEmphasisParser()
 					const text = `${token}${token}some${otherToken}${otherToken} emphazised${token}${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
@@ -432,6 +430,30 @@ describe('MfMEmphasis', () => {
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some${otherToken}${otherToken} emphazised`)
 					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${token}${token}`)
 				})
+				it('parses strong emphasis until the closing delimiter, with other delimiters (left-flanking) in-between', () => {
+					const parser = createEmphasisParser()
+					const text = `${token}${token}some ${otherToken}${otherToken}emphazised${token}${token} with more text...`
+					const result = parser.parseLine(null, text, 0, text.length)
+	
+					expect(result).not.toBeNull()
+					expect(result).toHaveProperty('type', 'strong')
+	
+					expect(result?.content).toHaveLength(2)
+					expect(result?.content[0]).toHaveProperty('type', 'text')
+					expect(result?.content[0]).toHaveProperty('text', `some `)
+					expect(result?.content[1]).toHaveProperty('type', '--text-span--')
+					expect(result?.content[1].content).toHaveLength(2)
+					expect(result?.content[1].content[0]).toHaveProperty('text', `${otherToken}${otherToken}`)
+					expect(result?.content[1].content[1]).toHaveProperty('text', `emphazised`)
+	
+					expect(result?.lines).toHaveLength(1)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}${token}some ${otherToken}${otherToken}emphazised${token}${token}`)
+					expect(result?.lines[0].content).toHaveLength(4)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
+					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some `)
+					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${otherToken}${otherToken}emphazised`)
+					expect(result?.lines[0].content[3]).toHaveProperty('asText', `${token}${token}`)
+				})
 			})
 			describe('parse text-span', () => {
 				it('parses a text-span when the text does not contain a right-flanking delimiter run', () => {
@@ -442,9 +464,11 @@ describe('MfMEmphasis', () => {
 					expect(result).not.toBeNull()
 					expect(result).toHaveProperty('type', '--text-span--')
 	
-					expect(result?.content).toHaveLength(1)
+					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', 'not emphazised')
+					expect(result?.content[0]).toHaveProperty('text', token)
+					expect(result?.content[1]).toHaveProperty('type', 'text')
+					expect(result?.content[1]).toHaveProperty('text', 'not emphazised')
 	
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
@@ -460,9 +484,11 @@ describe('MfMEmphasis', () => {
 					expect(result).not.toBeNull()
 					expect(result).toHaveProperty('type', '--text-span--')
 	
-					expect(result?.content).toHaveLength(1)
+					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `some not emphazised${otherToken} with more text...`)
+					expect(result?.content[0]).toHaveProperty('text', token)
+					expect(result?.content[1]).toHaveProperty('type', 'text')
+					expect(result?.content[1]).toHaveProperty('text', `some not emphazised${otherToken} with more text...`)
 	
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
@@ -478,9 +504,11 @@ describe('MfMEmphasis', () => {
 					expect(result).not.toBeNull()
 					expect(result).toHaveProperty('type', '--text-span--')
 	
-					expect(result?.content).toHaveLength(1)
+					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', 'not emphazised')
+					expect(result?.content[0]).toHaveProperty('text', `${token}${token}`)
+					expect(result?.content[1]).toHaveProperty('type', 'text')
+					expect(result?.content[1]).toHaveProperty('text', 'not emphazised')
 	
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
@@ -496,9 +524,11 @@ describe('MfMEmphasis', () => {
 					expect(result).not.toBeNull()
 					expect(result).toHaveProperty('type', '--text-span--')
 	
-					expect(result?.content).toHaveLength(1)
+					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `not emphazised${token}`)
+					expect(result?.content[0]).toHaveProperty('text', `${token}${token}`)
+					expect(result?.content[1]).toHaveProperty('type', 'text')
+					expect(result?.content[1]).toHaveProperty('text', `not emphazised${token}`)
 
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
@@ -575,9 +605,6 @@ describe('MfMEmphasis', () => {
 				expect(result?.lines[0].content[2]).toHaveProperty('asText', `~~`)
 			})
 			it('parses strike-through emphasis until the closing delimiter, with other delimiters in-between', () => {
-				//TODO: Test, where there is a left-flanking delimiter run
-				//      e.g. '~some **emphazised~ with more text...'
-				//      But what should happen in that case???
 				const parser = createEmphasisParser()
 				const text = `~some_ emphazised~ with more text...`
 				const result = parser.parseLine(null, text, 0, text.length)
@@ -1016,8 +1043,242 @@ describe('MfMEmphasis', () => {
 			})
 		})
 	})
-	describe.skip('parsing options', () => {
+	describe('parsing options', () => {
+		it('parses single-line, empty options', () => {
+			const parser = createEmphasisParser()
+			const text = `_{} emphazised_`
+			const result = parser.parseLine(null, text, 0, text.length)
+
+			expect(result).not.toBeNull()
+			expect(result).toHaveProperty('type', 'emphasis')
+
+			expect(result?.options).not.toBeNull()
+			expect(result?.options.keys).toHaveLength(0)
+
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'text')
+			expect(result?.content[0]).toHaveProperty('text', 'emphazised')
+
+			expect(result?.lines).toHaveLength(1)
+			expect(result?.lines[0]).toHaveProperty('asText', text)
+			expect(result?.lines[0].content).toHaveLength(4)
+			expect(result?.lines[0].content[0]).toHaveProperty('asText', `_`)
+			expect(result?.lines[0].content[1]).toHaveProperty('asText', '{} ')
+			expect(result?.lines[0].content[2]).toHaveProperty('asText', 'emphazised')
+			expect(result?.lines[0].content[3]).toHaveProperty('asText', `_`)
+		})
+		it('parses single-line options with values', () => {			const parser = createEmphasisParser()
+			const text = `_{ some default value; key2=value2; key3=value3 }emphazised_`
+			const result = parser.parseLine(null, text, 0, text.length)
+
+			expect(result).not.toBeNull()
+			expect(result).toHaveProperty('type', 'emphasis')
+
+			expect(result?.options).not.toBeNull()
+			expect(result?.options.get('default')).toEqual('some default value')
+			expect(result?.options.get('key2')).toEqual('value2')
+			expect(result?.options.get('key3')).toEqual('value3')
+
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'text')
+			expect(result?.content[0]).toHaveProperty('text', 'emphazised')
+
+			expect(result?.lines).toHaveLength(1)
+			expect(result?.lines[0]).toHaveProperty('asText', text)
+			expect(result?.lines[0].content).toHaveLength(4)
+			expect(result?.lines[0].content[0]).toHaveProperty('asText', `_`)
+			expect(result?.lines[0].content[1]).toHaveProperty('asText', '{ some default value; key2=value2; key3=value3 }')
+			expect(result?.lines[0].content[2]).toHaveProperty('asText', 'emphazised')
+			expect(result?.lines[0].content[3]).toHaveProperty('asText', `_`)
+		})
 	})
-	describe.skip('parsing updates', () => {
+	describe('parsing updates', () => {
+		it('updates simple emphasis', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '', rangeOffset: 6, rangeLength: 11, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(1)
+			expect(updated?.content[0]).toHaveProperty('type', 'text')
+			expect(updated?.content[0]).toHaveProperty('text', 'some text')
+
+			expect(updated?.lines[0].content).toHaveLength(3)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some text')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '_')
+		})
+		it('does not update simple emphasis when starting delimiter is deleted', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '', rangeOffset: 0, rangeLength: 1, })
+
+			expect(updated).toBeNull()
+		})
+		it('does not update simple emphasis when ending delimiter is deleted', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '', rangeOffset: '_some emphazised text'.length, rangeLength: 1, })
+
+			expect(updated).toBeNull()
+		})
+		it('does not update simple emphasis when starting delimiter is added', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '_', rangeOffset: 0, rangeLength: 0, })
+
+			expect(updated).toBeNull()
+		})
+		it('does not update simple emphasis when ending delimiter is added', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '_', rangeOffset: '_some emphazised text'.length, rangeLength: 0, })
+
+			expect(updated).toBeNull()
+		})
+		it('does not update emphasis when adding a closing delimiter in the middle, shortening it', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '_', rangeOffset: '_some emphazised'.length, rangeLength: 0, })
+
+			expect(updated).toBeNull()
+		})
+		it('updates simple emphasis when different starting delimiter is added', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '*', rangeOffset: '_'.length, rangeLength: 0, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(1)
+			expect(updated?.content[0]).toHaveProperty('type', '--text-span--')
+			expect((updated?.content[0] as TextSpan).content).toHaveLength(2)
+			expect((updated?.content[0] as TextSpan).content[0]).toHaveProperty('text', '*')
+			expect((updated?.content[0] as TextSpan).content[1]).toHaveProperty('text', 'some emphazised text')
+
+			expect(updated?.lines[0].content).toHaveLength(3)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', '*some emphazised text')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '_')
+		})
+		it('updates simple emphasis when different ending delimiter is added', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '*', rangeOffset: '_some emphazised text'.length, rangeLength: 0, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(2)
+			expect(updated?.content[0]).toHaveProperty('type', 'text')
+			expect(updated?.content[0]).toHaveProperty('text', 'some emphazised text')
+			expect(updated?.content[1]).toHaveProperty('type', '--text-span--')
+			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', '*')
+
+			expect(updated?.lines[0].content).toHaveLength(4)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some emphazised text')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '*')
+			expect(updated?.lines[0].content[3]).toHaveProperty('asText', '_')
+		})
+		it('updates simple emphasis, adding inner emphazised element', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some emphazised text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '**emphazised**', rangeOffset: '_some '.length, rangeLength: 'emphazised'.length, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(3)
+			expect(updated?.content[0]).toHaveProperty('type', 'text')
+			expect(updated?.content[0]).toHaveProperty('text', 'some ')
+			expect(updated?.content[1]).toHaveProperty('type', 'strong')
+			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', 'emphazised')
+			expect(updated?.content[2]).toHaveProperty('type', 'text')
+			expect(updated?.content[2]).toHaveProperty('text', ' text')
+
+			expect(updated?.lines[0].content).toHaveLength(5)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some ')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '**emphazised**')
+			expect(updated?.lines[0].content[3]).toHaveProperty('asText', ' text')
+			expect(updated?.lines[0].content[4]).toHaveProperty('asText', '_')
+
+			const innerLineContent = updated?.lines[0].content[2] as ParsedLine<unknown, unknown>
+			expect(innerLineContent.content).toHaveLength(3)
+			expect(innerLineContent.content[0]).toHaveProperty('asText', '**')
+			expect(innerLineContent.content[1]).toHaveProperty('asText', 'emphazised')
+			expect(innerLineContent.content[2]).toHaveProperty('asText', '**')
+		})
+		it('updates inner emphasis of two emphazised elements', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some **emphazised** text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: 'strongly ', rangeOffset: '_some **'.length, rangeLength: 0, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(3)
+			expect(updated?.content[0]).toHaveProperty('type', 'text')
+			expect(updated?.content[0]).toHaveProperty('text', 'some ')
+			expect(updated?.content[1]).toHaveProperty('type', 'strong')
+			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', 'strongly emphazised')
+			expect(updated?.content[2]).toHaveProperty('type', 'text')
+			expect(updated?.content[2]).toHaveProperty('text', ' text')
+
+			expect(updated?.lines[0].content).toHaveLength(5)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some ')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '**strongly emphazised**')
+			expect(updated?.lines[0].content[3]).toHaveProperty('asText', ' text')
+			expect(updated?.lines[0].content[4]).toHaveProperty('asText', '_')
+
+			const innerLineContent = updated?.lines[0].content[2] as ParsedLine<unknown, unknown>
+			expect(innerLineContent.content).toHaveLength(3)
+			expect(innerLineContent.content[0]).toHaveProperty('asText', '**')
+			expect(innerLineContent.content[1]).toHaveProperty('asText', 'strongly emphazised')
+			expect(innerLineContent.content[2]).toHaveProperty('asText', '**')
+		})
+		it('updates outer emphasis of two emphazised elements when inner is not emphazised anymore', () => {
+			const parser = createEmphasisParser()
+			const updateParser = new UpdateParser(new NumberedIdGenerator())
+			const text = '_some **emphazised** text_'
+
+			const original = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
+			const updated = updateParser.parse(original, { text: '', rangeOffset: '_some '.length, rangeLength: '**'.length, })
+
+			expect(updated).not.toBeNull()
+			expect(updated?.content).toHaveLength(1)
+			expect(updated?.content[0]).toHaveProperty('type', 'text')
+			expect(updated?.content[0]).toHaveProperty('text', 'some emphazised** text')
+
+			expect(updated?.lines[0].content).toHaveLength(3)
+			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some emphazised** text')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '_')
+		})
 	})
 })

@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerInline, Element, Inline, LineContent, ParsedLine, StringLineContent } from "$element/Element";
-import { GenericInline } from "$element/GenericElement";
-import { StrikeThrough } from "$element/MarkdownElements";
-import { Emphasis, StrongEmphasis } from "$element/MarkdownElements";
+import { ContainerInline, LineContent, ParsedLine, StringLineContent } from "$element/Element";
+import { Emphasis, StrikeThrough, StrongEmphasis } from "$element/MarkdownElements";
 import { MfMInlineElements } from "$markdown/MfMDialect";
 import { finiteLoop } from "$markdown/finiteLoop";
-import { InlineParser, Parser } from "$parser/Parser";
+import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
+import { MfMOptionsParser } from "$mfm/options/MfMOptions";
+import { InlineParser } from "$parser/Parser";
 import { parseInnerInlineElement } from "$parser/parse";
+import { MfMTextParser } from "./MfMText";
 
 export interface DelimiterRun {
 	start: number,
@@ -29,16 +30,16 @@ export interface DelimiterRun {
 	character: string,
 }
 
-export class MfMEmphasis extends GenericInline<MfMEmphasis, MfMInlineElements, LineContent<MfMEmphasis>, 'emphasis', MfMEmphasisParser> implements Emphasis<MfMEmphasis, MfMInlineElements> {
+export class MfMEmphasis extends MfMGenericContainerInline<MfMEmphasis, MfMInlineElements, LineContent<MfMEmphasis>, 'emphasis', MfMEmphasisParser> implements Emphasis<MfMEmphasis, MfMInlineElements> {
 	constructor(id: string, pw: MfMEmphasisParser) { super(id, 'emphasis', pw) }
 }
-export class MfMStrongEmphasis extends GenericInline<MfMStrongEmphasis, MfMInlineElements, LineContent<MfMStrongEmphasis>, 'strong', MfMEmphasisParser> implements StrongEmphasis<MfMStrongEmphasis, MfMInlineElements> {
+export class MfMStrongEmphasis extends MfMGenericContainerInline<MfMStrongEmphasis, MfMInlineElements, LineContent<MfMStrongEmphasis>, 'strong', MfMEmphasisParser> implements StrongEmphasis<MfMStrongEmphasis, MfMInlineElements> {
 	constructor(id: string, pw: MfMEmphasisParser) { super(id, 'strong', pw) }
 }
-export class MfMStrikeThrough extends GenericInline<MfMStrikeThrough, MfMInlineElements, LineContent<MfMStrikeThrough>, 'strike-through', MfMEmphasisParser> implements StrikeThrough<MfMStrikeThrough, MfMInlineElements> {
+export class MfMStrikeThrough extends MfMGenericContainerInline<MfMStrikeThrough, MfMInlineElements, LineContent<MfMStrikeThrough>, 'strike-through', MfMEmphasisParser> implements StrikeThrough<MfMStrikeThrough, MfMInlineElements> {
 	constructor(id: string, pw: MfMEmphasisParser) { super(id, 'strike-through', pw) }
 }
-export class TextSpan extends GenericInline<TextSpan, MfMInlineElements, LineContent<TextSpan>, '--text-span--', MfMEmphasisParser> implements ContainerInline<TextSpan, MfMInlineElements, '--text-span--'> {
+export class TextSpan extends MfMGenericContainerInline<TextSpan, MfMInlineElements, LineContent<TextSpan>, '--text-span--', MfMEmphasisParser> implements ContainerInline<TextSpan, MfMInlineElements, '--text-span--'> {
 	constructor(id: string, pw: MfMEmphasisParser) { super(id, '--text-span--', pw) }
 }
 
@@ -47,7 +48,7 @@ const PUNCTUATION = [
 	'!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/',
 	':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',
 ]
-export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan> {
+export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan, MfMOptionsParser | MfMTextParser> {
 	public readonly elementName = 'MfMEmphasis'
 
 	/**
@@ -63,7 +64,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 	 * @param start The start index where parsing should begin
 	 * @param length The maximum lenght that can be parsed at this point
 	 */
-	parseInline(text: string, start: number, length: number): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
+	parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
 		const nextLeftRun = this.findLeftDelimiterRun(text, start, length)
 		let i=0
 		const foundContents: MfMInlineElements[] = []
@@ -94,6 +95,17 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 					i += 1
 				}
 			}
+
+			const options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i)
+			if(options) {
+				const optionsLine = options.lines[options.lines.length-1]
+				i += optionsLine.length
+				const charAfterOptions = text.charAt(start+i)
+				if(charAfterOptions === ' ' || charAfterOptions === '\t') {
+					optionsLine.content.push(new StringLineContent(charAfterOptions, start+i, i, options))
+					i++
+				}
+			}
 			
 			const finite = finiteLoop(() => i)
 			let textStart = start+i
@@ -115,6 +127,9 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 					if(nextRightDelimiterRun && nextRightDelimiterRun.start === start+i) {
 						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length) {
 							endsCurrent = true
+						} else if(additionalParams.endsOuter?.(nextRightDelimiterRun)) {
+							nextRightDelimiterRun = null
+							endsCurrent = true
 						} else {
 							nextRightDelimiterRun = null
 						}
@@ -123,16 +138,26 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 					if(endsCurrent) {
 						if(textLength > 0) {
 							const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-							foundContents.push(textContent)
+							if(textContent) { foundContents.push(textContent) }
 						}
 						textLength = 0
 						break
 					} else {
-						const innerElement = parseInnerInlineElement<MfMInlineElements>(text, start+i, length-i, this.parsers)
+						const additionalParametersForInner = {
+							...additionalParams,
+							endsOuter: (rightDelimiterRun: DelimiterRun) => {
+								const endsMyOuter = additionalParams.endsOuter
+								if(openingDelimiter && rightDelimiterRun.character===nextLeftRun.character && rightDelimiterRun.length >= openingDelimiter.length) {
+									return true
+								}
+								return endsMyOuter?.(rightDelimiterRun) ?? false
+							}
+						}
+						const innerElement = parseInnerInlineElement<MfMInlineElements>(text, start+i, length-i, this.parsers, additionalParametersForInner)
 						if(innerElement != null) {
 							if(textLength > 0) {
 								const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-								foundContents.push(textContent)
+								if(textContent) { foundContents.push(textContent) }
 							}
 							textLength = 0
 
@@ -151,7 +176,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 			//delimiter run)
 			if(textLength > 0) {
 				const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-				foundContents.push(textContent)
+				if(textContent) { foundContents.push(textContent) }
 			}
 
 			//Create correct return value
@@ -165,10 +190,18 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 			} else {
 				content = new TextSpan(this.parsers.idGenerator.nextId(), this)
 				content.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), content))
+				if(openingDelimiter) {
+					const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, nextLeftRun.length, additionalParams)
+					if(delimiterText != null) {
+						content.addContent(delimiterText)
+						openingDelimiter = null
+					}
+				}
 			}
 
 			//Add delimiters as line content
 			if(openingDelimiter) { content.lines[content.lines.length-1].content.push(new StringLineContent(openingDelimiter, nextLeftRun.start, openingDelimiter.length, content)) }
+			if(options) { content.lines[content.lines.length-1].content.push(options.lines[options.lines.length-1]) }
 			foundContents.forEach(c => content?.addContent(c))
 			if(closingLineContent) { content.lines[content.lines.length-1].content.push(closingLineContent) }
 

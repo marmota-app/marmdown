@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Block, Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
+import { Block, Element, Inline, LineContent, ParsedLine, StringLineContent } from "$element/Element"
+import { GenericBlock, GenericContainerInline, GenericLeafInline } from "$element/GenericElement"
 import { Parser } from "$parser/Parser"
 import { Parsers } from "$parser/Parsers"
 import { EMPTY_OPTIONS_PARSER, MfMOptions, MfMOptionsParser } from "./options/MfMOptions"
@@ -37,6 +37,35 @@ export abstract class MfMGenericBlock<
 		//already fully parsed!
 		return this.options.isFullyParsed? !this.continueWithNextLine : false
 	}
+	get options(): MfMOptions {
+		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? this.emptyOptions
+	}
+}
+
+/**
+ * Abstract base class for MfM inline elements.
+ */
+export abstract class MfMGenericContainerInline<
+	THIS extends Inline<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
+	LINE_CONTENT extends LineContent<THIS>,
+	TYPE extends string | unknown,
+	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
+> extends GenericContainerInline<THIS, CONTENT, LINE_CONTENT, TYPE, PARSER> {
+	private emptyOptions = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
+	get options(): MfMOptions {
+		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? this.emptyOptions
+	}
+}
+
+export abstract class MfMGenericLeafInline<
+	THIS extends Inline<THIS, CONTENT, LINE_CONTENT, TYPE> | unknown,
+	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
+	LINE_CONTENT extends LineContent<THIS>,
+	TYPE extends string | unknown,
+	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
+> extends GenericLeafInline<THIS, CONTENT, LINE_CONTENT, TYPE, PARSER> {
+	private emptyOptions = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
 	get options(): MfMOptions {
 		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? this.emptyOptions
 	}

@@ -17,7 +17,7 @@ limitations under the License.
 import { Element, LineContent, ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { IdGenerator } from "$markdown/IdGenerator"
-import { Parser } from "./Parser"
+import { InlineParser, Parser } from "./Parser"
 import { Parsers } from "./Parsers"
 
 export function parseBlock<
@@ -138,14 +138,18 @@ export function parseInlineContent(
 	}
 }
 
-export function parseInnerInlineElement<T extends Element<unknown, unknown, unknown, unknown>>(text: string, start: number, length: number, parsers: Parsers<any>): T | null {
+export function parseInnerInlineElement<T extends Element<unknown, unknown, unknown, unknown>>(
+	text: string, start: number, length: number, parsers: Parsers<any>, additionalParams: { [key: string]: any }
+): T | null {
 	if(parsers.allInnerInlines == null) { return null }
 
 	for(const parser of parsers.allInnerInlines) {
-		const parsed = parser.parseLine(null, text, start, length)
+		const parsed = parser instanceof InlineParser?
+			parser.parseLine(null, text, start, length, additionalParams) :
+			parser.parseLine(null, text, start, length)
 		if(parsed) {
 			return parsed as T
 		}
-	}
+}
 	return null
 }
