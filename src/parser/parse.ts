@@ -17,6 +17,8 @@ limitations under the License.
 import { Element, LineContent, ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { IdGenerator } from "$markdown/IdGenerator"
+import { finiteLoop } from "$markdown/finiteLoop"
+import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
 import { InlineParser, Parser } from "./Parser"
 import { Parsers } from "./Parsers"
 
@@ -115,27 +117,80 @@ export function parseContainerBlock<
 export function parseInlineContent(
 	text: string, start: number, length: number,
 	container: { addContent: (content: any) => unknown, },
-	parsers: Parsers<never>
+	parsers: Parsers<MfMTextParser>
 ) {
 	if(!parsers.allInlines) { throw new Error(`Cannot parse ${text.substring(start, start+length)} at ${start} because all inline parsers array is not defined`) }
 
+	const foundContents = parseInlineContent2(text, start, length, parsers, {})
+	
+	foundContents.forEach(c => container.addContent(c))
+}
+
+export function parseInlineContent2<CONTENTS extends Element<unknown, unknown, unknown, unknown>>(
+	text: string, start: number, length: number,
+	parsers: Parsers<MfMTextParser>,
+	additionalParams: { [key: string]: any } = {}
+) {
+	if(!parsers.allInlines) { throw new Error(`Cannot parse ${text.substring(start, start+length)} at ${start} because all inline parsers array is not defined`) }
+	const foundContents: (CONTENTS | MfMText)[] = []
 	let i=0
+
+	const finite = finiteLoop(() => i)
+	let textStart = start+i
+	let textLength = 0
 	while(i < length) {
-		let contentParsed = false
-		for(let p=0; p < parsers.allInlines.length; p++) {
-			const parser = parsers.allInlines[p]
-			const parsed = parser.parseLine(null, text, start+i, length-i)
-			if(parsed) {
-				i = length //TODO get parsed length from last parsed line!
-				contentParsed = true
-				container.addContent(parsed)
+		finite.guard()
+		const currentChar = text.charAt(start+i)
+		//Text content can - but doesn't have to - occur before each
+		//other inline content, and also at the very end (see below).
+		//For each special character at this point, we must check
+		//whether...
+		// * it starts an inner inline element
+		// * it ends the current element
+		// * it belongs to the current text content
+		if(isSpecialCharacter(currentChar)) {
+			if(additionalParams.endsCurrent?.()) {
+				if(textLength > 0) {
+					const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
+					if(textContent) { foundContents.push(textContent) }
+				}
+				textLength = 0
 				break
+			} else {
+				const innerElement = parseInnerInlineElement<CONTENTS>(text, start+i, length-i, parsers, additionalParams)
+				if(innerElement != null) {
+					if(textLength > 0) {
+						const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
+						if(textContent) { foundContents.push(textContent) }
+					}
+					textLength = 0
+
+					foundContents.push(innerElement)
+					i += innerElement.lines[innerElement.lines.length-1].length
+					textStart = start+i
+					continue;
+				}
 			}
 		}
-		if(!contentParsed) {
-			throw Error(`Could not parse content ${text.substring(start, start+length)} with inline parsers`)
-		}
+		i++
+		textLength++
 	}
+	//Text content can occur at the very end (when there is no closing
+	//delimiter, so we exited the loop without finding a right-flanking
+	//delimiter run)
+	if(textLength > 0) {
+		const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
+		if(textContent) { foundContents.push(textContent) }
+	}
+	return foundContents
+}
+
+function isSpecialCharacter(character: string) {
+	switch(character) {
+		//Emphasis
+		case '_': case '*': case '~': return true
+	}
+	return false
 }
 
 export function parseInnerInlineElement<T extends Element<unknown, unknown, unknown, unknown>>(

@@ -36,7 +36,8 @@ describe('UpdateParser', () => {
 
 	it('changes the id of the updated element (and only that!) when it actually updates it', () => {
 		const idGenerator = new NumberedIdGenerator()
-		const textParser = new MfMContentLineParser({ idGenerator, allInlines: [ new MfMTextParser({ idGenerator, }), ], })
+		const MfMText = new MfMTextParser({ idGenerator, })
+		const textParser = new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, ], })
 		const updateParser = new UpdateParser(idGenerator)
 
 		const text = textParser.parseLine(null, 'hello world', 0, 'hello world'.length) as MfMContentLine

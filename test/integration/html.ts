@@ -33,7 +33,8 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'block-quote': return `<blockquote${options(b)}>\n${all(b.content)}\n</blockquote>`
 			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
 			case 'thematic-break': return `<hr${options(b)} />`
-			default: return ''
+			case '--empty--': return ''
+			default: throw new Error(`Unsupported inline element: ${(b as any).type}`)
 		}
 	}).join('\n')
 }
@@ -47,7 +48,11 @@ function inline(inlines: MfMInlineElements[]): string {
 		switch(element.type) {
 			case '--content-line--': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
 			case 'text': return element.text
-			default: return ''
+			case 'emphasis': return `<em>${inline(element.content)}</em>`
+			case 'strong': return `<strong>${inline(element.content)}</strong>`
+			case 'strike-through': return `<del>${inline(element.content)}</del>`
+			case '--text-span--': return inline(element.content)
+			default: throw new Error(`Unsupported inline element: ${(element as any).type}`)
 		}
 	}).join('')
 }

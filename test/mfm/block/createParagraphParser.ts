@@ -9,9 +9,10 @@ import { createHeadingParser } from "./createHeadingParser"
 export function createParagraphParser(emptyElementParser?: EmptyElementParser) {
 	const idGenerator = new NumberedIdGenerator()
 	emptyElementParser = emptyElementParser ?? new EmptyElementParser({ idGenerator })
+	const MfMText = new MfMTextParser({ idGenerator })
 	const parsers: Parsers<MfMContentLineParser> = {
 		idGenerator,
-		MfMContentLine: new MfMContentLineParser({ idGenerator, allInlines: [ new MfMTextParser({ idGenerator }), ], }),
+		MfMContentLine: new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, ], }),
 		allBlocks: [ emptyElementParser, createHeadingParser()['headingParser'], ]
 	}
 	const paragraphParser = new MfMParagraphParser(parsers)

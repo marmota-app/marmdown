@@ -26,7 +26,8 @@ import { createHeadingParser } from "./createHeadingParser"
 
 function createGeneralPurposeBlockParser() {
 	const idGenerator = new NumberedIdGenerator()
-	const MfMContentLine = new MfMContentLineParser({ idGenerator, allInlines: [ new MfMTextParser({ idGenerator }), ], })
+	const MfMText = new MfMTextParser({ idGenerator })
+	const MfMContentLine = new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, ], })
 	const { headingParser } = createHeadingParser()
 	const MfMOptions = createOptionsParser(idGenerator)
 	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })

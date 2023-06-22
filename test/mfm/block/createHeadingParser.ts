@@ -28,7 +28,7 @@ import { createOptionsParser } from "../options/createOptionsParser"
 export function createHeadingParser(sectionBlockParsers: Parser<Element<unknown, unknown, unknown, unknown>>[] = []) {
 	const idGenerator = new NumberedIdGenerator()
 	const textParser = new MfMTextParser({ idGenerator })
-	const tpParsers: Parsers<never> = { idGenerator, allInlines: [ textParser, ], }
+	const tpParsers: Parsers<MfMTextParser> = { idGenerator, MfMText: textParser, allInlines: [ textParser, ], }
 	const contentLineParser = new MfMContentLineParser(tpParsers)
 
 	const sectionParser = new MfMSectionParser({ idGenerator, allBlocks: sectionBlockParsers })

@@ -33,15 +33,23 @@ interface ImplementedSection {
 }
 
 const __escaping__ = 'Escaping is not yet implemented'
-const __emphasis__ = 'Emphasis is not yet implemented'
-const __fenced__ = 'Fenced code blocks are not yet implemented'
 const __leading__ = 'Leading spaces are not yet removed correctly'
-const __laziness__ = 'Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented'
+
+const __links__ = 'Links are not yet implemented'
+
+const __fenced__ = 'Fenced code blocks are not yet implemented'
 const __indented_code_blocks__ = 'Indented code blocks are not yet implemented'
+const __inline_code__ = 'Inline code elements are not yet implemented'
+
 const __hard_break__ = 'Hard line breaks (<br/>) are not yet implemented'
 const __paragraph_indentation__ = 'Indentation after the first line of a paragraph is not yet removed correctly'
 const __lists__ = 'Lists are not yet implemented'
+
+const __laziness__ = 'Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented'
 const __setext_headings__ = 'Setext headings are not supported'
+const __html_content__ = 'HTML content is not supported'
+const __delimiters_left_to_right__ = 'In MfM, delimiters are matched left-to-right, not inside-out'
+const __multiline_inline__ = 'MfM does not support multi-line inline content'
 
 const implementedSections: ImplementedSection[] = [
 	{ chapter: '1.1', name: 'What is GitHub Flavored Markdown?', notYetImplemented: [], incompatible: []},
@@ -53,7 +61,7 @@ const implementedSections: ImplementedSection[] = [
 		chapter: '4.2', name: 'ATX headings',
 		notYetImplemented: [
 			{ name: 'Example 35', reason: __escaping__ },
-			{ name: 'Example 36', reason: __emphasis__+', '+__escaping__ },
+			{ name: 'Example 36', reason: __escaping__ },
 			{ name: 'Example 37', reason: 'Leading & trailing whitespace for headings is not yet removed' },
 			{ name: 'Example 38', reason: 'Indentation for headings is not yet supported' },
 			{ name: 'Example 39', reason: __fenced__ },
@@ -71,7 +79,7 @@ const implementedSections: ImplementedSection[] = [
 		notYetImplemented: [
 			{ name: 'Example 18', reason: __indented_code_blocks__ },
 			{ name: 'Example 19', reason: __paragraph_indentation__ },
-			{ name: 'Example 26', reason: __emphasis__ },
+			{ name: 'Example 26', reason: __paragraph_indentation__ },
 			{ name: 'Example 27', reason: __lists__ },
 			{ name: 'Example 30', reason: __lists__ },
 			{ name: 'Example 31', reason: __lists__ },
@@ -111,6 +119,54 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 229', reason: __laziness__ },
 		]
 	},
+	{
+		chapter: '6.4', name: 'Emphasis and strong emphasis',
+		notYetImplemented: [
+			{ name: 'Example 362', reason: __escaping__ },
+			{ name: 'Example 368', reason: __escaping__ },
+			{ name: 'Example 372', reason: __escaping__ },
+			{ name: 'Example 389', reason: __escaping__ },
+			{ name: 'Example 394', reason: __escaping__ },
+			{ name: 'Example 404', reason: __escaping__ },
+			{ name: 'Example 413', reason: __links__ },
+			{ name: 'Example 428', reason: __links__ },
+			{ name: 'Example 431', reason: __links__ },
+			{ name: 'Example 442', reason: __links__ },
+			{ name: 'Example 446', reason: __escaping__ },
+			{ name: 'Example 449', reason: __escaping__ },
+			{ name: 'Example 458', reason: __escaping__ },
+			{ name: 'Example 461', reason: __escaping__ },
+			{ name: 'Example 482', reason: __links__ },
+			{ name: 'Example 483', reason: __links__ },
+			{ name: 'Example 487', reason: __inline_code__ },
+			{ name: 'Example 488', reason: __inline_code__ }
+		],
+		incompatible: [
+			{ name: 'Example 403', reason: __multiline_inline__ },
+			{ name: 'Example 414', reason: __multiline_inline__ },
+			{ name: 'Example 417', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 420', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 421', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 424', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 432', reason: __multiline_inline__ },
+			{ name: 'Example 439', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 441', reason: __multiline_inline__ },
+			{ name: 'Example 451', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 454', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 463', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 466', reason: __delimiters_left_to_right__ },
+			{ name: 'Example 484', reason: __html_content__ },
+			{ name: 'Example 485', reason: __html_content__ },
+			{ name: 'Example 486', reason: __html_content__ },
+			{ name: 'Example 489', reason: __html_content__ },
+			{ name: 'Example 490', reason: __html_content__ },
+		]
+	},
+	/*{
+		chapter: '6.5', name: 'Strikethrough (extension)',
+		notYetImplemented: [],
+		incompatible: []
+	},*/
 ]
 
 const compatibility: string[] = []

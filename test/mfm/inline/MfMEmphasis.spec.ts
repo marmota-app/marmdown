@@ -1190,17 +1190,14 @@ describe('MfMEmphasis', () => {
 			const updated = updateParser.parse(original, { text: '*', rangeOffset: '_some emphazised text'.length, rangeLength: 0, })
 
 			expect(updated).not.toBeNull()
-			expect(updated?.content).toHaveLength(2)
+			expect(updated?.content).toHaveLength(1)
 			expect(updated?.content[0]).toHaveProperty('type', 'text')
-			expect(updated?.content[0]).toHaveProperty('text', 'some emphazised text')
-			expect(updated?.content[1]).toHaveProperty('type', '--text-span--')
-			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', '*')
+			expect(updated?.content[0]).toHaveProperty('text', 'some emphazised text*')
 
-			expect(updated?.lines[0].content).toHaveLength(4)
+			expect(updated?.lines[0].content).toHaveLength(3)
 			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
-			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some emphazised text')
-			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '*')
-			expect(updated?.lines[0].content[3]).toHaveProperty('asText', '_')
+			expect(updated?.lines[0].content[1]).toHaveProperty('asText', 'some emphazised text*')
+			expect(updated?.lines[0].content[2]).toHaveProperty('asText', '_')
 		})
 		it('updates simple emphasis, adding inner emphazised element', () => {
 			const parser = createEmphasisParser()

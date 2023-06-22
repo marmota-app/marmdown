@@ -21,6 +21,7 @@ import { finiteLoop } from "$markdown/finiteLoop";
 import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
 import { MfMOptionsParser } from "$mfm/options/MfMOptions";
 import { InlineParser } from "$parser/Parser";
+import { isWhitespace } from "$parser/isWhitespace";
 import { parseInnerInlineElement } from "$parser/parse";
 import { MfMTextParser } from "./MfMText";
 
@@ -69,7 +70,20 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		let i=0
 		const foundContents: MfMInlineElements[] = []
 
-		if(nextLeftRun != null && nextLeftRun.start === start) {
+		let canOpenEmphasis = true
+		if(nextLeftRun?.character === '_' && nextLeftRun.start > 0) {
+			let runStart = 0
+			while((nextLeftRun.start-runStart) > 0 && text.charAt(nextLeftRun.start-runStart-1)===nextLeftRun.character) { runStart++ }
+
+			const nextRightDelimiterRun = this.findRightDelimiterRun(text, nextLeftRun.start-runStart-1, nextLeftRun.start-runStart-1, length+runStart+1)
+			if(nextRightDelimiterRun && nextLeftRun.start >= nextRightDelimiterRun.start && nextLeftRun.start < nextRightDelimiterRun.start+nextRightDelimiterRun.length) {
+				const charBefore = text.charAt(nextLeftRun.start-runStart-1)
+				const isValidCharBefore = charBefore === '' || charBefore === '\n' || PUNCTUATION.find(p => p===charBefore)!=null
+				canOpenEmphasis = isValidCharBefore
+			}
+		}
+
+		if(nextLeftRun != null && nextLeftRun.start === start && canOpenEmphasis) {
 			let elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough | null = null
 			let openingDelimiter: string | null = null
 			if(nextLeftRun.character === '~') {
@@ -107,6 +121,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				}
 			}
 			
+			//TODO refactor - remove duplication (parse.ts)
 			const finite = finiteLoop(() => i)
 			let textStart = start+i
 			let textLength = 0
@@ -125,7 +140,20 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 					let endsCurrent = false
 					nextRightDelimiterRun = this.findRightDelimiterRun(text, start, start+i, length-i)
 					if(nextRightDelimiterRun && nextRightDelimiterRun.start === start+i) {
-						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length) {
+						let canCloseEmphasis = true
+						if(nextRightDelimiterRun.character === '_' && nextRightDelimiterRun.start > 0) {
+							let runStart = 0
+							while((nextRightDelimiterRun.start-runStart) > 0 && text.charAt(nextRightDelimiterRun.start-runStart-1)===nextRightDelimiterRun.character) { runStart++ }
+				
+							const innerLeftRun = this.findLeftDelimiterRun(text, nextRightDelimiterRun.start-runStart-1, length+runStart+1)
+							if(innerLeftRun && nextRightDelimiterRun.start >= innerLeftRun.start && nextRightDelimiterRun.start < innerLeftRun.start+innerLeftRun.length) {
+								const charAfter = text.charAt(nextRightDelimiterRun.start+nextRightDelimiterRun.length)
+								const isValidCharBefore = charAfter === '' || charAfter === '\n' || PUNCTUATION.find(p => p===charAfter)!=null
+								canCloseEmphasis = isValidCharBefore
+							}
+						}
+				
+						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length && canCloseEmphasis) {
 							endsCurrent = true
 						} else if(additionalParams.endsOuter?.(nextRightDelimiterRun)) {
 							nextRightDelimiterRun = null
@@ -191,7 +219,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				content = new TextSpan(this.parsers.idGenerator.nextId(), this)
 				content.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), content))
 				if(openingDelimiter) {
-					const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, nextLeftRun.length, additionalParams)
+					const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, openingDelimiter.length, additionalParams)
 					if(delimiterText != null) {
 						content.addContent(delimiterText)
 						openingDelimiter = null
@@ -226,13 +254,18 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 			//    all delimiter runs, hence '{' is allowed. But we must also
 			//    be able to escape the options character, so '\\' must also
 			//    be allowed.
-			if(nextChar === ' ' || nextChar === '\t' || earliestDelimiterIndex+delimiterLength >= searchStart+length) { return false}
+			if(isWhitespace(nextChar) || earliestDelimiterIndex+delimiterLength >= searchStart+length) { return false}
 			//No punctuation allowed after a left-flanking delimiter run...
 			if(PUNCTUATION.filter(p => p!=='\\' && p!=='{').find(p => p===nextChar)) {
-				//... when there is NO whitespace before the delimiter run
+				const currentChar = text.charAt(earliestDelimiterIndex)
+				let realDelimiterStartIndex = earliestDelimiterIndex
+				while(realDelimiterStartIndex > 0 && text.charAt(realDelimiterStartIndex-1)===currentChar) { realDelimiterStartIndex-- }
+
+				//... when there is NO whitespace OR punctuation before the
+				//    delimiter run
 				//    (the start of the line counts as whitespace)
-				const charBefore = text.charAt(earliestDelimiterIndex-1)
-				if(earliestDelimiterIndex !== textStart && charBefore !== ' ' && charBefore !== '\t') { return false }
+				const charBefore = text.charAt(realDelimiterStartIndex-1)
+				if(earliestDelimiterIndex !== 0 && !isWhitespace(charBefore) && !PUNCTUATION.find(p => p===charBefore)) { return false }
 			}
 			return true
 		})
@@ -261,7 +294,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 
 			//No whitespace allowed before a right-flanking delimiter run
 			//The beginning of the line counts as whitespace!
-			if(realDelimiterStartIndex === textStart || previousChar === ' ' || previousChar === '\t') { return false}
+			if(realDelimiterStartIndex === textStart || isWhitespace(previousChar)) { return false}
 			//No punctuation allowed before a right-flanking delimiter run...
 			if(PUNCTUATION.find(p => p===previousChar)) {
 				//... when there is NO whitespace or punctuation character
@@ -269,7 +302,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				//    But: The end of the line counts as whitespace!
 				const charAfter = text.charAt(earliestDelimiterIndex+delimiterLength)
 				const isNotAtEndOfLine = (earliestDelimiterIndex+delimiterLength) !== (searchStart+searchLength)
-				if(charAfter !== ' ' && charAfter !== '\t' && !PUNCTUATION.find(p => p===charAfter) && isNotAtEndOfLine) {
+				if(!isWhitespace(charAfter) && !PUNCTUATION.find(p => p===charAfter) && isNotAtEndOfLine) {
 					return false 
 				}
 			}

@@ -17,9 +17,9 @@ limitations under the License.
 import { LineContent } from "$element/Element"
 import { GenericContainerInline } from "$element/GenericElement"
 import { MfMInlineElements } from "$markdown/MfMDialect"
-import { parseInlineContent } from "$parser/parse"
+import { parseInlineContent, parseInlineContent2 } from "$parser/parse"
 import { Parser } from "$parser/Parser"
-import { MfMText } from "./MfMText"
+import { MfMText, MfMTextParser } from "./MfMText"
 
 export type MfMContentLineContent = MfMInlineElements
 export class MfMContentLine extends GenericContainerInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, '--content-line--', MfMContentLineParser> {
@@ -32,7 +32,7 @@ export class MfMContentLine extends GenericContainerInline<MfMContentLine, MfMCo
  * for multi-line headings, there cannot ba a `previous` object when parsing
  * heading content.
  */
-export class MfMContentLineParser extends Parser<MfMContentLine> {
+export class MfMContentLineParser extends Parser<MfMContentLine, MfMContentLine, MfMTextParser> {
 	public readonly elementName = 'MfMContentLine'
 
 	parseLine(previous: MfMContentLine | null, text: string, start: number, length: number): MfMContentLine | null {
