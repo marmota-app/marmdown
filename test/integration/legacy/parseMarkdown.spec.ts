@@ -1,7 +1,11 @@
+import { Element } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
+import { MfMContentLine } from "$mfm/inline/MfMContentLine"
+import { MfMEmphasis, MfMStrikeThrough } from "$mfm/inline/MfMEmphasis"
 import { parseMarkdown } from "./parseMarkdown"
+import type {MatcherFunction} from 'expect';
 
 const assume = expect
 
@@ -270,186 +274,260 @@ describe('parseMarkdown', () => {
 	describe('paragraph content: bold text', () => {
 		const boldTags: string[] = [ '**', '__', ]
 		boldTags.forEach(tag => {
-			it.skip(`parses ${tag} as bold text`, () => {/*
+			it(`parses ${tag} as bold text`, () => {
 				const markdown = `text ${tag}bold text${tag} text`
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+				const result = parseMarkdown(markdown).content[0] as MfMSection
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-				expect((result.content[0] as Paragraph).content).to.have.length(3)
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+				const paragraphLine = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
 
-				expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Bold')
-				expect((result.content[0] as Paragraph).content[1]).to.have.textContent('bold text')
+				expect(paragraphLine.content).toHaveLength(3)
+				expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text')
-			*/})
+				expect(paragraphLine.content[1]).toHaveProperty('type', 'strong')
+				expect(paragraphLine.content[1].content).toHaveLength(1)
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('text', 'bold text')
+
+				expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[2]).toHaveProperty('text', ' text')
+			})
 		})
 
-		const unclosedBoldStrings = [ '**not bold', '**not bold__', ]
-		unclosedBoldStrings.forEach(notBold => {
-			it.skip(`does not render "${notBold}" as bold`, () => {/*
+		const unclosedBoldStrings = [ ['**', 'not bold'], ['**', 'not bold__'], ]
+		unclosedBoldStrings.forEach(([unclosed, notBold]) => {
+			it(`does not render "${unclosed}${notBold}" as bold`, () => {
+				const markdown = 'text before ' + unclosed + notBold
+
+				const result = parseMarkdown(markdown).content[0] as MfMSection
+
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+				const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+				expect(paragraphLine.content).toHaveLength(2)
+				expect(paragraphLine.content[1]).toHaveProperty('type', '--text-span--')
+				expect(paragraphLine.content[1].content).toHaveLength(2)
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('text', unclosed)
+				expect(paragraphLine.content[1].content[1]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[1].content[1]).toHaveProperty('text', notBold)
+			})
+		})
+
+		it(`renders "**bold **" (with spaces) as not bold`, () => {
+			//Incompatibility with old MfM parser (to be compatible with GfM
+			//here): In legacy MfM, this was bold.
+			const markdown = 'text before **bold **'
+
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+			const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+			expect(paragraphLine.content).toHaveLength(2)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text before ')
+			expect(paragraphLine.content[1]).toHaveProperty('type', '--text-span--')
+			expect(paragraphLine.content[1].content).toHaveLength(2)
+			expect(paragraphLine.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1].content[0]).toHaveProperty('text', '**')
+			expect(paragraphLine.content[1].content[1]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1].content[1]).toHaveProperty('text', 'bold **')
+		})
+
+		const boldStringsWithSpaces = [ '** bold**', '** bold **', ]
+		boldStringsWithSpaces.forEach(notBold => {
+			it(`renders "${notBold}" (with spaces) as not bold`, () => {
+				//Incompatibility with old MfM parser (to be compatible with GfM
+				//here): In legacy MfM, this was bold.
 				const markdown = 'text before ' + notBold
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				const paragraph: Paragraph = (result.content[0] as Paragraph)
-				paragraph.content.forEach(c => expect(c).to.have.property('type', 'Text'))
-				const textContent = paragraph.content.map(c => (c as TextContent)['content']).join('')
-				expect(textContent).to.equal(markdown)
-			*/})
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+				const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+				expect(paragraphLine.content).toHaveLength(1)
+				expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[0]).toHaveProperty('text', markdown)
+			})
 		})
 
-		const boldStringsWithSpaces = [ '**bold **', '** bold**', '** bold **', ]
-		boldStringsWithSpaces.forEach(bold => {
-			it.skip(`renders "${bold}" (with spaces) as bold`, () => {/*
-				const markdown = 'text before ' + bold
+		it('can parse a second bold block in the same line', () => {
+			const result = parseMarkdown('**bold 1** other text **bold 2**').content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-				const paragraph: Paragraph = (result.content[0] as Paragraph)
-				expect(paragraph.content).to.have.length(2)
-				expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Bold')
-				expect((result.content[0] as Paragraph).content[1]).to.have.textContent(bold.replace(/\*\*--remove me (was there for comment to work)--/g, ''))
-			*/})
+			expect(paragraphLine.content).toHaveLength(3)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'strong')
+			expect(paragraphLine.content[0].content[0]).toHaveProperty('text', 'bold 1')
+
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1]).toHaveProperty('text', ' other text ')
+
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'strong')
+			expect(paragraphLine.content[2].content[0]).toHaveProperty('text', 'bold 2')
 		})
-
-		it.skip('can parse a second bold block in the same line', () => {/*
-			const result = parseMarkdown('**bold 1** other text **bold 2**')
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
-
-			expect((result.content[0] as Paragraph).content).to.have.length(3)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Bold')
-			expect((result.content[0] as Paragraph).content[0]).to.have.textContent('bold 1')
-
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('content', ' other text ')
-
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Bold')
-			expect((result.content[0] as Paragraph).content[2]).to.have.textContent('bold 2')
-		*/})
 	})
 
 	describe('paragraph content: italic text', () => {
 		const italicTags: string[] = [ '*', '_', ]
 		italicTags.forEach(tag => {
-			it.skip(`parses ${tag} as italic text`, () => {/*
+			it(`parses ${tag} as italic text`, () => {
 				const markdown = `text ${tag}italic text${tag} text`
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+				const result = parseMarkdown(markdown).content[0] as MfMSection
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-				expect((result.content[0] as Paragraph).content).to.have.length(3)
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+				const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-				expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Italic')
-				expect((result.content[0] as Paragraph).content[1]).to.have.textContent('italic text')
+				expect(paragraphLine.content).toHaveLength(3)
+				expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text')
-			*/})
+				expect(paragraphLine.content[1]).toHaveProperty('type', 'emphasis')
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('text', 'italic text')
+
+				expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[2]).toHaveProperty('text', ' text')
+			})
 		})
 
-		const unclosedItalicStrings = [ '*not italic', '*not italic_', ]
-		unclosedItalicStrings.forEach(notItalic => {
-			it.skip(`does not render "${notItalic}" as italic`, () => {/*
+		const unclosedItalicStrings = [ ['*', 'not italic'], ['*', 'not italic_'], ]
+		unclosedItalicStrings.forEach(([unclosed, notItalic]) => {
+			it(`does not render "${notItalic}" as italic`, () => {
+				const markdown = 'text before ' + unclosed + notItalic
+
+				const result = parseMarkdown(markdown).content[0] as MfMSection
+
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+				const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+				expect(paragraphLine.content).toHaveLength(2)
+				expect(paragraphLine.content[1]).toHaveProperty('type', '--text-span--')
+				expect(paragraphLine.content[1].content).toHaveLength(2)
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[1].content[0]).toHaveProperty('text', unclosed)
+				expect(paragraphLine.content[1].content[1]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[1].content[1]).toHaveProperty('text', notItalic)
+			})
+		})
+
+		it(`renders "*italic *" (with spaces) as not emphazised`, () => {
+			//Incompatibility with old MfM parser (to be compatible with GfM
+			//here): In legacy MfM, this was emphazised.
+			const markdown = 'text before *italic *'
+
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+			const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+			expect(paragraphLine.content).toHaveLength(2)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text before ')
+			expect(paragraphLine.content[1]).toHaveProperty('type', '--text-span--')
+			expect(paragraphLine.content[1].content).toHaveLength(2)
+			expect(paragraphLine.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1].content[0]).toHaveProperty('text', '*')
+			expect(paragraphLine.content[1].content[1]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1].content[1]).toHaveProperty('text', 'italic *')
+		})
+
+		const boldStringsWithSpaces = [ '* italic*', '* italic *', ]
+		boldStringsWithSpaces.forEach(notItalic => {
+			it(`renders "${notItalic}" (with spaces) as not italic`, () => {
+				//Incompatibility with old MfM parser (to be compatible with GfM
+				//here): In legacy MfM, this was emphazised.
 				const markdown = 'text before ' + notItalic
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+				const result = parseMarkdown(markdown).content[0] as MfMSection
 
-				const paragraph: Paragraph = (result.content[0] as Paragraph)
-				paragraph.content.forEach(c => expect(c).to.have.property('type', 'Text'))
-				const textContent = paragraph.content.map(c => (c as TextContent)['content']).join('')
-				expect(textContent).to.equal(markdown)
-			*/})
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
+
+				const paragraphLine = (result.content[0].content[0] as MfMContentLine)
+				expect(paragraphLine.content).toHaveLength(1)
+				expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[0]).toHaveProperty('text', markdown)
+			})
 		})
 
-		const italicStringsWithSpaces = [ '*italic *', '* italic*', '* italic *', ]
-		italicStringsWithSpaces.forEach(italic => {
-			it.skip(`renders "${italic}" (with spaces) as italic`, () => {/*
-				const markdown = 'text before ' + italic
+		it('can parse a second italic block in the same line', () => {
+			const result = parseMarkdown('*italic 1* other text *italic 2*').content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const paragraphLine = (result.content[0].content[0] as MfMContentLine)
 
-				const paragraph: Paragraph = (result.content[0] as Paragraph)
-				expect(paragraph.content).to.have.length(2)
-				expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Italic')
-				expect((result.content[0] as Paragraph).content[1]).to.have.textContent(italic.replace(/\*--remove me (was there for comment to work)--/g, ''))
-			*/})
+			expect(paragraphLine.content).toHaveLength(3)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'emphasis')
+			expect(paragraphLine.content[0].content[0]).toHaveProperty('text', 'italic 1')
+
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[1]).toHaveProperty('text', ' other text ')
+
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'emphasis')
+			expect(paragraphLine.content[2].content[0]).toHaveProperty('text', 'italic 2')
 		})
-
-		it.skip('can parse a second italic block in the same line', () => {/*
-			const result = parseMarkdown('*italic 1* other text *italic 2*')
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
-
-			expect((result.content[0] as Paragraph).content).to.have.length(3)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Italic')
-			expect((result.content[0] as Paragraph).content[0]).to.have.textContent('italic 1')
-
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('content', ' other text ')
-
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Italic')
-			expect((result.content[0] as Paragraph).content[2]).to.have.textContent('italic 2')
-		*/})
 	})
 
-	it.skip(`parses ~~ as strike-through text`, () => {/*
+	it(`parses ~~ as strike-through text`, () => {
 		const markdown = `text ~~strike-through text~~ text`
 
-		const result = parseMarkdown(markdown)
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-		expect((result.content[0] as Paragraph).content).to.have.length(3)
-		expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-		expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+		const paragraphLine = (result.content[0].content[0] as MfMContentLine)
 
-		expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'StrikeThrough')
-		expect((result.content[0] as Paragraph).content[1]).to.have.textContent('strike-through text')
+		expect(paragraphLine.content).toHaveLength(3)
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+		expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-		expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-		expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text')
-	*/})
+		expect(paragraphLine.content[1]).toHaveProperty('type', 'strike-through')
+		expect(paragraphLine.content[1].content[0]).toHaveProperty('text', 'strike-through text')
 
-	it.skip('can mix strike-through, bold and italic', () => {/*
+		expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+		expect(paragraphLine.content[2]).toHaveProperty('text', ' text')
+	})
+
+	it('can mix strike-through, bold and italic', () => {
 		const markdown = `~~text **bold**_**bold-italic**_~~`
 
-		const result = parseMarkdown(markdown)
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-		expect((result.content[0] as Paragraph).content).to.have.length(1)
-		expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'StrikeThrough')
+		const paragraphLine = (result.content[0].content[0] as MfMContentLine)
 
-		const strikeThroughContent = ((result.content[0] as Paragraph).content[0] as StrikeThroughTextContent).content
-		expect(strikeThroughContent).to.have.length(3)
+		expect(paragraphLine.content).toHaveLength(1)
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'strike-through')
 
-		expect(strikeThroughContent[0]).to.have.property('type', 'Text')
-		expect(strikeThroughContent[0]).to.have.property('content', 'text ')
+		const strikeThroughContent = (paragraphLine.content[0] as MfMStrikeThrough).content
+		expect(strikeThroughContent).toHaveLength(3)
 
-		expect(strikeThroughContent[1]).to.have.property('type', 'Bold')
-		expect(strikeThroughContent[1]).to.have.textContent('bold')
+		expect(strikeThroughContent[0]).toHaveProperty('type', 'text')
+		expect(strikeThroughContent[0]).toHaveProperty('text', 'text ')
 
-		expect(strikeThroughContent[2]).to.have.property('type', 'Italic')
-		expect((strikeThroughContent[2] as ItalicTextContent).content[0]).to.have.property('type', 'Bold')
-		expect((strikeThroughContent[2] as ItalicTextContent).content[0]).to.have.textContent('bold-italic')
-	*/})
+		expect(strikeThroughContent[1]).toHaveProperty('type', 'strong')
+		expect(strikeThroughContent[1].content[0]).toHaveProperty('text', 'bold')
+
+		expect(strikeThroughContent[2]).toHaveProperty('type', 'emphasis')
+		expect((strikeThroughContent[2] as MfMEmphasis).content[0]).toHaveProperty('type', 'strong')
+		expect((strikeThroughContent[2] as MfMEmphasis).content[0].content[0]).toHaveProperty('text', 'bold-italic')
+	})
 
 	it.skip('parses two spaces at the end of the line as NewLine', () => {/*
 		const markdown = 'text  '
