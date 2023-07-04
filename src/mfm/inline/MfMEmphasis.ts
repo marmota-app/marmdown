@@ -29,6 +29,11 @@ export interface DelimiterRun {
 	start: number,
 	length: number,
 	character: string,
+
+	runStart: number,
+	runLength: number,
+	isLeftFlanking: boolean,
+	isRightFlanking: boolean,
 }
 
 export class MfMEmphasis extends MfMGenericContainerInline<MfMEmphasis, MfMInlineElements, LineContent<MfMEmphasis>, 'emphasis', MfMEmphasisParser> implements Emphasis<MfMEmphasis, MfMInlineElements> {
@@ -70,20 +75,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		let i=0
 		const foundContents: MfMInlineElements[] = []
 
-		let canOpenEmphasis = true
-		if(nextLeftRun?.character === '_' && nextLeftRun.start > 0) {
-			let runStart = 0
-			while((nextLeftRun.start-runStart) > 0 && text.charAt(nextLeftRun.start-runStart-1)===nextLeftRun.character) { runStart++ }
-
-			const nextRightDelimiterRun = this.findRightDelimiterRun(text, nextLeftRun.start-runStart-1, nextLeftRun.start-runStart-1, length+runStart+1)
-			if(nextRightDelimiterRun && nextLeftRun.start >= nextRightDelimiterRun.start && nextLeftRun.start < nextRightDelimiterRun.start+nextRightDelimiterRun.length) {
-				const charBefore = text.charAt(nextLeftRun.start-runStart-1)
-				const isValidCharBefore = charBefore === '' || charBefore === '\n' || PUNCTUATION.find(p => p===charBefore)!=null
-				canOpenEmphasis = isValidCharBefore
-			}
-		}
-
-		if(nextLeftRun != null && nextLeftRun.start === start && canOpenEmphasis) {
+		if(nextLeftRun != null && nextLeftRun.start === start && canOpenEmphasis(nextLeftRun, text)) {
 			let elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough | null = null
 			let openingDelimiter: string | null = null
 			if(nextLeftRun.character === '~') {
@@ -138,22 +130,9 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				// * it belongs to the current text content
 				if(this.isSpecialCharacter(currentChar)) {
 					let endsCurrent = false
-					nextRightDelimiterRun = this.findRightDelimiterRun(text, start, start+i, length-i)
+					nextRightDelimiterRun = this.findRightDelimiterRun(text, start+i, length-i)
 					if(nextRightDelimiterRun && nextRightDelimiterRun.start === start+i) {
-						let canCloseEmphasis = true
-						if(nextRightDelimiterRun.character === '_' && nextRightDelimiterRun.start > 0) {
-							let runStart = 0
-							while((nextRightDelimiterRun.start-runStart) > 0 && text.charAt(nextRightDelimiterRun.start-runStart-1)===nextRightDelimiterRun.character) { runStart++ }
-				
-							const innerLeftRun = this.findLeftDelimiterRun(text, nextRightDelimiterRun.start-runStart-1, length+runStart+1)
-							if(innerLeftRun && nextRightDelimiterRun.start >= innerLeftRun.start && nextRightDelimiterRun.start < innerLeftRun.start+innerLeftRun.length) {
-								const charAfter = text.charAt(nextRightDelimiterRun.start+nextRightDelimiterRun.length)
-								const isValidCharBefore = charAfter === '' || charAfter === '\n' || PUNCTUATION.find(p => p===charAfter)!=null
-								canCloseEmphasis = isValidCharBefore
-							}
-						}
-				
-						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length && canCloseEmphasis) {
+						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length && nextRightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(nextRightDelimiterRun, text)) {
 							endsCurrent = true
 						} else if(additionalParams.endsOuter?.(nextRightDelimiterRun)) {
 							nextRightDelimiterRun = null
@@ -175,7 +154,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 							...additionalParams,
 							endsOuter: (rightDelimiterRun: DelimiterRun) => {
 								const endsMyOuter = additionalParams.endsOuter
-								if(openingDelimiter && rightDelimiterRun.character===nextLeftRun.character && rightDelimiterRun.length >= openingDelimiter.length) {
+								if(openingDelimiter && rightDelimiterRun.character===nextLeftRun.character && rightDelimiterRun.length >= openingDelimiter.length && rightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(rightDelimiterRun, text)) {
 									return true
 								}
 								return endsMyOuter?.(rightDelimiterRun) ?? false
@@ -239,78 +218,17 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		return null
 	}
 
-	findNext(text: string, start: number, length: number): number | null {
-		return this.findLeftDelimiterRun(text, start, length)?.start ?? null
-	}
 	findLeftDelimiterRun(text: string, searchStart: number, length: number): DelimiterRun | null {
-		//Left-flanking delimiter runs are always searched from the start of
-		//the line.
-		const textStart = searchStart
-
-		return this.findDelimiterRun(text, searchStart, length, (earliestDelimiterIndex: number, delimiterLength: number) => {
-			const nextChar = text.charAt(earliestDelimiterIndex+delimiterLength)
-			//No whitespace allowed after a left-flanking delimiter run
-			//BUT '\\' and '{' are allowed here: We need to support options on
-			//    all delimiter runs, hence '{' is allowed. But we must also
-			//    be able to escape the options character, so '\\' must also
-			//    be allowed.
-			if(isWhitespace(nextChar) || earliestDelimiterIndex+delimiterLength >= searchStart+length) { return false}
-			//No punctuation allowed after a left-flanking delimiter run...
-			if(PUNCTUATION.filter(p => p!=='\\' && p!=='{').find(p => p===nextChar)) {
-				const currentChar = text.charAt(earliestDelimiterIndex)
-				let realDelimiterStartIndex = earliestDelimiterIndex
-				while(realDelimiterStartIndex > 0 && text.charAt(realDelimiterStartIndex-1)===currentChar) { realDelimiterStartIndex-- }
-
-				//... when there is NO whitespace OR punctuation before the
-				//    delimiter run
-				//    (the start of the line counts as whitespace)
-				const charBefore = text.charAt(realDelimiterStartIndex-1)
-				if(earliestDelimiterIndex !== 0 && !isWhitespace(charBefore) && !PUNCTUATION.find(p => p===charBefore)) { return false }
-			}
-			return true
-		})
+		return this.findDelimiterRun(text, searchStart, length, this.isLeftFlanking)
 	}
-	findRightDelimiterRun(text: string, textStart: number, searchStart: number, searchLength: number): DelimiterRun | null {
-		return this.findDelimiterRun(text, searchStart, searchLength, (earliestDelimiterIndex: number, delimiterLength: number) => {
-			const currentChar = text.charAt(earliestDelimiterIndex)
-
-			//Find the character before the current delimiter run, considering:
-			// - The search might have started inside the delimiter run
-			// - We must not extend the search beyond the start of the text
-			//Also find the real start index of the delimiter run, that is,
-			//the index where the current sequence of delimiter characters
-			//begins (needed later for determining whether the current run
-			//begins at the start of the line).
-			let i=1
-			let realDelimiterStartIndex = earliestDelimiterIndex
-			let previousChar = text.charAt(earliestDelimiterIndex - i)
-			while(realDelimiterStartIndex > textStart && previousChar === currentChar) {
-				i++
-				realDelimiterStartIndex--
-				if(earliestDelimiterIndex-i >= textStart) {
-					previousChar = text.charAt(earliestDelimiterIndex - i)
-				}
-			}
-
-			//No whitespace allowed before a right-flanking delimiter run
-			//The beginning of the line counts as whitespace!
-			if(realDelimiterStartIndex === textStart || isWhitespace(previousChar)) { return false}
-			//No punctuation allowed before a right-flanking delimiter run...
-			if(PUNCTUATION.find(p => p===previousChar)) {
-				//... when there is NO whitespace or punctuation character
-				//    after the delimiter run.
-				//    But: The end of the line counts as whitespace!
-				const charAfter = text.charAt(earliestDelimiterIndex+delimiterLength)
-				const isNotAtEndOfLine = (earliestDelimiterIndex+delimiterLength) !== (searchStart+searchLength)
-				if(!isWhitespace(charAfter) && !PUNCTUATION.find(p => p===charAfter) && isNotAtEndOfLine) {
-					return false 
-				}
-			}
-			return true
-		})
+	findRightDelimiterRun(text: string, searchStart: number, searchLength: number): DelimiterRun | null {
+		return this.findDelimiterRun(text, searchStart, searchLength, this.isRightFlanking)
 	}
 
-	private findDelimiterRun(text: string, start: number, length: number, isValid: (earliestDelimiterIndex: number, delimiterLength: number) => boolean): DelimiterRun | null {
+	private findDelimiterRun(
+		text: string, start: number, length: number,
+		isValid: (text: string, delimiter: string, start: number, length: number, runStart: number, runLength: number) => boolean
+	): DelimiterRun | null {
 		const findDelimiter = (findStart: number) => (result: { index: number, delimiter: string}, delimiter: string): { index: number, delimiter: string} => {
 			const delimiterIndex = text.indexOf(delimiter, findStart)
 			if(delimiterIndex > 0 && text.charAt(delimiterIndex - 1) === '\\') {
@@ -333,12 +251,66 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 				}
 				delimiterLength++
 			}
+			let runStart = earliestDelimiter.index
+			let runLength = delimiterLength
 
-			if(isValid(earliestDelimiter.index, delimiterLength)) {
-				return { character: earliestDelimiter.delimiter, start: earliestDelimiter.index, length: delimiterLength }
+			while(runStart>0 && text.charAt(runStart-1)===earliestDelimiter.delimiter) {
+				runStart--
+				runLength++
+			}
+
+			if(isValid(text, earliestDelimiter.delimiter, earliestDelimiter.index, delimiterLength, runStart, runLength)) {
+				return {
+					character: earliestDelimiter.delimiter,
+					start: earliestDelimiter.index,
+					length: delimiterLength,
+
+					runStart,
+					runLength,
+					isLeftFlanking: this.isLeftFlanking(text, earliestDelimiter.delimiter, earliestDelimiter.index, delimiterLength, runStart, runLength),
+					isRightFlanking: this.isRightFlanking(text, earliestDelimiter.delimiter, earliestDelimiter.index, delimiterLength, runStart, runLength),
+				}
 			}
 		}
 		return null
+	}
+
+	private isLeftFlanking(text: string, delimiter: string, start: number, length: number, runStart: number, runLength: number) {
+		const nextChar = text.charAt(start+length)
+		//No whitespace allowed after a left-flanking delimiter run
+		if(isWhitespace(nextChar) || isEndOfLine(nextChar)) { return false}
+		//No punctuation allowed after a left-flanking delimiter run...
+		//BUT '\\' and '{' are allowed here: We need to support options on
+		//    all delimiter runs, hence '{' is allowed. But we must also
+		//    be able to escape the options character, so '\\' must also
+		//    be allowed.
+		if(PUNCTUATION.filter(p => p!=='\\' && p!=='{').find(p => p===nextChar)) {
+			//... when there is NO whitespace OR punctuation before the
+			//    delimiter run
+			//    (the start of the line counts as whitespace)
+			const charBefore = text.charAt(runStart-1)
+			if(runStart !== 0 && !isWhitespace(charBefore) && !PUNCTUATION.find(p => p===charBefore)) { return false }
+		}
+		return true
+	}
+
+	private isRightFlanking(text: string, delimiter: string, start: number, length: number, runStart: number, runLength: number) {
+		const previousChar = text.charAt(runStart - 1)
+
+		//No whitespace allowed before a right-flanking delimiter run
+		//The beginning of the line counts as whitespace!
+		if(isWhitespace(previousChar) || isBeginningOfLine(previousChar, runStart)) { return false}
+		//No punctuation allowed before a right-flanking delimiter run...
+		if(PUNCTUATION.find(p => p===previousChar)) {
+			//... when there is NO whitespace or punctuation character
+			//    after the delimiter run.
+			//    But: The end of the line counts as whitespace!
+			const charAfter = text.charAt(start+length)
+			if(!(isWhitespace(charAfter) || PUNCTUATION.find(p => p===charAfter) || isEndOfLine(charAfter))) {
+				return false 
+			}
+		}
+		return true
 	}
 
 	private isSpecialCharacter(character: string) {
@@ -347,4 +319,32 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		}
 		return false
 	}
+}
+
+function isBeginningOfLine(char: string, index: number) {
+	return index===0 || char==='\r' || char==='\n'
+}
+
+function isEndOfLine(char: string) {
+	return char === '\r' || char === '\n' || char === ''
+}
+
+function isFollowedByPunctuation(rightRun: DelimiterRun, text: string) {
+	const next = text.charAt(rightRun.runStart + rightRun.runLength)
+	return next==='' || (PUNCTUATION.find(p => p===next) != null)
+}
+function canCloseEmphasis(rightRun: DelimiterRun, text: string) {
+	return rightRun.character !== '_' ||
+		!rightRun.isLeftFlanking ||
+		isFollowedByPunctuation(rightRun, text)
+}
+
+function isPrecededByPunctuation(leftRun: DelimiterRun, text: string) {
+	const previous = text.charAt((leftRun?.runStart??0) - 1)
+	return PUNCTUATION.find(p => p===previous) != null
+}
+function canOpenEmphasis(leftRun: DelimiterRun, text: string) {
+	return leftRun.character !== '_' ||
+		!leftRun.isRightFlanking ||
+		isPrecededByPunctuation(leftRun, text)
 }

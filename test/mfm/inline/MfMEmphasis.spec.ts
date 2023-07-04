@@ -18,7 +18,7 @@ import { Element, LineContent, ParsedLine } from "$element/Element";
 import { NumberedIdGenerator } from "$markdown/IdGenerator";
 import { UpdateParser } from "$markdown/UpdateParser";
 import { MfMEmphasis, MfMEmphasisParser, TextSpan } from "$mfm/inline/MfMEmphasis"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText";
+import { MfMTextParser } from "$mfm/inline/MfMText";
 import { MfMOptionsParser } from "$mfm/options/MfMOptions";
 import { Parsers } from "$parser/Parsers";
 import { createOptionsParser } from "../options/createOptionsParser";
@@ -115,6 +115,31 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
 			})
+
+			it('returns start of the delimiter run even when parsing starts in the middle of the run', () => {
+				const parser = createEmphasisParser()
+				const text = `text before ***abc`
+
+				const result = parser.findLeftDelimiterRun(text, 'text before **'.length, text.length-'text before **'.length)
+
+				expect(result).toHaveProperty('start', 'text before **'.length)
+				expect(result).toHaveProperty('length', 1)
+				expect(result).toHaveProperty('character', '*')
+
+				expect(result).toHaveProperty('runStart', 'text before '.length)
+				expect(result).toHaveProperty('runLength', 3)
+			})
+
+			it('returns info that the found delimiter run is a left-flanking delimiter run', () => {
+				const parser = createEmphasisParser()
+				const text = `text before ***abc`
+
+				const result = parser.findLeftDelimiterRun(text, 'text before **'.length, text.length-'text before **'.length)
+
+				expect(result).toHaveProperty('isLeftFlanking', true)
+				expect(result).toHaveProperty('isRightFlanking', false)
+			})
+
 			it(`finds shorter run with \\*** as part of a left delimiter run at the start of the line`, () => {
 				const parser = createEmphasisParser()
 				const text = `text before \\***abc`
@@ -171,9 +196,9 @@ describe('MfMEmphasis', () => {
 			['_', '__', '___', '____', '*', '*****', '~', '~~', '~~~~~'].forEach(delimiters => {
 				it(`does not find ${delimiters} as part of a right delimiter run at the start of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before${delimiters} text after`
+					const text = `text before\n${delimiters} text after`
 
-					const result = parser.findRightDelimiterRun(text, 'text before'.length, 'text before'.length, text.length-'text before '.length)
+					const result = parser.findRightDelimiterRun(text, 'text before\n'.length, text.length-'text before\n'.length)
 
 					expect(result).toBeNull()
 				})
@@ -181,7 +206,7 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before${delimiters} abc`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toHaveProperty('start', 'text before'.length)
 					expect(result).toHaveProperty('length', delimiters.length)
@@ -191,7 +216,7 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before${delimiters}`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toHaveProperty('start', 'text before'.length)
 					expect(result).toHaveProperty('length', delimiters.length)
@@ -201,7 +226,7 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before ${delimiters} abc`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
@@ -209,7 +234,7 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before${delimiters}abc`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toHaveProperty('start', 'text before'.length)
 					expect(result).toHaveProperty('length', delimiters.length)
@@ -219,7 +244,7 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before.${delimiters}abc`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
@@ -227,18 +252,53 @@ describe('MfMEmphasis', () => {
 					const parser = createEmphasisParser()
 					const text = `text before.${delimiters} abc`
 
-					const result = parser.findRightDelimiterRun(text, 0, 0, text.length)
+					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toHaveProperty('start', 'text before.'.length)
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
 			})
+
+			it('returns start of the delimiter run even when parsing starts in the middle of the run', () => {
+				const parser = createEmphasisParser()
+				const text = `text before abc****`
+
+				const result = parser.findRightDelimiterRun(text, 'text before abc**'.length, text.length-'text before abc**'.length)
+
+				expect(result).toHaveProperty('start', 'text before abc**'.length)
+				expect(result).toHaveProperty('length', 2)
+				expect(result).toHaveProperty('character', '*')
+
+				expect(result).toHaveProperty('runStart', 'text before abc'.length)
+				expect(result).toHaveProperty('runLength', 4)
+			})
+
+			it('returns info that the found delimiter run is a right-flanking delimiter run', () => {
+				const parser = createEmphasisParser()
+				const text = `text before abc**** text after`
+
+				const result = parser.findRightDelimiterRun(text, 'text before abc**'.length, text.length-'text before abc**'.length)
+
+				expect(result).toHaveProperty('isLeftFlanking', false)
+				expect(result).toHaveProperty('isRightFlanking', true)
+			})
+
+			it('returns info that the found delimiter run is both right-flanking and left-flanking', () => {
+				const parser = createEmphasisParser()
+				const text = `text before abc****text after`
+
+				const result = parser.findRightDelimiterRun(text, 'text before abc**'.length, text.length-'text before abc**'.length)
+
+				expect(result).toHaveProperty('isLeftFlanking', true)
+				expect(result).toHaveProperty('isRightFlanking', true)
+			})
+
 			it(`finds right delimiter run with **\\* as part of a left delimiter run at the end of the line`, () => {
 				const parser = createEmphasisParser()
 				const text = `text before abc**\\*`
 
-				const result = parser.findRightDelimiterRun(text, 'text before '.length, 'text before '.length, text.length-'text before '.length)
+				const result = parser.findRightDelimiterRun(text, 'text before '.length, text.length-'text before '.length)
 
 				expect(result).toHaveProperty('start', 'text before abc'.length)
 				expect(result).toHaveProperty('length', 2)
@@ -248,7 +308,7 @@ describe('MfMEmphasis', () => {
 				const parser = createEmphasisParser()
 				const text = `text before abc\\***def`
 
-				const result = parser.findRightDelimiterRun(text, 'text before '.length, 'text before '.length, text.length-'text before '.length)
+				const result = parser.findRightDelimiterRun(text, 'text before '.length, text.length-'text before '.length)
 
 				expect(result).toBeNull()
 			})
@@ -256,7 +316,7 @@ describe('MfMEmphasis', () => {
 				const parser = createEmphasisParser()
 				const text = `line content___\nnext line`
 
-				const result = parser.findRightDelimiterRun(text, 0, 'line content__'.length, 1)
+				const result = parser.findRightDelimiterRun(text, 'line content__'.length, 1)
 
 				expect(result).toHaveProperty('start', 'line content__'.length)
 				expect(result).toHaveProperty('length', 1)
@@ -264,44 +324,11 @@ describe('MfMEmphasis', () => {
 			})
 			it(`does not find right delimiter run at the start of the line even when the search starts in the middle of the run`, () => {
 				const parser = createEmphasisParser()
-				const text = `text before___\nnext line`
+				const text = `text before__\n_\nnext line`
 
-				const result = parser.findRightDelimiterRun(text, 'text before'.length, 'text before__'.length, 1)
+				const result = parser.findRightDelimiterRun(text, 'text before__\n'.length, 1)
 
 				expect(result).toBeNull()
-			})
-		})
-
-		describe('find next start', () => {
-			it('finds next start at the beginning of the line', () => {
-				const parser = createEmphasisParser()
-				const text = '___some text__ with emphasis_ and more text'
-				const result = parser.findNext(text, 0, text.length)
-				expect(result).toEqual(0)
-			})
-			it('does not find next start when there is no more left-flanking delimiter run', () => {
-				const parser = createEmphasisParser()
-				const text = '___some text__ with emphasis_ and more text'
-				const result = parser.findNext(text, 3, text.length-3)
-				expect(result).toEqual(null)
-			})
-			it('finds next in the middle of the text when there is a left-flanking delimiter run', () => {
-				const parser = createEmphasisParser()
-				const text = 'text before; some ___text__ with emphasis_ and more text'
-				const result = parser.findNext(text, 'text before; '.length, text.length - 'text before; '.length)
-				expect(result).toEqual('text before; some '.length)
-			})
-			it('does not find next outside of the search area (before)', () => {
-				const parser = createEmphasisParser()
-				const text = 'text before; some ___text__ with emphasis_ and more text'
-				const result = parser.findNext(text, 'text before; some ___text'.length, text.length - 'text before; some ___text'.length)
-				expect(result).toEqual(null)
-			})
-			it('does not find next outside of the search area (after)', () => {
-				const parser = createEmphasisParser()
-				const text = 'text before; some ___text__ with emphasis_ and more text'
-				const result = parser.findNext(text, 0, 'text before;'.length)
-				expect(result).toEqual(null)
 			})
 		});
 
