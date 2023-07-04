@@ -38,7 +38,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   ***</p>
   
   ```
-* Example 26: Emphasis is not yet implemented;  
+* Example 26: Indentation after the first line of a paragraph is not yet removed correctly;  
   Markdown input:
   ```markdown
    *-*
@@ -133,7 +133,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>## foo</p>
   
   ```
-* Example 36: Emphasis is not yet implemented, Escaping is not yet implemented;  
+* Example 36: Escaping is not yet implemented;  
   Markdown input:
   ```markdown
   # foo *bar* \*baz\*
@@ -340,6 +340,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   
   ```
 ## 4.9 NOT yet Implemented
+## 4.10 NOT yet Implemented
 ## 5.1 Block quotes - Implemented
 
 Except **not yet implemented** functionality and known **incompatibilities**:
@@ -569,15 +570,440 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   
   ```
 ## 5.2 NOT yet Implemented
+## 5.3 NOT yet Implemented
 ## 5.4 NOT yet Implemented
 ## 6.1 NOT yet Implemented
 ## 6.2 NOT yet Implemented
 ## 6.3 NOT yet Implemented
-## 6.4 NOT yet Implemented
+## 6.4 Emphasis and strong emphasis - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* Example 362: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  a*"foo"*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>a*&quot;foo&quot;*</p>
+  
+  ```
+* Example 368: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  a_"foo"_
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>a_&quot;foo&quot;_</p>
+  
+  ```
+* Example 372: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  aa_"bb"_cc
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>aa_&quot;bb&quot;_cc</p>
+  
+  ```
+* Example 389: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  a**"foo"**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>a**&quot;foo&quot;**</p>
+  
+  ```
+* Example 394: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  a__"foo"__
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>a__&quot;foo&quot;__</p>
+  
+  ```
+* INCOMPATIBLE - Example 403: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  **Gomphocarpus (*Gomphocarpus physocarpus*, syn.
+  *Asclepias physocarpa*)**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>Gomphocarpus (<em>Gomphocarpus physocarpus</em>, syn.
+  <em>Asclepias physocarpa</em>)</strong></p>
+  
+  ```
+* Example 404: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  **foo "*bar*" foo**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>foo &quot;<em>bar</em>&quot; foo</strong></p>
+  
+  ```
+* Example 413: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  *foo [bar](/url)*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo <a href="/url">bar</a></em></p>
+  
+  ```
+* INCOMPATIBLE - Example 414: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  *foo
+  bar*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo
+  bar</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 417: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  __foo_ bar_
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em><em>foo</em> bar</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 420: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  *foo**bar**baz*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo<strong>bar</strong>baz</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 421: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  *foo**bar*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo**bar</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 424: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  *foo**bar***
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo<strong>bar</strong></em></p>
+  
+  ```
+* Example 428: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  *foo [*bar*](/url)*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo <a href="/url"><em>bar</em></a></em></p>
+  
+  ```
+* Example 431: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  **foo [bar](/url)**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>foo <a href="/url">bar</a></strong></p>
+  
+  ```
+* INCOMPATIBLE - Example 432: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  **foo
+  bar**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>foo
+  bar</strong></p>
+  
+  ```
+* INCOMPATIBLE - Example 439: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  ***foo* bar**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong><em>foo</em> bar</strong></p>
+  
+  ```
+* INCOMPATIBLE - Example 441: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  **foo *bar **baz**
+  bim* bop**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>foo <em>bar <strong>baz</strong>
+  bim</em> bop</strong></p>
+  
+  ```
+* Example 442: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  **foo [*bar*](/url)**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><strong>foo <a href="/url"><em>bar</em></a></strong></p>
+  
+  ```
+* Example 446: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  foo *\**
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo <em>*</em></p>
+  
+  ```
+* Example 449: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  foo **\***
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo <strong>*</strong></p>
+  
+  ```
+* INCOMPATIBLE - Example 451: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  **foo*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>*<em>foo</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 454: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  ****foo*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>***<em>foo</em></p>
+  
+  ```
+* Example 458: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  foo _\__
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo <em>_</em></p>
+  
+  ```
+* Example 461: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+  foo __\___
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo <strong>_</strong></p>
+  
+  ```
+* INCOMPATIBLE - Example 463: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  __foo_
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>_<em>foo</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 466: In MfM, delimiters are matched left-to-right, not inside-out;  
+  Markdown input:
+  ```markdown
+  ____foo_
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>___<em>foo</em></p>
+  
+  ```
+* Example 482: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  *[bar*](/url)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>*<a href="/url">bar*</a></p>
+  
+  ```
+* Example 483: Links are not yet implemented;  
+  Markdown input:
+  ```markdown
+  _foo [bar_](/url)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>_foo <a href="/url">bar_</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 484: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  *<img src="foo" title="*"/>
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>*<img src="foo" title="*"/></p>
+  
+  ```
+* INCOMPATIBLE - Example 485: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  **<a href="**">
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>**<a href="**"></p>
+  
+  ```
+* INCOMPATIBLE - Example 486: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  __<a href="__">
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>__<a href="__"></p>
+  
+  ```
+* Example 487: Inline code elements are not yet implemented;  
+  Markdown input:
+  ```markdown
+  *a `*`*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>a <code>*</code></em></p>
+  
+  ```
+* Example 488: Inline code elements are not yet implemented;  
+  Markdown input:
+  ```markdown
+  _a `_`_
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>a <code>_</code></em></p>
+  
+  ```
+* INCOMPATIBLE - Example 489: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  **a<http://foo.bar/?q=**>
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 490: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  __a<http://foo.bar/?q=__>
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
+  
+  ```
+## 6.5 Strikethrough (extension) - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 493: In MfM, strike-through behaves like other emphasis, allowing multiple, nested elements;  
+  Markdown input:
+  ```markdown
+  This will ~~~not~~~ strike.
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>This will ~~~not~~~ strike.</p>
+  
+  ```
 ## 6.6 NOT yet Implemented
 ## 6.7 NOT yet Implemented
 ## 6.8 NOT yet Implemented
+## 6.9 NOT yet Implemented
 ## 6.10 NOT yet Implemented
+## 6.11 NOT yet Implemented
 ## 6.12 NOT yet Implemented
 ## 6.13 NOT yet Implemented
 ## 6.14 NOT yet Implemented

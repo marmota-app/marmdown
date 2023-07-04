@@ -50,6 +50,7 @@ const __setext_headings__ = 'Setext headings are not supported'
 const __html_content__ = 'HTML content is not supported'
 const __delimiters_left_to_right__ = 'In MfM, delimiters are matched left-to-right, not inside-out'
 const __multiline_inline__ = 'MfM does not support multi-line inline content'
+const __strike_through__ = 'In MfM, strike-through behaves like other emphasis, allowing multiple, nested elements'
 
 const implementedSections: ImplementedSection[] = [
 	{ chapter: '1.1', name: 'What is GitHub Flavored Markdown?', notYetImplemented: [], incompatible: []},
@@ -162,11 +163,13 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 490', reason: __html_content__ },
 		]
 	},
-	/*{
+	{
 		chapter: '6.5', name: 'Strikethrough (extension)',
 		notYetImplemented: [],
-		incompatible: []
-	},*/
+		incompatible: [
+			{ name: 'Example 493', reason: __strike_through__ },
+		]
+	},
 ]
 
 const compatibility: string[] = []
@@ -176,41 +179,14 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 	const gfmSpecContent = fs.readFileSync('test/integration/gfm/GitHub Flavored Markdown Spec.html', 'utf-8')
 	const gfmSpec = new JSDOM(gfmSpecContent)
 	
-	const children = gfmSpec.window.document.body.children
 
 	compatibility.push('# Markdown compatibility')
 	compatibility.push('')
 
-	for(let i=0; i<children.length; i++) {
-		const child = children[i]
-		
-		if(child.nodeName === 'DIV' && child.classList.contains('appendices')) { return; }
-
-		if(child.nodeName === 'H2') {
-			const number = child.querySelector('span.number')?.textContent ?? ''
-			let text = ''
-			child.childNodes.forEach(cn => { if(cn.nodeName === '#text') { text = cn.textContent ?? '' } })
-
-			if(implementedSections.filter(s => s.chapter===number).length > 0) {
-				const sectionInfo = implementedSections.filter(s => s.chapter===number)[0]
-
-				compatibility.push('## '+sectionInfo.chapter+' '+sectionInfo.name+' - Implemented')
-				if(sectionInfo.notYetImplemented.length > 0 || sectionInfo.incompatible.length > 0) {
-					compatibility.push('')
-					compatibility.push('Except **not yet implemented** functionality and known **incompatibilities**:')
-					compatibility.push('')
-				}
-
-				describe(number+': '+text, describeSection(children, i+1, sectionInfo))
-			} else {
-				compatibility.push('## '+number+' NOT yet Implemented')
-				describe.skip(number+': '+text, describeSection(children, i+1))
-			}
-		}
-
-		if(process.env.WRITE_COMPAT_INFO) {
-			fs.writeFileSync('./docs/github-flavored-markdown-compatibility.md', compatibility.join('\n'))
-		}
+	findTestsFrom(gfmSpec.window.document.body.children)
+	
+	if(process.env.WRITE_COMPAT_INFO) {
+		fs.writeFileSync('./docs/github-flavored-markdown-compatibility.md', compatibility.join('\n'))
 	}
 
 	function describeSection(children: HTMLCollection, startIndex: number, sectionInfo?: ImplementedSection) {
@@ -272,5 +248,37 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 		compatibility.push('  ```'+format)
 		content.split('\n').forEach(l => compatibility.push('  '+l))
 		compatibility.push('  ```')
+	}
+
+	function findTestsFrom(children: HTMLCollection) {
+		for(let i=0; i<children.length; i++) {
+			const child = children[i]
+			
+			if(child.nodeName === 'DIV' && child.classList.contains('appendices')) { return; }
+	
+			if(child.nodeName === 'H2') {
+				const number = child.querySelector('span.number')?.textContent ?? ''
+				let text = ''
+				child.childNodes.forEach(cn => { if(cn.nodeName === '#text') { text = cn.textContent ?? '' } })
+	
+				if(implementedSections.filter(s => s.chapter===number).length > 0) {
+					const sectionInfo = implementedSections.filter(s => s.chapter===number)[0]
+	
+					compatibility.push('## '+sectionInfo.chapter+' '+sectionInfo.name+' - Implemented')
+					if(sectionInfo.notYetImplemented.length > 0 || sectionInfo.incompatible.length > 0) {
+						compatibility.push('')
+						compatibility.push('Except **not yet implemented** functionality and known **incompatibilities**:')
+						compatibility.push('')
+					}
+	
+					describe(number+': '+text, describeSection(children, i+1, sectionInfo))
+				} else {
+					compatibility.push('## '+number+' NOT yet Implemented')
+					describe.skip(number+': '+text, describeSection(children, i+1))
+				}
+			} else if(child.nodeName === 'DIV' && child.classList.contains('extension')) {
+				findTestsFrom(child.children)
+			}
+		}
 	}
 })
