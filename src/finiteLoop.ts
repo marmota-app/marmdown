@@ -14,17 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function finiteLoop(variable: () => unknown) {
-	let lastVariable: unknown | null = null
+export function INCREASING<T> (v: T, l: T|null) { return l==null || v > l }
+
+export function finiteLoop<T>(variable: () => T, isValid: (v: T, l: T|null)=>boolean) {
+	let lastVariable: T | null = null
 	return {
 		guard: () => {
 			let v = variable()
-			if(v === lastVariable) { varUnchanged(lastVariable, v) }
+			if(!isValid(v, lastVariable)) { varUnchanged(lastVariable, v) }
 			lastVariable = v
 		}
 	}
 }
 
 function varUnchanged(oldVar: unknown, v: unknown) {
-	throw new Error(`Loop might be infinite - Variable did not change: [${oldVar}] === [${v}]`)
+	throw new Error(`Loop might be infinite - Variable did not change as expected: [${oldVar}] <===> [${v}]`)
 }

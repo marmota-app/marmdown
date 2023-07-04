@@ -17,9 +17,9 @@ limitations under the License.
 import { LineContent } from "$element/Element"
 import { GenericContainerInline } from "$element/GenericElement"
 import { MfMInlineElements } from "$markdown/MfMDialect"
-import { parseInlineContent, parseInlineContent2 } from "$parser/parse"
+import { parseInlineContent } from "$parser/parse"
 import { Parser } from "$parser/Parser"
-import { MfMText, MfMTextParser } from "./MfMText"
+import { MfMTextParser } from "./MfMText"
 
 export type MfMContentLineContent = MfMInlineElements
 export class MfMContentLine extends GenericContainerInline<MfMContentLine, MfMContentLineContent, LineContent<MfMContentLine>, '--content-line--', MfMContentLineParser> {
@@ -40,8 +40,9 @@ export class MfMContentLineParser extends Parser<MfMContentLine, MfMContentLine,
 		
 		const textContent = new MfMContentLine(this.parsers.idGenerator.nextId(), this)
 
-		parseInlineContent(text, start, length, textContent, this.parsers)
-
+		const foundContents = parseInlineContent<MfMInlineElements>(text, start, length, this.parsers, {})
+		foundContents.forEach(c => textContent.addContent(c))
+	
 		return textContent
 	}
 }

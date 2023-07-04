@@ -34,6 +34,7 @@ class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser | MfMOpti
 	get allInnerInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [
 		this.MfMEmphasis,
 	] }
+	get allInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [this.MfMEmphasis, this.MfMText, ] }
 
 	private getParser<T extends MfMTextParser | MfMEmphasisParser | MfMOptionsParser>(name: T['elementName'], create: ()=>T): T {
 		if(this.knownParsers[name] == null) {

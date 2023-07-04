@@ -17,7 +17,7 @@ limitations under the License.
 import { Element, LineContent, ParsedLine } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { IdGenerator } from "$markdown/IdGenerator"
-import { finiteLoop } from "$markdown/finiteLoop"
+import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
 import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
 import { InlineParser, Parser } from "./Parser"
 import { Parsers } from "./Parsers"
@@ -84,17 +84,6 @@ export function parseContainerBlock<
 		const parsedWith = previousContent.parsedWith as Parser<typeof previousContent>
 		const content = parsedWith.parseLine(previousContent, text, start, length)
 		if(content) {
-			/*
-			callbacks.addLine()
-			if(content as unknown === container) {
-				const inner = content.content[content.content.length-1] as Element<unknown, unknown, unknown, unknown>
-				const contentLine = inner.lines[inner.lines.length-1] as ParsedLine<unknown, Element<unknown, unknown, unknown, unknown>>
-				container.lines[container.lines.length-1].content.push(contentLine)
-			} else {
-				const contentLine = content.lines[content.lines.length-1] as LineContent<Element<unknown, unknown, unknown, unknown>>
-				container.lines[container.lines.length-1].content.push(contentLine)
-			}
-			*/
 			return container
 		}
 	}
@@ -102,7 +91,6 @@ export function parseContainerBlock<
 		const parser = allBlocks[i]
 		const content = parser.parseLine(null, text, start, length) as CONTENT
 		if(content) {
-			//callbacks.addLine()
 			if(previous && callbacks.endsPrevious(previous, content)) {
 				return null
 			}
@@ -114,19 +102,7 @@ export function parseContainerBlock<
 	return null
 }
 
-export function parseInlineContent(
-	text: string, start: number, length: number,
-	container: { addContent: (content: any) => unknown, },
-	parsers: Parsers<MfMTextParser>
-) {
-	if(!parsers.allInlines) { throw new Error(`Cannot parse ${text.substring(start, start+length)} at ${start} because all inline parsers array is not defined`) }
-
-	const foundContents = parseInlineContent2(text, start, length, parsers, {})
-	
-	foundContents.forEach(c => container.addContent(c))
-}
-
-export function parseInlineContent2<CONTENTS extends Element<unknown, unknown, unknown, unknown>>(
+export function parseInlineContent<CONTENTS extends Element<unknown, unknown, unknown, unknown>>(
 	text: string, start: number, length: number,
 	parsers: Parsers<MfMTextParser>,
 	additionalParams: { [key: string]: any } = {}
@@ -135,7 +111,7 @@ export function parseInlineContent2<CONTENTS extends Element<unknown, unknown, u
 	const foundContents: (CONTENTS | MfMText)[] = []
 	let i=0
 
-	const finite = finiteLoop(() => i)
+	const finite = finiteLoop(() => i, INCREASING)
 	let textStart = start+i
 	let textLength = 0
 	while(i < length) {
@@ -149,7 +125,15 @@ export function parseInlineContent2<CONTENTS extends Element<unknown, unknown, u
 		// * it ends the current element
 		// * it belongs to the current text content
 		if(isSpecialCharacter(currentChar)) {
-			if(additionalParams.endsCurrent?.()) {
+			const endsCurrendResult = additionalParams.endsCurrent?.(start+i)
+			if(endsCurrendResult?.ended) {
+				if(textLength > 0) {
+					const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
+					if(textContent) { foundContents.push(textContent) }
+				}
+				textLength = 0
+				break
+			} else if(endsCurrendResult && additionalParams.endsOuter?.(i, endsCurrendResult)) {
 				if(textLength > 0) {
 					const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
 					if(textContent) { foundContents.push(textContent) }

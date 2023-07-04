@@ -17,12 +17,11 @@ limitations under the License.
 import { ContainerInline, LineContent, ParsedLine, StringLineContent } from "$element/Element";
 import { Emphasis, StrikeThrough, StrongEmphasis } from "$element/MarkdownElements";
 import { MfMInlineElements } from "$markdown/MfMDialect";
-import { finiteLoop } from "$markdown/finiteLoop";
 import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
-import { MfMOptionsParser } from "$mfm/options/MfMOptions";
+import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions";
 import { InlineParser } from "$parser/Parser";
 import { isWhitespace } from "$parser/isWhitespace";
-import { parseInnerInlineElement } from "$parser/parse";
+import { parseInlineContent, parseInnerInlineElement } from "$parser/parse";
 import { MfMTextParser } from "./MfMText";
 
 export interface DelimiterRun {
@@ -73,149 +72,134 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 	parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
 		const nextLeftRun = this.findLeftDelimiterRun(text, start, length)
 		let i=0
-		const foundContents: MfMInlineElements[] = []
 
 		if(nextLeftRun != null && nextLeftRun.start === start && canOpenEmphasis(nextLeftRun, text)) {
-			let elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough | null = null
-			let openingDelimiter: string | null = null
-			if(nextLeftRun.character === '~') {
-				//Here, we are incompatible with GfM: MfM treats tilde characters
-				//in exactly the same way as _ and *, and thus allows more than
-				//two tildes.
-				elementToCreate = MfMStrikeThrough
-				if(nextLeftRun.length % 2 === 0) {
-					openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
-					i += 2
-				} else {
-					openingDelimiter = nextLeftRun.character
-					i += 1
-				}
-			} else {
-				if(nextLeftRun.length % 2 === 0) {
-					elementToCreate = MfMStrongEmphasis
-					openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
-					i += 2
-				} else {
-					elementToCreate = MfMEmphasis
-					openingDelimiter = nextLeftRun.character
-					i += 1
-				}
-			}
+			let { openingDelimiter, elementToCreate } = this.elementToCreate(nextLeftRun, v => i+=v)
+			const options = this.parseOptions(text, start+i, length-i, v => i+=v)
 
-			const options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i)
-			if(options) {
-				const optionsLine = options.lines[options.lines.length-1]
-				i += optionsLine.length
-				const charAfterOptions = text.charAt(start+i)
-				if(charAfterOptions === ' ' || charAfterOptions === '\t') {
-					optionsLine.content.push(new StringLineContent(charAfterOptions, start+i, i, options))
-					i++
-				}
-			}
-			
-			//TODO refactor - remove duplication (parse.ts)
-			const finite = finiteLoop(() => i)
-			let textStart = start+i
-			let textLength = 0
-			let nextRightDelimiterRun: DelimiterRun | null = null
-			while(i < length) {
-				finite.guard()
-				const currentChar = text.charAt(start+i)
-				//Text content can - but doesn't have to - occur before each
-				//inline content, and also at the very end (see below).
-				//For each special character at this point, we must check
-				//whether...
-				// * it starts an inner inline element
-				// * it ends the current element
-				// * it belongs to the current text content
-				if(this.isSpecialCharacter(currentChar)) {
-					let endsCurrent = false
-					nextRightDelimiterRun = this.findRightDelimiterRun(text, start+i, length-i)
-					if(nextRightDelimiterRun && nextRightDelimiterRun.start === start+i) {
-						if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length && nextRightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(nextRightDelimiterRun, text)) {
-							endsCurrent = true
-						} else if(additionalParams.endsOuter?.(nextRightDelimiterRun)) {
-							nextRightDelimiterRun = null
-							endsCurrent = true
-						} else {
-							nextRightDelimiterRun = null
-						}
+			let currentWasClosed = false
+			let closingIndex = 0
+			const endsCurrent = (searchIndex: number) => {
+				const nextRightDelimiterRun = this.findRightDelimiterRun(text, searchIndex, length-(searchIndex-start))
+				if(openingDelimiter && nextRightDelimiterRun && nextRightDelimiterRun.start === searchIndex) {
+					if(nextRightDelimiterRun.character===nextLeftRun.character && nextRightDelimiterRun.length >= openingDelimiter.length && nextRightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(nextRightDelimiterRun, text)) {
+						currentWasClosed = true
+						closingIndex = searchIndex
+						return { ended: true, nextRightDelimiterRun, }
 					}
-	
-					if(endsCurrent) {
-						if(textLength > 0) {
-							const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-							if(textContent) { foundContents.push(textContent) }
-						}
-						textLength = 0
-						break
-					} else {
-						const additionalParametersForInner = {
-							...additionalParams,
-							endsOuter: (rightDelimiterRun: DelimiterRun) => {
-								const endsMyOuter = additionalParams.endsOuter
-								if(openingDelimiter && rightDelimiterRun.character===nextLeftRun.character && rightDelimiterRun.length >= openingDelimiter.length && rightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(rightDelimiterRun, text)) {
-									return true
-								}
-								return endsMyOuter?.(rightDelimiterRun) ?? false
-							}
-						}
-						const innerElement = parseInnerInlineElement<MfMInlineElements>(text, start+i, length-i, this.parsers, additionalParametersForInner)
-						if(innerElement != null) {
-							if(textLength > 0) {
-								const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-								if(textContent) { foundContents.push(textContent) }
-							}
-							textLength = 0
-
-							foundContents.push(innerElement)
-							i += innerElement.lines[innerElement.lines.length-1].length
-							textStart = start+i
-							continue;
-						}
-					}
+					return { ended: false, nextRightDelimiterRun, }
 				}
-				i++
-				textLength++
+				return { ended: false, }
 			}
-			//Text content can occur at the very end (when there is no closing
-			//delimiter, so we exited the loop without finding a right-flanking
-			//delimiter run)
-			if(textLength > 0) {
-				const textContent = this.parsers.MfMText.parseLine(null, text, textStart, textLength)
-				if(textContent) { foundContents.push(textContent) }
-			}
-
-			//Create correct return value
-			let content: MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null = null
-			let closingLineContent: StringLineContent<any> | null = null
-			if(nextRightDelimiterRun?.start === (start+i)) {
-				content = new elementToCreate(this.parsers.idGenerator.nextId(), this)
-				const line: any = new ParsedLine(this.parsers.idGenerator.nextLineId(), content)
-				content.lines.push(line)
-				closingLineContent = new StringLineContent(openingDelimiter, nextRightDelimiterRun.start, openingDelimiter.length, content)
-			} else {
-				content = new TextSpan(this.parsers.idGenerator.nextId(), this)
-				content.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), content))
-				if(openingDelimiter) {
-					const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, openingDelimiter.length, additionalParams)
-					if(delimiterText != null) {
-						content.addContent(delimiterText)
-						openingDelimiter = null
-					}
+			const endsOuter = (searchIndex: number, delimiting: { nextRightDelimiterRun?: DelimiterRun }) => {
+				const endsMyOuter = additionalParams.endsOuter
+				if(openingDelimiter && delimiting.nextRightDelimiterRun && delimiting.nextRightDelimiterRun.character===nextLeftRun.character && delimiting.nextRightDelimiterRun.length >= openingDelimiter.length && delimiting.nextRightDelimiterRun.runStart!==nextLeftRun.runStart && canCloseEmphasis(delimiting.nextRightDelimiterRun, text)) {
+					return true
 				}
+				return endsMyOuter?.(searchIndex, delimiting) ?? false
 			}
+			const additionalParametersForInner = {
+				...additionalParams,
+				endsCurrent,
+				endsOuter,
+			}
+			const foundContents: MfMInlineElements[] = parseInlineContent<MfMInlineElements>(
+				text, start+i, length-i, this.parsers, additionalParametersForInner
+			)
 
-			//Add delimiters as line content
-			if(openingDelimiter) { content.lines[content.lines.length-1].content.push(new StringLineContent(openingDelimiter, nextLeftRun.start, openingDelimiter.length, content)) }
-			if(options) { content.lines[content.lines.length-1].content.push(options.lines[options.lines.length-1]) }
-			foundContents.forEach(c => content?.addContent(c))
-			if(closingLineContent) { content.lines[content.lines.length-1].content.push(closingLineContent) }
-
-			return content
+			return this.createContentElement(
+				elementToCreate, foundContents, options,
+				text, nextLeftRun, openingDelimiter,
+				currentWasClosed, closingIndex, additionalParams
+			)
 		}
 
 		return null
+	}
+
+	private elementToCreate(nextLeftRun: DelimiterRun, increment: (v: number)=>unknown) {
+		let elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough | null = null
+		let openingDelimiter: string | null = null
+		if(nextLeftRun.character === '~') {
+			//Here, we are incompatible with GfM: MfM treats tilde characters
+			//in exactly the same way as _ and *, and thus allows more than
+			//two tildes.
+			elementToCreate = MfMStrikeThrough
+			if(nextLeftRun.length % 2 === 0) {
+				openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
+				increment(2)
+			} else {
+				openingDelimiter = nextLeftRun.character
+				increment(1)
+			}
+		} else {
+			if(nextLeftRun.length % 2 === 0) {
+				elementToCreate = MfMStrongEmphasis
+				openingDelimiter = `${nextLeftRun.character}${nextLeftRun.character}`
+				increment(2)
+			} else {
+				elementToCreate = MfMEmphasis
+				openingDelimiter = nextLeftRun.character
+				increment(1)
+			}
+		}
+		return { openingDelimiter, elementToCreate }
+	}
+
+	private parseOptions(text: string, start: number, length: number, increment: (v: number)=>unknown) {
+		let i=0
+
+		const options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i)
+		if(options) {
+			const optionsLine = options.lines[options.lines.length-1]
+			i += optionsLine.length
+			increment(optionsLine.length)
+
+			const charAfterOptions = text.charAt(start+i)
+			if(charAfterOptions === ' ' || charAfterOptions === '\t') {
+				optionsLine.content.push(new StringLineContent(charAfterOptions, start+i, i, options))
+				i++
+				increment(1)
+			}
+			return options
+		}
+		return null
+	}
+
+	private createContentElement(
+		elementToCreate: typeof MfMEmphasis | typeof MfMStrongEmphasis | typeof MfMStrikeThrough,
+		foundContents: MfMInlineElements[], options: MfMOptions | null,
+		text: string, nextLeftRun: DelimiterRun, openingDelimiter: string,
+		currentWasClosed: boolean, closingIndex: number, additionalParams: { [key: string]: any },
+	) {
+		//Create correct return value
+		let content: MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null = null
+		let closingLineContent: StringLineContent<any> | null = null
+		if(currentWasClosed) {
+			content = new elementToCreate(this.parsers.idGenerator.nextId(), this)
+			const line: any = new ParsedLine(this.parsers.idGenerator.nextLineId(), content)
+			content.lines.push(line)
+			closingLineContent = new StringLineContent(openingDelimiter, closingIndex, openingDelimiter.length, content)
+
+			//Add opening delimiter
+			content.lines[content.lines.length-1].content.push(new StringLineContent(openingDelimiter, nextLeftRun.start, openingDelimiter.length, content))
+		} else {
+			content = new TextSpan(this.parsers.idGenerator.nextId(), this)
+			content.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), content))
+			if(openingDelimiter) {
+				const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, openingDelimiter.length, additionalParams)
+				if(delimiterText != null) {
+					content.addContent(delimiterText)
+				}
+			}
+		}
+
+		//Add rest of the content
+		if(options) { content.lines[content.lines.length-1].content.push(options.lines[options.lines.length-1]) }
+		foundContents.forEach(c => content?.addContent(c))
+		if(closingLineContent) { content.lines[content.lines.length-1].content.push(closingLineContent) }
+
+		return content
 	}
 
 	findLeftDelimiterRun(text: string, searchStart: number, length: number): DelimiterRun | null {
