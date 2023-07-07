@@ -1,5 +1,9 @@
+import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock"
 import { MfMHeading } from "$mfm/block/MfMHeading"
+import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
+import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak"
+import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { parseMarkdown } from "./parseMarkdown"
 
 describe('parseMarkdown: Options with curly braces', () => {
@@ -32,18 +36,17 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(inlineCode.content[0]).to.have.property('content', 'inner text')
 	*/})
 
-	it.skip('supports options on horizontal rule', () => {/*
+	it('supports options on horizontal rule', () => {
 		const markdown = '---{ defaultoption }\n'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		const hruleResult = result.content.filter(c => c.type === 'HorizontalRule')
-		expect(hruleResult).to.have.length(1)
-		expect(hruleResult[0]).to.have.property('type', 'HorizontalRule')
+		const hrule = result.content[0] as MfMThematicBreak
+		expect(hrule).toHaveProperty('type', 'thematic-break')
 
-		const options = (hruleResult[0] as HorizontalRule).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const options = hrule.options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
 
 	it('supports options on headings', () => {
 		const markdown = '#{ defaultoption }\n'
@@ -72,18 +75,20 @@ describe('parseMarkdown: Options with curly braces', () => {
 
 	const styles: string[] = ['_', '**', '~~']
 	styles.forEach(style => {
-		it.skip(`supports options on ${style}`, () => {/*
+		it(`supports options on ${style}`, () => {
 			const markdown = `${style}{ defaultoption }text${style}`
 
-			const result = parseMarkdown(markdown)
+			const result = parseMarkdown(markdown).content[0] as MfMSection
 	
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
-			assume((result.content[0] as Paragraph).content[0]).to.have.property('options')
+			expect(result.content).toHaveLength(1)
+			expect(result.content[0]).toHaveProperty('type', 'paragraph')
+
+			const line = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
+			expect(line.content[0]).toHaveProperty('options')
 		
-			const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
-			expect(options).to.have.property('default', 'defaultoption')
-		*/})
+			const options = (line.content[0] as any).options
+			expect(options.get('default')).toEqual('defaultoption')
+		})
 	})
 
 	it.skip('supports options on links', () => {/*
@@ -131,30 +136,30 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(options).to.have.property('type', 'video')
 	*/}))
 
-	it.skip('supports options on asides', () => {/*
+	it('supports options on asides', () => {
 		const markdown = '^{defaultoption} Aside content'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 	
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Aside')
-		assume(result.content[0]).to.have.property('options')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'aside')
+		expect(result.content[0]).toHaveProperty('options')
 	
-		const options = (result.content[0] as Block).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
-	it.skip('supports options on block quotes', () => {/*
+		const options = (result.content[0] as any).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
+	it('supports options on block quotes', () => {
 		const markdown = '>{defaultoption} Block quote content'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 	
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Blockquote')
-		assume(result.content[0]).to.have.property('options')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'block-quote')
+		expect(result.content[0]).toHaveProperty('options')
 	
-		const options = (result.content[0] as Block).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const options = (result.content[0] as MfMGeneralPurposeBlock).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
 
 	it.skip('supports options on lists (first item)', () => {/*
 		const markdown = '*{defaultoption} item 1\n* item2'
@@ -270,32 +275,4 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(inlineCode.content[0]).to.have.property('type', 'Text')
 		expect(inlineCode.content[0]).to.have.property('content', 'code content')
 	*/})
-
-	describe('slide options', () => {
-		const slideStarts = [ '#', '---' ]
-
-		slideStarts.forEach(slideStart => {
-			it.skip(`slide "${slideStart}" adds optionsLine, optionsStart and optionsLength fields to existing options`, () => {/*
-				const markdown = `\n\n${slideStart}{ foo=bar; }`
-		
-				const result = parseMarkdown(markdown)
-				const options = (result.content[0] as any).options
-		
-				expect(options).to.have.property('optionsLine', '2')
-				expect(options).to.have.property('optionsStart', ''+slideStart.length)
-				expect(options).to.have.property('optionsLength', '12')
-			*/})
-		
-			it.skip(`slide "${slideStart}" adds optionsLine, optionsStart and optionsLength fields when opetions are not explicitly defined`, () => {/*
-				const markdown = `\n\n${slideStart}`
-		
-				const result = parseMarkdown(markdown)
-				const options = (result.content[0] as any).options
-		
-				expect(options).to.have.property('optionsLine', '2')
-				expect(options).to.have.property('optionsStart', ''+slideStart.length)
-				expect(options).to.have.property('optionsLength', '0')
-			*/})
-		})
-	})
 })
