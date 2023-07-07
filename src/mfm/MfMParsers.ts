@@ -25,6 +25,7 @@ import { MfMSectionParser } from "./block/MfMSection";
 import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMEmphasisParser } from "./inline/MfMEmphasis";
+import { MfMHardLineBreak, MfMHardLineBreakParser } from "./inline/MfMHardLineBreak";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
@@ -45,7 +46,8 @@ export type MfMLeafBlock =
 	EmptyElementParser
 
 export type MfMInnerInline =
-	MfMEmphasisParser
+	MfMEmphasisParser |
+	MfMHardLineBreakParser
 
 export type MfMOtherInline =
 	MfMContentLineParser |
@@ -98,6 +100,8 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
+	get MfMHardLineBreak() { return this.getParser('MfMHardLineBreak', () => new MfMHardLineBreakParser(this)) }
+
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
 		//EmptyElement has priority over all other blocks: When a line is
@@ -120,6 +124,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get allInlines(): KnownParsers[] { return [ ...this.allInnerInlines, ...this.allOtherInlines, ] }
 	get allInnerInlines(): KnownParsers[] { return [
 		this.MfMEmphasis,
+		this.MfMHardLineBreak,
 	] }
 	get allOtherInlines(): KnownParsers[] { return [
 		//MfMContentLine is not part of this list because it will never be

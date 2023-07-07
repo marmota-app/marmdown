@@ -69,7 +69,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 	 * @param start The start index where parsing should begin
 	 * @param length The maximum lenght that can be parsed at this point
 	 */
-	parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
+	override parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
 		const nextLeftRun = this.findLeftDelimiterRun(text, start, length)
 		let i=0
 

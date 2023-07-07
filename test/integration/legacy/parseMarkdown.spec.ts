@@ -1,11 +1,9 @@
-import { Element } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
 import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { MfMEmphasis, MfMStrikeThrough } from "$mfm/inline/MfMEmphasis"
 import { parseMarkdown } from "./parseMarkdown"
-import type {MatcherFunction} from 'expect';
 
 const assume = expect
 
@@ -529,20 +527,21 @@ describe('parseMarkdown', () => {
 		expect((strikeThroughContent[2] as MfMEmphasis).content[0].content[0]).toHaveProperty('text', 'bold-italic')
 	})
 
-	it.skip('parses two spaces at the end of the line as NewLine', () => {/*
+	it('parses two spaces at the end of the line as NewLine', () => {
 		const markdown = 'text  '
 
-		const result = parseMarkdown(markdown)
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-		expect((result.content[0] as Paragraph).content).to.have.length(2)
+		const line = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
+		expect(line.content).toHaveLength(2)
 
-		expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-		expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text')
+		expect(line.content[0]).toHaveProperty('type', 'text')
+		expect(line.content[0]).toHaveProperty('text', 'text')
 
-		expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'LineBreak')
-	*/})
+		expect(line.content[1]).toHaveProperty('type', 'line-break')
+	})
 
 	describe('paragraph content: inline code', () => {
 		const inlineCodeTags = [ '`', '``', '```', ]

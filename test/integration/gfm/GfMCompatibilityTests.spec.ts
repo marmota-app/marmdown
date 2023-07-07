@@ -51,6 +51,8 @@ const __html_content__ = 'HTML content is not supported'
 const __delimiters_left_to_right__ = 'In MfM, delimiters are matched left-to-right, not inside-out'
 const __multiline_inline__ = 'MfM does not support multi-line inline content'
 const __strike_through__ = 'In MfM, strike-through behaves like other emphasis, allowing multiple, nested elements'
+const __spaces__ = 'In MfM, spaces are usually not removed at the end of a line'
+const __line_break_end_of_block__ = 'In MfM, hard line breaks are always added, even at the end of a block'
 
 const implementedSections: ImplementedSection[] = [
 	{ chapter: '1.1', name: 'What is GitHub Flavored Markdown?', notYetImplemented: [], incompatible: []},
@@ -168,6 +170,31 @@ const implementedSections: ImplementedSection[] = [
 		notYetImplemented: [],
 		incompatible: [
 			{ name: 'Example 493', reason: __strike_through__ },
+		]
+	},
+	{
+		chapter: '6.12', name: 'Hard line breaks',
+		notYetImplemented: [
+			{ name: 'Example 661', reason: __leading__ },
+			{ name: 'Example 662', reason: __leading__ },
+			{ name: 'Example 665', reason: __inline_code__ },
+			{ name: 'Example 666', reason: __inline_code__ },
+		],
+		incompatible: [
+			{ name: 'Example 663', reason: __multiline_inline__ },
+			{ name: 'Example 664', reason: __multiline_inline__ },
+			{ name: 'Example 667', reason: __html_content__ },
+			{ name: 'Example 668', reason: __html_content__ },
+			{ name: 'Example 669', reason: __line_break_end_of_block__ },
+			{ name: 'Example 670', reason: __line_break_end_of_block__ },
+			{ name: 'Example 671', reason: __line_break_end_of_block__ },
+		]
+	},
+	{
+		chapter: '6.13', name: 'Soft line breaks',
+		notYetImplemented: [],
+		incompatible: [
+			{ name: 'Example 674', reason: __spaces__ + '/' + __leading__ },
 		]
 	},
 ]

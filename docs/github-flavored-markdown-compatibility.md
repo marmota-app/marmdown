@@ -1004,6 +1004,160 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 ## 6.9 NOT yet Implemented
 ## 6.10 NOT yet Implemented
 ## 6.11 NOT yet Implemented
-## 6.12 NOT yet Implemented
-## 6.13 NOT yet Implemented
+## 6.12 Hard line breaks - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* Example 661: Leading spaces are not yet removed correctly;  
+  Markdown input:
+  ```markdown
+  foo  
+       bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo<br />
+  bar</p>
+  
+  ```
+* Example 662: Leading spaces are not yet removed correctly;  
+  Markdown input:
+  ```markdown
+  foo\
+       bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo<br />
+  bar</p>
+  
+  ```
+* INCOMPATIBLE - Example 663: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  *foo  
+  bar*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo<br />
+  bar</em></p>
+  
+  ```
+* INCOMPATIBLE - Example 664: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  *foo\
+  bar*
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo<br />
+  bar</em></p>
+  
+  ```
+* Example 665: Inline code elements are not yet implemented;  
+  Markdown input:
+  ```markdown
+  `code  
+  span`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>code   span</code></p>
+  
+  ```
+* Example 666: Inline code elements are not yet implemented;  
+  Markdown input:
+  ```markdown
+  `code\
+  span`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>code\ span</code></p>
+  
+  ```
+* INCOMPATIBLE - Example 667: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  <a href="foo  
+  bar">
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="foo  
+  bar"></p>
+  
+  ```
+* INCOMPATIBLE - Example 668: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  <a href="foo\
+  bar">
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="foo\
+  bar"></p>
+  
+  ```
+* INCOMPATIBLE - Example 669: In MfM, hard line breaks are always added, even at the end of a block;  
+  Markdown input:
+  ```markdown
+  foo\
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo\</p>
+  
+  ```
+* INCOMPATIBLE - Example 670: In MfM, hard line breaks are always added, even at the end of a block;  
+  Markdown input:
+  ```markdown
+  foo  
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo</p>
+  
+  ```
+* INCOMPATIBLE - Example 671: In MfM, hard line breaks are always added, even at the end of a block;  
+  Markdown input:
+  ```markdown
+  ### foo\
+  
+  ```
+  Expected HTML:
+  ```html
+  <h3>foo\</h3>
+  
+  ```
+## 6.13 Soft line breaks - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 674: In MfM, spaces are usually not removed at the end of a line/Leading spaces are not yet removed correctly;  
+  Markdown input:
+  ```markdown
+  foo 
+   baz
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>foo
+  baz</p>
+  
+  ```
 ## 6.14 NOT yet Implemented

@@ -65,6 +65,9 @@ export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> 
 	readonly text: string,
 }
 
+export interface HardLineBreak<THIS extends HardLineBreak<THIS>> extends LeafInline<THIS, 'line-break'> {
+}
+
 export interface Empty<
 	THIS extends Empty<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
