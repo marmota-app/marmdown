@@ -30,7 +30,7 @@ function createGeneralPurposeBlockParser() {
 	const MfMContentLine = new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, ], })
 	const { headingParser } = createHeadingParser()
 	const MfMOptions = createOptionsParser(idGenerator)
-	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, allBlocks: [headingParser] })
+	const MfMParagraph = new MfMParagraphParser({ idGenerator, MfMContentLine, MfMOptions, allBlocks: [headingParser] })
 	const EmptyElement = new EmptyElementParser({ idGenerator })
 	const parser = new MfMGeneralPurposeBlockParser({ idGenerator, MfMOptions, EmptyElement, allBlocks: [ EmptyElement, headingParser, MfMParagraph, ] })
 	return parser

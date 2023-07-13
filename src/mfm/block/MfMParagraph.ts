@@ -14,24 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, ParsedLine } from "$element/Element"
+import { Element, ParsedLine, StringLineContent } from "$element/Element"
 import { GenericBlock } from "$element/GenericElement"
 import { Paragraph } from "$element/MarkdownElements"
 import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
+import { MfMGenericBlock } from "$mfm/MfMGenericElement"
+import { MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { isEmpty } from "$parser/find"
 import { Parser } from "$parser/Parser"
 import { Parsers } from "$parser/Parsers"
 
 export type MfMParagraphContent = MfMContentLine
-export class MfMParagraph extends GenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {
-	continueWithNextLine: boolean = true
+export class MfMParagraph extends MfMGenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {
 	constructor(id: string, pw: MfMParagraphParser) { super(id, 'paragraph', pw) }
-	override get isFullyParsed(): boolean {
-		return !this.continueWithNextLine
-	}
 }
 
-export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMContentLineParser> {
+export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMContentLineParser | MfMOptionsParser> {
 	public readonly elementName = 'MfMParagraph'
 
 	parseLine(previous: MfMParagraph | null, text: string, start: number, length: number): MfMParagraph | null {
@@ -44,12 +42,19 @@ export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMCo
 			paragraph.continueWithNextLine = false
 			return null
 		}
-		if(previous) {
-			previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
-		}
+		paragraph.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), paragraph))
+		let i = this.parsers.MfMOptions.addOptionsTo(paragraph, text, start, length).parsedLength
 
-		const textContent = this.parsers.MfMContentLine.parseLine(null, text, start, length)
-		if(textContent != null) { paragraph.addContent(textContent) }
+		if(i < length) {
+			const nextChar = text.charAt(start+i)
+			if(i > 0 && (nextChar===' ' || nextChar==='\t')) {
+				paragraph.lines[paragraph.lines.length-1].content.push(new StringLineContent(nextChar, start+i, 1, paragraph))
+				i++
+			}
+
+			const textContent = this.parsers.MfMContentLine.parseLine(null, text, start+i, length-i)
+			if(textContent != null) { paragraph.addContent(textContent) }
+		}
 
 		return paragraph
 	}

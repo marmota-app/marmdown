@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { UpdateParser } from "$markdown/UpdateParser"
+import { MfMParagraph } from "$mfm/block/MfMParagraph"
+import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { createParagraphParser } from "./createParagraphParser"
 
 describe('MfMParagraph parser', () => {
@@ -78,11 +81,227 @@ describe('MfMParagraph parser', () => {
 			expect(first).toHaveProperty('isFullyParsed', true)
 		})
 	})
-	describe.skip('the content of paragraphs', () => {
-		it.skip('parses text with bold content', () => {})
-		it.skip('parses text with bold, italic and strike-through content', () => {})
+	describe('the content of paragraphs', () => {
+		it('parses text with bold content', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const text = 'text before **bold content** text after'
+			const result = paragraphParser.parseLine(null, text, 0, text.length)
+
+			expect(result?.content).toHaveLength(1)
+			const line = result?.content[0] as MfMContentLine
+
+			expect(line.content).toHaveLength(3)
+			expect(line.content[0]).toHaveProperty('type', 'text')
+			expect(line.content[0]).toHaveProperty('text', 'text before ')
+			expect(line.content[1]).toHaveProperty('type', 'strong')
+			expect(line.content[1].content[0]).toHaveProperty('text', 'bold content')
+			expect(line.content[2]).toHaveProperty('type', 'text')
+			expect(line.content[2]).toHaveProperty('text', ' text after')
+		})
+		it('parses text with bold, italic and strike-through content', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const text = 'text before **bold content**_italic content_~striked content~ text after'
+			const result = paragraphParser.parseLine(null, text, 0, text.length)
+
+			expect(result?.content).toHaveLength(1)
+			const line = result?.content[0] as MfMContentLine
+
+			expect(line.content).toHaveLength(5)
+			expect(line.content[0]).toHaveProperty('type', 'text')
+			expect(line.content[0]).toHaveProperty('text', 'text before ')
+			expect(line.content[1]).toHaveProperty('type', 'strong')
+			expect(line.content[1].content[0]).toHaveProperty('text', 'bold content')
+			expect(line.content[2]).toHaveProperty('type', 'emphasis')
+			expect(line.content[2].content[0]).toHaveProperty('text', 'italic content')
+			expect(line.content[3]).toHaveProperty('type', 'strike-through')
+			expect(line.content[3].content[0]).toHaveProperty('text', 'striked content')
+			expect(line.content[4]).toHaveProperty('type', 'text')
+			expect(line.content[4]).toHaveProperty('text', ' text after')
+		})
 	})
-	describe.skip('parsing updates', () => {
-		//TODO implement me
+	describe('parsing paragraph options', () => {
+		it('parses paragraph options at the start of the paragraph', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const lines = [
+				'{ default value; key2 = value2 }',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const result = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			)
+			
+			expect(result.value?.lines).toHaveLength(2)
+			lines.forEach((l, i) => expect(result.value?.lines[i]).toHaveProperty('asText', l))
+
+			expect(result.value?.options.get('default')).toEqual('default value')
+			expect(result.value?.options.get('key2')).toEqual('value2')
+		})
+		it('parses paragraph options at the start of the paragraph with text in the same line', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const lines = [
+				'{ default value; key2 = value2 } first line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const result = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			)
+			
+			expect(result.value?.content).toHaveLength(2)
+			expect(result.value?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[0].content[0]).toHaveProperty('text', 'first line text')
+			expect(result.value?.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[1].content[0]).toHaveProperty('text', 'more paragraph text')
+
+			expect(result.value?.lines).toHaveLength(2)
+			lines.forEach((l, i) => expect(result.value?.lines[i]).toHaveProperty('asText', l))
+
+			expect(result.value?.options.get('default')).toEqual('default value')
+			expect(result.value?.options.get('key2')).toEqual('value2')
+		})
+		it('does not parse options in the second line', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const lines = [
+				'line before options',
+				'{ default value; key2 = value2 } first line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const result = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			)
+			
+			expect(result.value?.content).toHaveLength(3)
+			expect(result.value?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[0].content[0]).toHaveProperty('text', 'line before options')
+			expect(result.value?.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[1].content[0]).toHaveProperty('text', '{ default value; key2 = value2 } first line text')
+			expect(result.value?.content[2].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[2].content[0]).toHaveProperty('text', 'more paragraph text')
+
+			expect(result.value?.lines).toHaveLength(3)
+			lines.forEach((l, i) => expect(result.value?.lines[i]).toHaveProperty('asText', l))
+
+			expect(result.value?.options.get('default')).toBeUndefined()
+			expect(result.value?.options.get('key2')).toBeUndefined()
+		})
+		it('parses multi-line options at the start of the paragraph', () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const lines = [
+				'{ default value',
+				'key2 = value2 } first line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const result = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			)
+			
+			expect(result.value?.content).toHaveLength(2)
+			expect(result.value?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[0].content[0]).toHaveProperty('text', 'first line text')
+			expect(result.value?.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(result.value?.content[1].content[0]).toHaveProperty('text', 'more paragraph text')
+
+			expect(result.value?.lines).toHaveLength(3)
+			lines.forEach((l, i) => expect(result.value?.lines[i]).toHaveProperty('asText', l))
+
+			expect(result.value?.options.get('default')).toEqual('default value')
+			expect(result.value?.options.get('key2')).toEqual('value2')
+		})
+	})
+	describe('parsing updates', () => {
+		it('parses update to the content', () => {
+			const { paragraphParser, idGenerator } = createParagraphParser()
+			const updateParser = new UpdateParser(idGenerator)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2 } first line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const original = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			).value as MfMParagraph
+			const updated = updateParser.parse(original, { text: ' updated', rangeOffset: '{ default value\nkey2 = value2 } first line'.length, rangeLength: ''.length }) as MfMParagraph
+			
+			expect(updated.content).toHaveLength(2)
+			expect(updated.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(updated.content[0].content[0]).toHaveProperty('text', 'first line updated text')
+			expect(updated.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(updated.content[1].content[0]).toHaveProperty('text', 'more paragraph text')
+
+			expect(updated.options.get('default')).toEqual('default value')
+			expect(updated.options.get('key2')).toEqual('value2')
+
+			expect(updated.lines).toHaveLength(3)
+			lines.forEach((l, i) => {
+				if(i === 1) { expect(updated.lines[i]).toHaveProperty('asText', 'key2 = value2 } first line updated text') }
+				else { expect(updated.lines[i]).toHaveProperty('asText', l) }
+			})
+		})
+
+		it('parses update to the options', () => {
+			const { paragraphParser, idGenerator } = createParagraphParser()
+			const updateParser = new UpdateParser(idGenerator)
+
+			const lines = [
+				'{ default value',
+				'key2 = value2 } first line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const original = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			).value as MfMParagraph
+			const updated = updateParser.parse(original, { text: ' two', rangeOffset: '{ default value\nkey2 = value'.length, rangeLength: '2'.length }) as MfMParagraph
+			
+			expect(updated.content).toHaveLength(2)
+			expect(updated.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(updated.content[0].content[0]).toHaveProperty('text', 'first line text')
+			expect(updated.content[1].content[0]).toHaveProperty('type', 'text')
+			expect(updated.content[1].content[0]).toHaveProperty('text', 'more paragraph text')
+
+			expect(updated.options.get('default')).toEqual('default value')
+			expect(updated.options.get('key2')).toEqual('value two')
+
+			expect(updated.lines).toHaveLength(3)
+			lines.forEach((l, i) => {
+				if(i === 1) { expect(updated.lines[i]).toHaveProperty('asText', 'key2 = value two } first line text') }
+				else { expect(updated.lines[i]).toHaveProperty('asText', l) }
+			})
+		})
 	})
 })

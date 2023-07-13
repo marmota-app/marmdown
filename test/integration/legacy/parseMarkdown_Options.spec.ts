@@ -60,18 +60,17 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(options.get('default')).toEqual('defaultoption')
 	})
 
-	it.skip('supports options on paragraphs', () => {/*
+	it('supports options on paragraphs', () => {
 		const markdown = 'asdf\n\n{ defaultoption }paragraph 2\n'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		const pResult = result.content.filter(c => c.type === 'Paragraph')
-		expect(pResult).to.have.length.greaterThanOrEqual(2)
-		expect(pResult.at(1)).to.have.property('type', 'Paragraph')
+		expect(result.content).toHaveLength(3)
+		expect(result.content[2]).toHaveProperty('type', 'paragraph')
 
-		const options = (pResult.at(1) as Paragraph).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const options = (result.content[2] as MfMParagraph).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
 
 	const styles: string[] = ['_', '**', '~~']
 	styles.forEach(style => {

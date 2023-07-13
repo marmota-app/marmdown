@@ -17,36 +17,10 @@ limitations under the License.
 import { Element, LineContent, ParsedLine } from "$element/Element";
 import { NumberedIdGenerator } from "$markdown/IdGenerator";
 import { UpdateParser } from "$markdown/UpdateParser";
-import { MfMEmphasis, MfMEmphasisParser, TextSpan } from "$mfm/inline/MfMEmphasis"
-import { MfMTextParser } from "$mfm/inline/MfMText";
-import { MfMOptionsParser } from "$mfm/options/MfMOptions";
-import { Parsers } from "$parser/Parsers";
-import { createOptionsParser } from "../options/createOptionsParser";
+import { MfMEmphasis, TextSpan } from "$mfm/inline/MfMEmphasis";
+import { createEmphasisParser } from "./createEmphasisParser";
 
-class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser | MfMOptionsParser> {
-	private knownParsers: { [key in (MfMTextParser | MfMEmphasisParser | MfMOptionsParser)['elementName']]?: MfMTextParser | MfMEmphasisParser | MfMOptionsParser } = {}
-	idGenerator = new NumberedIdGenerator()
-
-	get MfMOptions() { return this.getParser('MfMOptions', () => createOptionsParser(this.idGenerator) )}
-	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
-	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
-
-	get allInnerInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [
-		this.MfMEmphasis,
-	] }
-	get allInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [this.MfMEmphasis, this.MfMText, ] }
-
-	private getParser<T extends MfMTextParser | MfMEmphasisParser | MfMOptionsParser>(name: T['elementName'], create: ()=>T): T {
-		if(this.knownParsers[name] == null) {
-			this.knownParsers[name] = create()
-		}
-		return this.knownParsers[name] as T
-	}
-}
 describe('MfMEmphasis', () => {
-	function createEmphasisParser() {
-		return new TestParsers().MfMEmphasis
-	}
 
 	describe('parsing the content', () => {
 		describe('finding left-flanking delimiter runs', () => {
