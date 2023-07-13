@@ -1,6 +1,7 @@
 import { GenericBlock } from "$element/GenericElement"
 import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
+import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
 import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { MfMEmphasis, MfMStrikeThrough } from "$mfm/inline/MfMEmphasis"
 import { parseMarkdown } from "./parseMarkdown"
@@ -178,14 +179,13 @@ describe('parseMarkdown', () => {
 	*/})
 
 	describe('horizontal rule', () => {
-		it.skip('parses --- as horizontal rule', () => {/*
+		it('parses --- as horizontal rule', () => {
 			const markdown = '---\n'
 	
 			const result = parseMarkdown(markdown)
-	
-			expect(result.content.filter(c => c.type === 'HorizontalRule')).to.have.length(1)
-			expect(result.content[0]).to.have.property('type', 'HorizontalRule')
-		*/})
+
+			expect(result.content[0].content[0]).toHaveProperty('type', 'thematic-break')
+		})
 	})
 
 	const blocks: string[][] = [ [ '^', 'aside', ], [ '>', 'block-quote', ], ]
@@ -546,99 +546,103 @@ describe('parseMarkdown', () => {
 	describe('paragraph content: inline code', () => {
 		const inlineCodeTags = [ '`', '``', '```', ]
 		inlineCodeTags.forEach(tag => {
-			it.skip(`parses ${tag} as inline code`, () => {/*
+			it(`parses ${tag} as inline code`, () => {
 				const markdown = `text ${tag}code (preformatted)${tag} text`
 
-				const result = parseMarkdown(markdown)
-				assume(result.content).to.have.length(1)
-				assume(result.content[0]).to.have.property('type', 'Paragraph')
+				const result = parseMarkdown(markdown).content[0] as MfMSection
+				assume(result.content).toHaveLength(1)
+				assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-				expect((result.content[0] as Paragraph).content).to.have.length(3)
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+				const paragraphLine = result.content[0].content[0] as MfMContentLine
+				expect(paragraphLine.content).toHaveLength(3)
+				expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-				expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'InlineCode')
-				const inlineCode = (((result.content[0] as Paragraph).content[1] as InlineCodeTextContent))
-				expect(inlineCode.content).to.have.length(1)
-				expect(inlineCode.content[0]).to.have.property('type', 'Text')
-				expect(inlineCode.content[0]).to.have.property('content', 'code (preformatted)')
+				expect(paragraphLine.content[1]).toHaveProperty('type', 'code-span')
+				const inlineCode = ((paragraphLine.content[1] as MfMCodeSpan))
+				expect(inlineCode.content).toHaveLength(1)
+				expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+				expect(inlineCode.content[0]).toHaveProperty('text', 'code (preformatted)')
 
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-				expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text')
-			*/})
+				expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+				expect(paragraphLine.content[2]).toHaveProperty('text', ' text')
+			})
 		})
-		it.skip('parses inline code and bold correctly', () => {/*
+		it('parses inline code and bold correctly', () => {
 			const markdown = 'text `code (preformatted)` text **bold text**'
 
-			const result = parseMarkdown(markdown)
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-			expect((result.content[0] as Paragraph).content).to.have.length(4)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+			const paragraphLine = result.content[0].content[0] as MfMContentLine
+			expect(paragraphLine.content).toHaveLength(4)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'InlineCode')
-			const inlineCode = (((result.content[0] as Paragraph).content[1] as InlineCodeTextContent))
-			expect(inlineCode.content).to.have.length(1)
-			expect(inlineCode.content[0]).to.have.property('type', 'Text')
-			expect(inlineCode.content[0]).to.have.property('content', 'code (preformatted)')
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'code-span')
+			const inlineCode = ((paragraphLine.content[1] as MfMCodeSpan))
+			expect(inlineCode.content).toHaveLength(1)
+			expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+			expect(inlineCode.content[0]).toHaveProperty('text', 'code (preformatted)')
 
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text ')
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[2]).toHaveProperty('text', ' text ')
 
-			expect((result.content[0] as Paragraph).content[3]).to.have.property('type', 'Bold')
-			expect((result.content[0] as Paragraph).content[3]).to.have.textContent('bold text')
-		*/})
-		it.skip('parses bold and inline code correctly', () => {/*
+			expect(paragraphLine.content[3]).toHaveProperty('type', 'strong')
+			expect(paragraphLine.content[3].content[0]).toHaveProperty('text', 'bold text')
+		})
+		it('parses bold and inline code correctly', () => {
 			const markdown = 'text **bold text** text `code (preformatted)`'
 
-			const result = parseMarkdown(markdown)
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-			expect((result.content[0] as Paragraph).content).to.have.length(4)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+			const paragraphLine = result.content[0].content[0] as MfMContentLine
+			expect(paragraphLine.content).toHaveLength(4)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'Bold')
-			expect((result.content[0] as Paragraph).content[1]).to.have.textContent('bold text')
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'strong')
+			expect(paragraphLine.content[1].content[0]).toHaveProperty('text', 'bold text')
 
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text ')
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[2]).toHaveProperty('text', ' text ')
 
-			expect((result.content[0] as Paragraph).content[3]).to.have.property('type', 'InlineCode')
-			const inlineCode = (((result.content[0] as Paragraph).content[3] as InlineCodeTextContent))
-			expect(inlineCode.content).to.have.length(1)
-			expect(inlineCode.content[0]).to.have.property('type', 'Text')
-			expect(inlineCode.content[0]).to.have.property('content', 'code (preformatted)')
-		*/})
-		it.skip('parses two inline code blocks with different start tags', () => {/*
+			expect(paragraphLine.content[3]).toHaveProperty('type', 'code-span')
+			const inlineCode = ((paragraphLine.content[3] as MfMCodeSpan))
+			expect(inlineCode.content).toHaveLength(1)
+			expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+			expect(inlineCode.content[0]).toHaveProperty('text', 'code (preformatted)')
+		})
+		it('parses two inline code blocks with different start tags', () => {
 			const markdown = 'text `code 1` text ``code 2``'
 
-			const result = parseMarkdown(markdown)
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-			expect((result.content[0] as Paragraph).content).to.have.length(4)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+			const paragraphLine = result.content[0].content[0] as MfMContentLine
+			expect(paragraphLine.content).toHaveLength(4)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'InlineCode')
-			const inlineCode1 = (((result.content[0] as Paragraph).content[1] as InlineCodeTextContent))
-			expect(inlineCode1.content).to.have.length(1)
-			expect(inlineCode1.content[0]).to.have.property('type', 'Text')
-			expect(inlineCode1.content[0]).to.have.property('content', 'code 1')
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'code-span')
+			const inlineCode1 = ((paragraphLine.content[1] as MfMCodeSpan))
+			expect(inlineCode1.content).toHaveLength(1)
+			expect(inlineCode1.content[0]).toHaveProperty('type', 'text')
+			expect(inlineCode1.content[0]).toHaveProperty('text', 'code 1')
 
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text ')
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[2]).toHaveProperty('text', ' text ')
 
-			expect((result.content[0] as Paragraph).content[3]).to.have.property('type', 'InlineCode')
-			const inlineCode2 = (((result.content[0] as Paragraph).content[3] as InlineCodeTextContent))
-			expect(inlineCode2.content).to.have.length(1)
-			expect(inlineCode2.content[0]).to.have.property('type', 'Text')
-			expect(inlineCode2.content[0]).to.have.property('content', 'code 2')
-		*/})
+			expect(paragraphLine.content[3]).toHaveProperty('type', 'code-span')
+			const inlineCode2 = ((paragraphLine.content[3] as MfMCodeSpan))
+			expect(inlineCode2.content).toHaveLength(1)
+			expect(inlineCode2.content[0]).toHaveProperty('type', 'text')
+			expect(inlineCode2.content[0]).toHaveProperty('text', 'code 2')
+		})
 	})
 
 	describe('paragraph content: other', () => {

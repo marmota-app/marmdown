@@ -150,7 +150,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		let i=0
 
 		const options = this.parsers.MfMOptions.parseLine(null, text, start+i, length-i)
-		if(options) {
+		if(options && options.isFullyParsed) {
 			const optionsLine = options.lines[options.lines.length-1]
 			i += optionsLine.length
 			increment(optionsLine.length)

@@ -574,7 +574,94 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 ## 5.4 NOT yet Implemented
 ## 6.1 NOT yet Implemented
 ## 6.2 NOT yet Implemented
-## 6.3 NOT yet Implemented
+## 6.3 Code spans - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 345: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  ``
+  foo
+  bar  
+  baz
+  ``
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>foo bar   baz</code></p>
+  
+  ```
+* INCOMPATIBLE - Example 346: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  ``
+  foo 
+  ``
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>foo </code></p>
+  
+  ```
+* INCOMPATIBLE - Example 347: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  `foo   bar 
+  baz`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>foo   bar  baz</code></p>
+  
+  ```
+* INCOMPATIBLE - Example 353: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  `<a href="`">`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>&lt;a href=&quot;</code>&quot;&gt;`</p>
+  
+  ```
+* INCOMPATIBLE - Example 354: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  <a href="`">`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="`">`</p>
+  
+  ```
+* INCOMPATIBLE - Example 355: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  `<http://foo.bar.`baz>`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>&lt;http://foo.bar.</code>baz&gt;`</p>
+  
+  ```
+* INCOMPATIBLE - Example 356: HTML content is not supported;  
+  Markdown input:
+  ```markdown
+  <http://foo.bar.`baz>`
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="http://foo.bar.%60baz">http://foo.bar.`baz</a>`</p>
+  
+  ```
 ## 6.4 Emphasis and strong emphasis - Implemented
 
 Except **not yet implemented** functionality and known **incompatibilities**:

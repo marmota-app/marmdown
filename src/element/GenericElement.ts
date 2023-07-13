@@ -80,7 +80,7 @@ export abstract class GenericLeafInline<
 
 	addContent(content: CONTENT) {
 		if(this.lines.length === 0) {
-			const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
+			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
 			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
 		}
 		
@@ -109,7 +109,7 @@ export class GenericContainerInline<
 
 	addContent(content: CONTENT) {
 		if(this.lines.length === 0) {
-			const newId = 'line-' + this.parsedWith.parsers.idGenerator.nextLineId()
+			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
 			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
 		}
 		

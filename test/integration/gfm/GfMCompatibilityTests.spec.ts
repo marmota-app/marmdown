@@ -123,6 +123,19 @@ const implementedSections: ImplementedSection[] = [
 		]
 	},
 	{
+		chapter: '6.3', name: 'Code spans',
+		notYetImplemented: [],
+		incompatible: [
+			{ name: 'Example 345', reason: __multiline_inline__ },
+			{ name: 'Example 346', reason: __multiline_inline__ },
+			{ name: 'Example 347', reason: __multiline_inline__ },
+			{ name: 'Example 353', reason: __html_content__ },
+			{ name: 'Example 354', reason: __html_content__ },
+			{ name: 'Example 355', reason: __html_content__ },
+			{ name: 'Example 356', reason: __html_content__ },
+		]
+	},
+	{
 		chapter: '6.4', name: 'Emphasis and strong emphasis',
 		notYetImplemented: [
 			{ name: 'Example 362', reason: __escaping__ },

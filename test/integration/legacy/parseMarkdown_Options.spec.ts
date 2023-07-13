@@ -3,7 +3,9 @@ import { MfMHeading } from "$mfm/block/MfMHeading"
 import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
 import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak"
+import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
 import { MfMContentLine } from "$mfm/inline/MfMContentLine"
+import { greaterThanOrEqual } from "omnimock"
 import { parseMarkdown } from "./parseMarkdown"
 
 describe('parseMarkdown: Options with curly braces', () => {
@@ -19,22 +21,24 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(options).to.have.property('default', 'javascript')
 	*/})
 
-	it.skip('supports options block on paragraph inline code block', () => {/*
+	it('supports options block on paragraph inline code block', () => {
 		const markdown = '`{ javascript }inner text`'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('type', 'InlineCode')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'paragraph')
+		const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'code-span')
+
+		const inlineCode = ((paragraphLine.content[0] as MfMCodeSpan))
 		const options = inlineCode.options
-		expect(options).to.have.property('default', 'javascript')
-		expect(inlineCode.content).to.have.length(1)
-		expect(inlineCode.content[0]).to.have.property('type', 'Text')
-		expect(inlineCode.content[0]).to.have.property('content', 'inner text')
-	*/})
+		expect(options.get('default')).toEqual('javascript')
+		expect(inlineCode.content).toHaveLength(1)
+		expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+		expect(inlineCode.content[0]).toHaveProperty('text', 'inner text')
+	})
 
 	it('supports options on horizontal rule', () => {
 		const markdown = '---{ defaultoption }\n'
@@ -200,78 +204,89 @@ describe('parseMarkdown: Options with curly braces', () => {
 		expect(itemOptions).to.have.property('default', 'defaultoption')
 	*/})
 
-	it.skip('does not parse incomplete option block', () => {/*
+	it('does not parse incomplete option block', () => {
 		const markdown = '`{ javascript`'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('type', 'InlineCode')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'paragraph')
+		const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'code-span')
+
+		const inlineCode = ((paragraphLine.content[0] as MfMCodeSpan))
 		const options = inlineCode.options
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-		expect(options).to.be.empty
-		expect(inlineCode.content).to.have.length(1)
-		expect(inlineCode.content[0]).to.have.property('type', 'Text')
-		expect(inlineCode.content[0]).to.have.property('content', '{ javascript')
-	*/})
+		expect(options.get('default')).toBeUndefined()
+		expect(options.isEmpty).toBeTruthy()
 
-	it.skip('parses named option instead of default', () => {/*
+		expect(inlineCode.content).toHaveLength(1)
+		expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+		expect(inlineCode.content[0]).toHaveProperty('text', '{ javascript')
+	})
+
+	it('parses named option instead of default', () => {
 		const markdown = '`{ foo = bar }inner text`'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('type', 'InlineCode')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'paragraph')
+		const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'code-span')
+
+		const inlineCode = ((paragraphLine.content[0] as MfMCodeSpan))
 		const options = inlineCode.options
-		expect(options).to.not.have.property('default')
-		expect(options).to.have.property('foo', 'bar')
-		expect(inlineCode.content).to.have.length(1)
-		expect(inlineCode.content[0]).to.have.property('type', 'Text')
-		expect(inlineCode.content[0]).to.have.property('content', 'inner text')
-	*/})
+		expect(options.get('default')).toBeUndefined
+		expect(options.get('foo')).toEqual('bar')
+		expect(inlineCode.content).toHaveLength(1)
+		expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+		expect(inlineCode.content[0]).toHaveProperty('text', 'inner text')
+	})
 
-	it.skip('parses default option and key/value options', () => {/*
+	it('parses default option and key/value options', () => {
 		const markdown = '`{ def; foo = bar; baz=another option }inner text`'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('type', 'InlineCode')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'paragraph')
+		const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'code-span')
+
+		const inlineCode = ((paragraphLine.content[0] as MfMCodeSpan))
 		const options = inlineCode.options
-		expect(options).to.have.property('default', 'def')
-		expect(options).to.have.property('foo', 'bar')
-		expect(options).to.have.property('baz', 'another option')
-		expect(inlineCode.content).to.have.length(1)
-		expect(inlineCode.content[0]).to.have.property('type', 'Text')
-		expect(inlineCode.content[0]).to.have.property('content', 'inner text')
-	*/})
+		expect(options.get('default')).toEqual('def')
+		expect(options.get('foo')).toEqual('bar')
+		expect(options.get('baz')).toEqual('another option')
+		expect(inlineCode.content).toHaveLength(1)
+		expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+		expect(inlineCode.content[0]).toHaveProperty('text', 'inner text')
+	})
 
-	it.skip('does not parse default option after first entry', () => {/*
+	it('does not parse default option after first entry', () => {
+		//Different behavior than legacy parser: The legacy parser did parse
+		//the options block and just ignored the "def" part.
 		const markdown = '`{ foo=bar; def }code content`'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
 
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('type', 'InlineCode')
+		expect(result.content).toHaveLength(1)
+		expect(result.content[0]).toHaveProperty('type', 'paragraph')
+		const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-		const inlineCode = (((result.content[0] as Paragraph).content[0] as InlineCodeTextContent))
+		expect(paragraphLine.content[0]).toHaveProperty('type', 'code-span')
+
+		const inlineCode = ((paragraphLine.content[0] as MfMCodeSpan))
 		const options = inlineCode.options
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-		expect(options).to.not.have.property('default')
-		expect(options).to.not.have.property('def')
-		expect(options).to.have.property('foo', 'bar')
-		expect(inlineCode.content).to.have.length(1)
-		expect(inlineCode.content[0]).to.have.property('type', 'Text')
-		expect(inlineCode.content[0]).to.have.property('content', 'code content')
-	*/})
+		expect(options.get('default')).toBeUndefined()
+		expect(options.get('def')).toBeUndefined()
+		expect(options.get('foo')).toBeUndefined()
+
+		expect(inlineCode.content).toHaveLength(1)
+		expect(inlineCode.content[0]).toHaveProperty('type', 'text')
+		expect(inlineCode.content[0]).toHaveProperty('text', '{ foo=bar; def }code content')
+	})
 })

@@ -52,6 +52,7 @@ function inline(inlines: MfMInlineElements[]): string {
 			case 'strong': return `<strong>${inline(element.content)}</strong>`
 			case 'strike-through': return `<del>${inline(element.content)}</del>`
 			case 'line-break': return '<br />'
+			case 'code-span': return `<code>${inline(element.content)}</code>`
 			case '--text-span--': return inline(element.content)
 			default: throw new Error(`Unsupported inline element: ${(element as any).type}`)
 		}

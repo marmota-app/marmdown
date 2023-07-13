@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
+import { ContentUpdate } from "$markdown/ContentUpdate";
 import { jsonTransient } from "$markdown/jsonTransient";
 import { Parsers } from "./Parsers";
 
@@ -104,7 +105,7 @@ export abstract class Parser<
 	 * @param original The original result that should be updated
 	 * @returns true when the original result can be updated, false otherwise
 	 */
-	canUpdate(original: RESULT): boolean {
+	canUpdate(original: RESULT, update: ContentUpdate): boolean {
 		return true
 	}
 

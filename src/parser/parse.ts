@@ -173,6 +173,8 @@ function isSpecialCharacter(character: string) {
 	switch(character) {
 		//Emphasis
 		case '_': case '*': case '~': return true
+		//Code span
+		case '`': return true
 		//Hard Line Break
 		case ' ': case '\\': return true
 	}

@@ -23,6 +23,7 @@ import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
 import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
+import { MfMCodeSpanParser } from "./inline/MfMCodeSpan";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMEmphasisParser } from "./inline/MfMEmphasis";
 import { MfMHardLineBreak, MfMHardLineBreakParser } from "./inline/MfMHardLineBreak";
@@ -47,6 +48,7 @@ export type MfMLeafBlock =
 
 export type MfMInnerInline =
 	MfMEmphasisParser |
+	MfMCodeSpanParser |
 	MfMHardLineBreakParser
 
 export type MfMOtherInline =
@@ -89,15 +91,16 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
-	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this))}
+	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this)) }
 	
-	get MfMFirstOption() { return this.getParser('MfMFirstOption', () => new MfMFirstOptionParser(this))}
-	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this))}
-	get MfMOptions() { return this.getParser('MfMOptions', () => new MfMOptionsParser(this))}
+	get MfMFirstOption() { return this.getParser('MfMFirstOption', () => new MfMFirstOptionParser(this)) }
+	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this)) }
+	get MfMOptions() { return this.getParser('MfMOptions', () => new MfMOptionsParser(this)) }
 	
-	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this))}
+	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this)) }
 
-	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
+	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this)) }
+	get MfMCodeSpan() { return this.getParser('MfMCodeSpan', () => new MfMCodeSpanParser(this)) }
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
 	get MfMHardLineBreak() { return this.getParser('MfMHardLineBreak', () => new MfMHardLineBreakParser(this)) }
@@ -124,6 +127,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get allInlines(): KnownParsers[] { return [ ...this.allInnerInlines, ...this.allOtherInlines, ] }
 	get allInnerInlines(): KnownParsers[] { return [
 		this.MfMEmphasis,
+		this.MfMCodeSpan,
 		this.MfMHardLineBreak,
 	] }
 	get allOtherInlines(): KnownParsers[] { return [

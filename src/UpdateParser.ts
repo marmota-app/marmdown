@@ -79,7 +79,7 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const rangeEndsWithinExistingBounds = changeEnd >= content.start && changeEnd <= content.start+content.length
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo)) {
+			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo, update)) {
 				if(this.updateCouldChangeElementType(content, update)) {
 					//TODO can we solve this without an exception?
 					//TODO Also, should we even? Returning an object with the 

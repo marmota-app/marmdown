@@ -60,13 +60,12 @@ export interface StrongEmphasis<
 export interface StrikeThrough<
 	THIS extends StrikeThrough<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
 > extends ContainerInline<THIS, CONTENT, 'strike-through'> {}
+export interface CodeSpan<THIS extends CodeSpan<THIS, CONTENT>, CONTENT extends Text<any>> extends ContainerInline<THIS, CONTENT, 'code-span'> {}
 
 export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
 	readonly text: string,
 }
-
-export interface HardLineBreak<THIS extends HardLineBreak<THIS>> extends LeafInline<THIS, 'line-break'> {
-}
+export interface HardLineBreak<THIS extends HardLineBreak<THIS>> extends LeafInline<THIS, 'line-break'> {}
 
 export interface Empty<
 	THIS extends Empty<THIS, CONTENT>,
