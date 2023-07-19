@@ -33,6 +33,7 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'block-quote': return `<blockquote${options(b)}>\n${all(b.content)}\n</blockquote>`
 			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
 			case 'thematic-break': return `<hr${options(b)} />`
+			case 'indented-code-block': return `<pre><code>${inline(b.content, '\n')}</code></pre>`
 			case '--empty--': return ''
 			default: throw new Error(`Unsupported inline element: ${(b as any).type}`)
 		}
@@ -43,11 +44,11 @@ function heading(heading: MfMHeading) {
 	return `<h${heading.level}${options(heading)}>${inline(heading.content)}</h${heading.level}>`
 }
 
-function inline(inlines: MfMInlineElements[]): string {
+function inline(inlines: MfMInlineElements[], joinAfterText: string = ''): string {
 	return inlines.map((element, index) => {
 		switch(element.type) {
 			case '--content-line--': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
-			case 'text': return element.text
+			case 'text': return element.text+joinAfterText
 			case 'emphasis': return `<em>${inline(element.content)}</em>`
 			case 'strong': return `<strong>${inline(element.content)}</strong>`
 			case 'strike-through': return `<del>${inline(element.content)}</del>`

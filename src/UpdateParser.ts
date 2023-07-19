@@ -16,6 +16,7 @@ limitations under the License.
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
 import { MfMGenericBlock, MfMGenericContainerBlock } from "$mfm/MfMGenericElement";
+import { isEmpty } from "$parser/find";
 import { ContentUpdate } from "./ContentUpdate";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 
@@ -81,14 +82,6 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
 			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo, update)) {
 				if(this.updateCouldChangeElementType(content, update)) {
-					//TODO can we solve this without an exception?
-					//TODO Also, should we even? Returning an object with the 
-					//     result and a boolean would work, but is that really
-					//     better? Then we'd have to pass the  boolean up the
-					//     call chain correctly, and the code would become more
-					//     convoluted.
-					//     Also, this is actually an exceptional situation,
-					//     from the point-of-view of this code!
 					throw new Error('update-would-change-document-structure')
 				}
 				for(var i=0; i<content.content.length; i++) {
@@ -130,6 +123,21 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			//the update might insert a "#", making the current line a heading.
 			//See UpdatesThatChangeElements.spec.ts
 			return update.rangeOffset === content.start && update.text.length > 0
+		} else if(content.belongsTo.classification === 'block') {
+			//When the indentation changes, i.e. when the text before the update
+			//consists only of spaces AND the update consists only of space, that
+			//might change the document structure (e.g. it could change a paragraph
+			//into an indented code block or vice-versa or...)
+			const startInsideContent = update.rangeOffset-content.start
+			const textBefore = content.asText.substring(0, startInsideContent)
+			const replacedText = content.asText.substring(startInsideContent, startInsideContent+update.rangeLength)
+			const charAfterReplacedText = content.asText.charAt(startInsideContent+update.rangeLength)
+
+			return this.isSpacesOnly(textBefore) && (
+				(update.text.length > 0 && this.isSpacesOnly(update.text)) //Did add spaces
+				|| (replacedText.length > 0 && replacedText.charAt(0)===' ') //Did replace at least some spaces
+				|| (update.rangeLength === 0 && charAfterReplacedText === ' ') //Did remove some text, where the char after the removed text is a space
+			)
 		}
 
 		return false
@@ -188,5 +196,12 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		} else {
 			lineContent.start = start
 		}
+	}
+
+	private isSpacesOnly(text: string) {
+		for(let i=0; i<text.length; i++) {
+			if(text.charAt(i) !== ' ') { return false }
+		}
+		return true
 	}
 }

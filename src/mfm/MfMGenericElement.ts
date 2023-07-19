@@ -29,6 +29,7 @@ export abstract class MfMGenericBlock<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > extends GenericBlock<THIS, CONTENT, TYPE, PARSER> {
+	readonly classification: 'block' | 'options' = 'block'
 	private emptyOptions = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
 
 	continueWithNextLine: boolean = true
@@ -52,6 +53,8 @@ export abstract class MfMGenericContainerInline<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > extends GenericContainerInline<THIS, CONTENT, LINE_CONTENT, TYPE, PARSER> {
+	readonly classification = 'inline'
+
 	private emptyOptions = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
 	get options(): MfMOptions {
 		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? this.emptyOptions
@@ -65,6 +68,8 @@ export abstract class MfMGenericLeafInline<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > extends GenericLeafInline<THIS, CONTENT, LINE_CONTENT, TYPE, PARSER> {
+	readonly classification = 'inline'
+
 	private emptyOptions = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, false)
 	get options(): MfMOptions {
 		return this.lines[0]?.content?.find(c => c.belongsTo.type==='options')?.belongsTo as MfMOptions ?? this.emptyOptions

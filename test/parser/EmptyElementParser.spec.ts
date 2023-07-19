@@ -79,12 +79,12 @@ describe('EmptyElement parser', () => {
 			const intermediate = parser.parseLine(null, text, 'hello\n'.length, '  \t \t\t'.length)
 			const original = parser.parseLine(intermediate, text, 'hello\n  \t \t\t\n'.length, '    '.length) as EmptyElement
 
-			const updated = updateParser.parse(original, { text: '\t', rangeOffset: 'hello\n  \t \t\t\n  '.length, rangeLength: 0, })
+			const updated = updateParser.parse(original, { text: '\t', rangeOffset: 'hello\n  \t \t'.length, rangeLength: 0, })
 
 			expect(updated).not.toBeNull()
 			expect(updated?.lines).toHaveLength(2)
-			expect(updated?.lines[0]).toHaveProperty('asText', '  \t \t\t')
-			expect(updated?.lines[1]).toHaveProperty('asText', '  \t  ')
+			expect(updated?.lines[0]).toHaveProperty('asText', '  \t \t\t\t')
+			expect(updated?.lines[1]).toHaveProperty('asText', '    ')
 		})
 
 		it('updates a line that contains only whitespace, removing all content', () => {
@@ -97,10 +97,7 @@ describe('EmptyElement parser', () => {
 
 			const updated = updateParser.parse(original, { text: '', rangeOffset: 'hello\n'.length, rangeLength: '  \t \t\t'.length, })
 
-			expect(updated).not.toBeNull()
-			expect(updated?.lines).toHaveLength(2)
-			expect(updated?.lines[0]).toHaveProperty('asText', '')
-			expect(updated?.lines[1]).toHaveProperty('asText', '    ')
+			expect(updated).toBeNull() //Changes indentation!
 		})
 
 		it('does not update when a line is removed completely', () => {

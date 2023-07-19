@@ -20,13 +20,14 @@ import { Parsers } from "$parser/Parsers";
 import { MfMAsideParser } from "./block/MfMAside";
 import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
 import { MfMHeadingParser, } from "./block/MfMHeading";
+import { MfMIndentedCodeBlockParser } from "./block/MfMIndentedCodeBlock";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
 import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
 import { MfMCodeSpanParser } from "./inline/MfMCodeSpan";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMEmphasisParser } from "./inline/MfMEmphasis";
-import { MfMHardLineBreak, MfMHardLineBreakParser } from "./inline/MfMHardLineBreak";
+import { MfMHardLineBreakParser } from "./inline/MfMHardLineBreak";
 import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
@@ -44,6 +45,7 @@ export type MfMLeafBlock =
 	MfMHeadingParser |
 	MfMParagraphParser |
 	MfMThematicBreakParser |
+	MfMIndentedCodeBlockParser |
 	EmptyElementParser
 
 export type MfMInnerInline =
@@ -87,6 +89,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMParagraph() { return this.getParser('MfMParagraph', () => new MfMParagraphParser(this)) }
 	get MfMHeading() { return this.getParser('MfMHeading', () => new MfMHeadingParser(this)) }
 	get MfMThematicBreak() { return this.getParser('MfMThematicBreak', () => new MfMThematicBreakParser(this)) }
+	get MfMIndentedCodeBlock() { return this.getParser('MfMIndentedCodeBlock', () => new MfMIndentedCodeBlockParser(this)) }
 	
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
@@ -119,6 +122,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	] }
 	get allLeafBlocks(): KnownParsers[] { return [
 		//IMPORTANT: Options are not part of leaf blocks!
+		this.MfMIndentedCodeBlock,
 		this.MfMHeading,
 		this.MfMParagraph,
 		this.MfMThematicBreak,

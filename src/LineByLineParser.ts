@@ -50,9 +50,9 @@ export class LineByLineParser<CONTAINER extends ContainerBlock<unknown, unknown,
 			const crIndex = text.indexOf('\r', start)
 			const nlIndex = text.indexOf('\n', start)
 
-			const length = nlIndex > 0?
-				(crIndex > 0? Math.min(nlIndex, crIndex)-start : nlIndex-start):
-				(crIndex > 0? crIndex-start : text.length-start)
+			const length = nlIndex >= 0?
+				(crIndex >= 0? Math.min(nlIndex, crIndex)-start : nlIndex-start):
+				(crIndex >= 0? crIndex-start : text.length-start)
 			
 			let current = this.containerParser.parseLine(result, text, start, length)
 			if(!current) {

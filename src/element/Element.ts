@@ -207,7 +207,8 @@ export interface Block<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {}
+> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {
+}
 export interface ContainerBlock<
 	THIS extends ContainerBlock<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Block<unknown, unknown, unknown> | unknown,
@@ -224,7 +225,8 @@ export interface Inline<
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | never | unknown,
 	LINE extends LineContent<THIS>,
 	TYPE extends string | unknown,
-> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {}
+> extends Element<THIS, CONTENT, LineContent<Element<unknown, unknown, unknown, unknown>>, TYPE> {
+}
 export interface ContainerInline<
 	THIS extends ContainerInline<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,

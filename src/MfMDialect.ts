@@ -33,6 +33,7 @@ import { EmptyElement } from "$parser/EmptyElementParser";
 import { MfMEmphasis, MfMStrikeThrough, MfMStrongEmphasis, TextSpan } from "$mfm/inline/MfMEmphasis";
 import { MfMHardLineBreak } from "$mfm/inline/MfMHardLineBreak";
 import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan";
+import { MfMIndentedCodeBlock } from "$mfm/block/MfMIndentedCodeBlock";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -41,6 +42,7 @@ export type MfMBlockElements =
 	MfMAside |
 	MfMParagraph |
 	MfMThematicBreak |
+	MfMIndentedCodeBlock |
 	EmptyElement
 
 export type MfMInlineElements =

@@ -243,16 +243,14 @@ describe('MfMThematicBreak parser', () => {
 				const { result } = parseLines()
 				const updated = updateParser.parse(result, { text: ' ', rangeOffset: 0, rangeLength: 0 })
 
-				expect(updated).not.toBeNull()
-				expect(updated?.lines.length).toEqual(result.lines.length)
-				updated?.lines.forEach((line, i) => expect(line.asText).toEqual((i===0? ' ' : '')+lines[i]))
+				expect(updated).toBeNull() //Might change document structure!
 			})
 			it(`returns thematic break when adding a whitespace at the end to "${lines.join('\\n')}"`, () => {
 				const { text, result, } = parseLines()
 				const updated = updateParser.parse(result, { text: ' ', rangeOffset: text.length, rangeLength: 0 })
 
 				if(lines.length > 1) {
-					//Cannot update the second line of a two-line thematic break, becaus this would only parse
+					//Cannot update the second line of a two-line thematic break, because this would only parse
 					//a part of text inside / after the options
 					expect(updated).toBeNull()
 				} else {

@@ -829,7 +829,101 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   baz</p>
   
   ```
-## 4.4 NOT yet Implemented
+## 4.4 Indented code blocks - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* Example 78: Lists are not yet implemented;  
+  Markdown input:
+  ```markdown
+    - foo
+  
+      bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <ul>
+  <li>
+  <p>foo</p>
+  <p>bar</p>
+  </li>
+  </ul>
+  
+  ```
+* Example 79: Lists are not yet implemented;  
+  Markdown input:
+  ```markdown
+  1.  foo
+  
+      - bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <ol>
+  <li>
+  <p>foo</p>
+  <ul>
+  <li>bar</li>
+  </ul>
+  </li>
+  </ol>
+  
+  ```
+* Example 80: Escaping is not yet implemented;  
+  Markdown input:
+  ```markdown
+      <a/>
+      *hi*
+  
+      - one
+  
+  ```
+  Expected HTML:
+  ```html
+  <pre><code>&lt;a/&gt;
+  *hi*
+  
+  - one
+  </code></pre>
+  
+  ```
+* Example 83: Indentation after the first line of a paragraph is not yet removed correctly;  
+  Markdown input:
+  ```markdown
+  Foo
+      bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>Foo
+  bar</p>
+  
+  ```
+* INCOMPATIBLE - Example 85: Setext headings are not supported;  
+  Markdown input:
+  ```markdown
+  # Heading
+      foo
+  Heading
+  ------
+      foo
+  ----
+  
+  ```
+  Expected HTML:
+  ```html
+  <h1>Heading</h1>
+  <pre><code>foo
+  </code></pre>
+  <h2>Heading</h2>
+  <pre><code>foo
+  </code></pre>
+  <hr />
+  
+  ```
 ## 4.5 NOT yet Implemented
 ## 4.6 HTML blocks - Implemented
 

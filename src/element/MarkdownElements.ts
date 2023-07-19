@@ -31,21 +31,22 @@ export interface Heading<
 	THIS extends Heading<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
 > extends LeafBlock<THIS, CONTENT, 'heading'> {}
-
 export interface ThematicBreak<
 	THIS extends ThematicBreak<THIS>,
 > extends LeafBlock<THIS, never, 'thematic-break'> {}
+export interface IndentedCodeBlock<
+	THIS extends IndentedCodeBlock<THIS, CONTENT>,
+	CONTENT extends Text<any>
+> extends LeafBlock<THIS, CONTENT, 'indented-code-block'> {}
 
 export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,
 	CONTENT extends Inline<unknown, unknown, LineContent<unknown>, unknown>,
 > extends LeafBlock<THIS, CONTENT, 'paragraph'> {}
-
 export interface BlockQuote<
 	THIS extends BlockQuote<THIS, CONTENT>,
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'block-quote'> {}
-
 export interface Aside<
 	THIS extends Aside<THIS, CONTENT>,
 	CONTENT extends Block<unknown, unknown, unknown>,

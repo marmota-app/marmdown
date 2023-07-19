@@ -24,6 +24,8 @@ export abstract class GenericBlock<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Block<THIS, CONTENT, TYPE> {
+	readonly classification: string = 'block'
+
 	private _lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public get lines(): ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] {
 		return this._lines
@@ -69,6 +71,8 @@ export abstract class GenericLeafInline<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+	readonly classification: string = 'inline'
+
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
@@ -99,6 +103,8 @@ export class GenericContainerInline<
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
 > implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+	readonly classification: string = 'inline'
+
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 
 	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {

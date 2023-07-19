@@ -146,6 +146,18 @@ const implementedSections: ImplementedSection[] = [
 		]
 	},
 	{
+		chapter: '4.4', name: 'Indented code blocks',
+		notYetImplemented: [
+			{ name: 'Example 78', reason: __lists__ },
+			{ name: 'Example 79', reason: __lists__ },
+			{ name: 'Example 80', reason: __escaping__ },
+			{ name: 'Example 83', reason: __paragraph_indentation__ },
+		],
+		incompatible: [
+			{ name: 'Example 85', reason: __setext_headings__ },
+		]
+	},
+	{
 		chapter: '4.6', name: 'HTML blocks',
 		notYetImplemented: [],
 		incompatible: [

@@ -35,6 +35,8 @@ export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionP
 }
 
 export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options', Parser<MfMOptions>> implements Options {
+	readonly classification = 'options'
+
 	private _isFullyParsed: boolean
 
 	constructor(id: string, pw: Parser<MfMOptions>, _isFullyParsed: boolean = false) {
