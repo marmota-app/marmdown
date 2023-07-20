@@ -33,7 +33,6 @@ interface ImplementedSection {
 }
 
 const __escaping_special__ = 'Escaping special characters is not yet implemented'
-const __escaping_html__ = 'Escaping html entities is not yet implemented'
 const __leading__ = 'Leading spaces are not yet removed correctly'
 
 const __links__ = 'Links are not yet implemented'
@@ -151,7 +150,6 @@ const implementedSections: ImplementedSection[] = [
 		notYetImplemented: [
 			{ name: 'Example 78', reason: __lists__ },
 			{ name: 'Example 79', reason: __lists__ },
-			{ name: 'Example 80', reason: __escaping_html__ },
 			{ name: 'Example 83', reason: __paragraph_indentation__ },
 		],
 		incompatible: [
@@ -255,12 +253,6 @@ const implementedSections: ImplementedSection[] = [
 	{
 		chapter: '6.4', name: 'Emphasis and strong emphasis',
 		notYetImplemented: [
-			{ name: 'Example 362', reason: __escaping_html__ },
-			{ name: 'Example 368', reason: __escaping_html__ },
-			{ name: 'Example 372', reason: __escaping_html__ },
-			{ name: 'Example 389', reason: __escaping_html__ },
-			{ name: 'Example 394', reason: __escaping_html__ },
-			{ name: 'Example 404', reason: __escaping_html__ },
 			{ name: 'Example 413', reason: __links__ },
 			{ name: 'Example 428', reason: __links__ },
 			{ name: 'Example 431', reason: __links__ },

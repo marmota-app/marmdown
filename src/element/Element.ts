@@ -155,6 +155,12 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
 	 * a Marmdown parser. 
 	 */
 	readonly asText: string,
+
+	/**
+	 * The content of the line, rendered as text that is safe to be parsed
+	 * by an HTML parser. 
+	 */
+	readonly asSafeText: string,
 }
 
 /**
@@ -188,6 +194,9 @@ export class ParsedLine<
 	get asText() { 
 		return this.content.map(c => (c as LineContent<BELONGS_TO>).asText).join('')
 	}
+	get asSafeText() {
+		return this.content.map(c => (c as LineContent<BELONGS_TO>).asSafeText).join('')
+	}
 }
 
 /**
@@ -200,6 +209,13 @@ export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unkn
 
 	public get asText() {
 		return this.text
+	}
+	public get asSafeText() {
+		return this.text
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
 	}
 }
 

@@ -27,7 +27,7 @@ const PUNCTUATION = [
 export class MfMText extends GenericLeafInline<MfMText, never, StringLineContent<MfMText>, 'text', MfMTextParser> implements Text<MfMText> {
 	constructor(id: string, pw: MfMTextParser) { super(id, 'text', pw) }
 
-	get text() { return this.lines.length===1? this.lines[0].content.map(l => l.asText).join('') : '' }
+	get text() { return this.lines.length===1? this.lines[0].content.map(l => l.asSafeText).join('') : '' }
 }
 
 export class MfMTextParser extends InlineParser<MfMText> {
