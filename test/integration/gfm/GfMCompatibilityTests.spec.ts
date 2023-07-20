@@ -32,7 +32,8 @@ interface ImplementedSection {
 	incompatible: ImplementedExample[],
 }
 
-const __escaping__ = 'Escaping is not yet implemented'
+const __escaping_special__ = 'Escaping special characters is not yet implemented'
+const __escaping_html__ = 'Escaping html entities is not yet implemented'
 const __leading__ = 'Leading spaces are not yet removed correctly'
 
 const __links__ = 'Links are not yet implemented'
@@ -98,8 +99,8 @@ const implementedSections: ImplementedSection[] = [
 	{ 
 		chapter: '4.2', name: 'ATX headings',
 		notYetImplemented: [
-			{ name: 'Example 35', reason: __escaping__ },
-			{ name: 'Example 36', reason: __escaping__ },
+			{ name: 'Example 35', reason: __escaping_special__ },
+			{ name: 'Example 36', reason: __escaping_special__ },
 			{ name: 'Example 37', reason: 'Leading & trailing whitespace for headings is not yet removed' },
 			{ name: 'Example 38', reason: 'Indentation for headings is not yet supported' },
 			{ name: 'Example 39', reason: __fenced__ },
@@ -107,7 +108,7 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 41', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 42', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 43', reason: 'Optional closing sequences are not yet supported' },
-			{ name: 'Example 46', reason: __escaping__ },
+			{ name: 'Example 46', reason: __escaping_special__ },
 			{ name: 'Example 49', reason: 'Optional closing sequences are not yet supported' },
 		],
 		incompatible: [],
@@ -150,7 +151,7 @@ const implementedSections: ImplementedSection[] = [
 		notYetImplemented: [
 			{ name: 'Example 78', reason: __lists__ },
 			{ name: 'Example 79', reason: __lists__ },
-			{ name: 'Example 80', reason: __escaping__ },
+			{ name: 'Example 80', reason: __escaping_html__ },
 			{ name: 'Example 83', reason: __paragraph_indentation__ },
 		],
 		incompatible: [
@@ -254,20 +255,20 @@ const implementedSections: ImplementedSection[] = [
 	{
 		chapter: '6.4', name: 'Emphasis and strong emphasis',
 		notYetImplemented: [
-			{ name: 'Example 362', reason: __escaping__ },
-			{ name: 'Example 368', reason: __escaping__ },
-			{ name: 'Example 372', reason: __escaping__ },
-			{ name: 'Example 389', reason: __escaping__ },
-			{ name: 'Example 394', reason: __escaping__ },
-			{ name: 'Example 404', reason: __escaping__ },
+			{ name: 'Example 362', reason: __escaping_html__ },
+			{ name: 'Example 368', reason: __escaping_html__ },
+			{ name: 'Example 372', reason: __escaping_html__ },
+			{ name: 'Example 389', reason: __escaping_html__ },
+			{ name: 'Example 394', reason: __escaping_html__ },
+			{ name: 'Example 404', reason: __escaping_html__ },
 			{ name: 'Example 413', reason: __links__ },
 			{ name: 'Example 428', reason: __links__ },
 			{ name: 'Example 431', reason: __links__ },
 			{ name: 'Example 442', reason: __links__ },
-			{ name: 'Example 446', reason: __escaping__ },
-			{ name: 'Example 449', reason: __escaping__ },
-			{ name: 'Example 458', reason: __escaping__ },
-			{ name: 'Example 461', reason: __escaping__ },
+			{ name: 'Example 446', reason: __escaping_special__ },
+			{ name: 'Example 449', reason: __escaping_special__ },
+			{ name: 'Example 458', reason: __escaping_special__ },
+			{ name: 'Example 461', reason: __escaping_special__ },
 			{ name: 'Example 482', reason: __links__ },
 			{ name: 'Example 483', reason: __links__ },
 			{ name: 'Example 487', reason: __inline_code__ },
