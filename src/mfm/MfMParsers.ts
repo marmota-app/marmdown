@@ -18,6 +18,7 @@ import { IdGenerator } from "$markdown/IdGenerator";
 import { EmptyElementParser } from "$parser/EmptyElementParser";
 import { Parsers } from "$parser/Parsers";
 import { MfMAsideParser } from "./block/MfMAside";
+import { MfMFencedCodeBlockParser } from "./block/MfMFencedCodeBlock";
 import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
 import { MfMHeadingParser, } from "./block/MfMHeading";
 import { MfMIndentedCodeBlockParser } from "./block/MfMIndentedCodeBlock";
@@ -46,6 +47,7 @@ export type MfMLeafBlock =
 	MfMParagraphParser |
 	MfMThematicBreakParser |
 	MfMIndentedCodeBlockParser |
+	MfMFencedCodeBlockParser |
 	EmptyElementParser
 
 export type MfMInnerInline =
@@ -90,6 +92,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMHeading() { return this.getParser('MfMHeading', () => new MfMHeadingParser(this)) }
 	get MfMThematicBreak() { return this.getParser('MfMThematicBreak', () => new MfMThematicBreakParser(this)) }
 	get MfMIndentedCodeBlock() { return this.getParser('MfMIndentedCodeBlock', () => new MfMIndentedCodeBlockParser(this)) }
+	get MfMFencedCodeBlock() { return this.getParser('MfMFencedCodeBlock', () => new MfMFencedCodeBlockParser(this)) }
 	
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
@@ -123,6 +126,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get allLeafBlocks(): KnownParsers[] { return [
 		//IMPORTANT: Options are not part of leaf blocks!
 		this.MfMIndentedCodeBlock,
+		this.MfMFencedCodeBlock,
 		this.MfMHeading,
 		this.MfMParagraph,
 		this.MfMThematicBreak,

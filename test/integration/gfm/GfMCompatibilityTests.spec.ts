@@ -157,6 +157,14 @@ const implementedSections: ImplementedSection[] = [
 		]
 	},
 	{
+		chapter: '4.5', name: 'Fenced code blocks',
+		notYetImplemented: [],
+		incompatible: [
+			{ name: 'Example 91', reason: __multiline_inline__ },
+			{ name: 'Example 111', reason: __setext_headings__ },
+		]
+	},
+	{
 		chapter: '4.6', name: 'HTML blocks',
 		notYetImplemented: [],
 		incompatible: [

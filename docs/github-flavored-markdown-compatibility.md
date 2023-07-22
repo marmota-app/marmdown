@@ -267,7 +267,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 35: Escaping is not yet implemented;  
+* Example 35: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   \## foo
@@ -278,7 +278,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>## foo</p>
   
   ```
-* Example 36: Escaping is not yet implemented;  
+* Example 36: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   # foo *bar* \*baz\*
@@ -377,7 +377,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <h3>foo</h3>
   
   ```
-* Example 46: Escaping is not yet implemented;  
+* Example 46: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   ### foo \###
@@ -871,24 +871,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </ol>
   
   ```
-* Example 80: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-      <a/>
-      *hi*
-  
-      - one
-  
-  ```
-  Expected HTML:
-  ```html
-  <pre><code>&lt;a/&gt;
-  *hi*
-  
-  - one
-  </code></pre>
-  
-  ```
 * Example 83: Indentation after the first line of a paragraph is not yet removed correctly;  
   Markdown input:
   ```markdown
@@ -924,7 +906,42 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <hr />
   
   ```
-## 4.5 NOT yet Implemented
+## 4.5 Fenced code blocks - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 91: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  ``
+  foo
+  ``
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><code>foo</code></p>
+  
+  ```
+* INCOMPATIBLE - Example 111: Setext headings are not supported;  
+  Markdown input:
+  ```markdown
+  foo
+  ---
+  ~~~
+  bar
+  ~~~
+  # baz
+  
+  ```
+  Expected HTML:
+  ```html
+  <h2>foo</h2>
+  <pre><code>bar
+  </code></pre>
+  <h1>baz</h1>
+  
+  ```
 ## 4.6 HTML blocks - Implemented
 
 Except **not yet implemented** functionality and known **incompatibilities**:
@@ -2063,61 +2080,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
 
 Except **not yet implemented** functionality and known **incompatibilities**:
 
-* Example 362: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  a*"foo"*
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>a*&quot;foo&quot;*</p>
-  
-  ```
-* Example 368: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  a_"foo"_
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>a_&quot;foo&quot;_</p>
-  
-  ```
-* Example 372: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  aa_"bb"_cc
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>aa_&quot;bb&quot;_cc</p>
-  
-  ```
-* Example 389: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  a**"foo"**
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>a**&quot;foo&quot;**</p>
-  
-  ```
-* Example 394: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  a__"foo"__
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>a__&quot;foo&quot;__</p>
-  
-  ```
 * INCOMPATIBLE - Example 403: MfM does not support multi-line inline content;  
   Markdown input:
   ```markdown
@@ -2129,17 +2091,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   ```html
   <p><strong>Gomphocarpus (<em>Gomphocarpus physocarpus</em>, syn.
   <em>Asclepias physocarpa</em>)</strong></p>
-  
-  ```
-* Example 404: Escaping is not yet implemented;  
-  Markdown input:
-  ```markdown
-  **foo "*bar*" foo**
-  
-  ```
-  Expected HTML:
-  ```html
-  <p><strong>foo &quot;<em>bar</em>&quot; foo</strong></p>
   
   ```
 * Example 413: Links are not yet implemented;  
@@ -2280,7 +2231,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p><strong>foo <a href="/url"><em>bar</em></a></strong></p>
   
   ```
-* Example 446: Escaping is not yet implemented;  
+* Example 446: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   foo *\**
@@ -2291,7 +2242,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>foo <em>*</em></p>
   
   ```
-* Example 449: Escaping is not yet implemented;  
+* Example 449: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   foo **\***
@@ -2324,7 +2275,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>***<em>foo</em></p>
   
   ```
-* Example 458: Escaping is not yet implemented;  
+* Example 458: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   foo _\__
@@ -2335,7 +2286,7 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>foo <em>_</em></p>
   
   ```
-* Example 461: Escaping is not yet implemented;  
+* Example 461: Escaping special characters is not yet implemented;  
   Markdown input:
   ```markdown
   foo __\___

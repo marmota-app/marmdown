@@ -38,6 +38,10 @@ export interface IndentedCodeBlock<
 	THIS extends IndentedCodeBlock<THIS, CONTENT>,
 	CONTENT extends Text<any>
 > extends LeafBlock<THIS, CONTENT, 'indented-code-block'> {}
+export interface FencedCodeBlock<
+	THIS extends FencedCodeBlock<THIS, CONTENT>,
+	CONTENT extends Text<any>
+> extends LeafBlock<THIS, CONTENT, 'fenced-code-block'> {}
 
 export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,

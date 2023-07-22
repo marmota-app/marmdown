@@ -24,6 +24,9 @@ export function html(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content) : ''
 }
 
+function error(message: string, element: never) {
+	throw new Error(message)
+}
 function all(blocks: MfMBlockElements[]): string {
 	return blocks.map(b => {
 		switch(b.type) {
@@ -34,8 +37,9 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
 			case 'thematic-break': return `<hr${options(b)} />`
 			case 'indented-code-block': return `<pre><code>${inline(b.content, '\n')}</code></pre>`
+			case 'fenced-code-block': return `<pre><code${b.options.get('default')? ' class="language-'+b.options.get('default')+'"':''}>${inline(b.content, '\n')}</code></pre>`
 			case '--empty--': return ''
-			default: throw new Error(`Unsupported inline element: ${(b as any).type}`)
+			default: error(`Unsupported block element: ${(b as any).type}`, b)
 		}
 	}).join('\n')
 }
@@ -55,7 +59,7 @@ function inline(inlines: MfMInlineElements[], joinAfterText: string = ''): strin
 			case 'line-break': return '<br />'
 			case 'code-span': return `<code>${inline(element.content)}</code>`
 			case '--text-span--': return inline(element.content)
-			default: throw new Error(`Unsupported inline element: ${(element as any).type}`)
+			default: error(`Unsupported inline element: ${(element as any).type}`, element)
 		}
 	}).join('')
 }
