@@ -114,6 +114,7 @@ export function parseInlineContent<CONTENTS extends Element<unknown, unknown, un
 	const finite = finiteLoop(() => i, INCREASING)
 	let textStart = start+i
 	let textLength = 0
+	let lastChar = ''
 	while(i < length) {
 		finite.guard()
 		const currentChar = text.charAt(start+i)
@@ -124,8 +125,8 @@ export function parseInlineContent<CONTENTS extends Element<unknown, unknown, un
 		// * it starts an inner inline element
 		// * it ends the current element
 		// * it belongs to the current text content
-		if(isSpecialCharacter(currentChar)) {
-			const endsCurrendResult = additionalParams.endsCurrent?.(start+i)
+		if(isSpecialCharacter(currentChar) && lastChar !== '\\') {
+			const endsCurrendResult = additionalParams.endsCurrent?.(start+i, currentChar)
 			if(endsCurrendResult?.ended) {
 				if(textLength > 0) {
 					const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
@@ -133,7 +134,7 @@ export function parseInlineContent<CONTENTS extends Element<unknown, unknown, un
 				}
 				textLength = 0
 				break
-			} else if(endsCurrendResult && additionalParams.endsOuter?.(i, endsCurrendResult)) {
+			} else if(endsCurrendResult && additionalParams.endsOuter?.(start+i, endsCurrendResult)) {
 				if(textLength > 0) {
 					const textContent = parsers.MfMText.parseLine(null, text, textStart, textLength)
 					if(textContent) { foundContents.push(textContent) }
@@ -158,6 +159,7 @@ export function parseInlineContent<CONTENTS extends Element<unknown, unknown, un
 		}
 		i++
 		textLength++
+		lastChar = currentChar
 	}
 	//Text content can occur at the very end (when there is no closing
 	//delimiter, so we exited the loop without finding a right-flanking
@@ -177,6 +179,8 @@ function isSpecialCharacter(character: string) {
 		case '`': return true
 		//Hard Line Break
 		case ' ': case '\\': return true
+		//Links
+		case '!': case '[': case ']': return true
 	}
 	return false
 }

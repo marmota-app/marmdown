@@ -67,6 +67,36 @@ export interface StrikeThrough<
 > extends ContainerInline<THIS, CONTENT, 'strike-through'> {}
 export interface CodeSpan<THIS extends CodeSpan<THIS, CONTENT>, CONTENT extends Text<any>> extends ContainerInline<THIS, CONTENT, 'code-span'> {}
 
+export interface Link<
+	THIS extends Link<THIS, CONTENT, TEXT, DESTINATION, TITLE>,
+	CONTENT extends TEXT | DESTINATION | TITLE,
+	TEXT extends LinkText<TEXT, any>,
+	DESTINATION extends LinkDestination<DESTINATION>,
+	TITLE extends LinkTitle<TITLE>
+> extends ContainerInline<THIS, CONTENT, 'link'> {
+	readonly text?: TEXT,
+	readonly destination?: DESTINATION,
+	readonly title?: TITLE,
+}
+export interface Image<
+	THIS extends Image<THIS, CONTENT, ALT_TEXT, DESTINATION, TITLE>,
+	CONTENT extends ALT_TEXT | DESTINATION | TITLE,
+	ALT_TEXT extends LinkText<ALT_TEXT, any>,
+	DESTINATION extends LinkDestination<DESTINATION>,
+	TITLE extends LinkTitle<TITLE>
+> extends ContainerInline<THIS, CONTENT, 'image'> {
+	readonly altText?: ALT_TEXT,
+	readonly url?: URL,
+	readonly title?: TITLE,
+}
+export interface LinkText<THIS extends LinkText<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>> extends ContainerInline<THIS, CONTENT, 'link-text'> {}
+export interface LinkDestination<THIS extends LinkDestination<THIS>> extends LeafInline<THIS, 'link-destination'> {
+	readonly target: string,
+}
+export interface LinkTitle<THIS extends LinkTitle<THIS>> extends LeafInline<THIS, 'link-title'> {
+	readonly value: string,
+}
+
 export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> {
 	readonly text: string,
 }

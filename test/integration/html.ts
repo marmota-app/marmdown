@@ -36,8 +36,8 @@ function all(blocks: MfMBlockElements[]): string {
 			case 'block-quote': return `<blockquote${options(b)}>\n${all(b.content)}\n</blockquote>`
 			case 'aside': return `<aside${options(b)}>\n${all(b.content)}\n</aside>`
 			case 'thematic-break': return `<hr${options(b)} />`
-			case 'indented-code-block': return `<pre><code>${inline(b.content, '\n')}</code></pre>`
-			case 'fenced-code-block': return `<pre><code${b.options.get('default')? ' class="language-'+b.options.get('default')+'"':''}>${inline(b.content, '\n')}</code></pre>`
+			case 'indented-code-block': return `<pre><code>${inline(b.content, '\n', false)}</code></pre>`
+			case 'fenced-code-block': return `<pre><code${b.options.get('default')? ' class="language-'+b.options.get('default')+'"':''}>${inline(b.content, '\n', false)}</code></pre>`
 			case '--empty--': return ''
 			default: error(`Unsupported block element: ${(b as any).type}`, b)
 		}
@@ -48,16 +48,17 @@ function heading(heading: MfMHeading) {
 	return `<h${heading.level}${options(heading)}>${inline(heading.content)}</h${heading.level}>`
 }
 
-function inline(inlines: MfMInlineElements[], joinAfterText: string = ''): string {
+function inline(inlines: MfMInlineElements[], joinAfterText: string = '', escape: boolean = true): string {
 	return inlines.map((element, index) => {
 		switch(element.type) {
 			case '--content-line--': return `${inline(element.content)}${index<inlines.length-1?'\n':''}`
-			case 'text': return element.text+joinAfterText
+			case 'text': return (escape? element.text : element.unescapedText)+joinAfterText
 			case 'emphasis': return `<em>${inline(element.content)}</em>`
 			case 'strong': return `<strong>${inline(element.content)}</strong>`
 			case 'strike-through': return `<del>${inline(element.content)}</del>`
 			case 'line-break': return '<br />'
-			case 'code-span': return `<code>${inline(element.content)}</code>`
+			case 'code-span': return `<code>${inline(element.content, '', false)}</code>`
+			case 'link-text': return inline(element.content)
 			case '--text-span--': return inline(element.content)
 			default: error(`Unsupported inline element: ${(element as any).type}`, element)
 		}

@@ -116,7 +116,7 @@ export class MfMCodeSpanParser extends InlineParser<MfMCodeSpan | MfMText, MfMTe
 		return -1
 	}
 
-	override canUpdate(original: MfMCodeSpan | MfMText, update: ContentUpdate): boolean {
+	override canUpdate(original: MfMCodeSpan | MfMText, update: ContentUpdate, replacedText: string): boolean {
 		let isOnlySpaces = update.text.length > 0
 		for(let i=0; i<update.text.length; i++) {
 			if(update.text.charAt(i) !== ' ') {
@@ -125,6 +125,6 @@ export class MfMCodeSpanParser extends InlineParser<MfMCodeSpan | MfMText, MfMTe
 			}
 		}
 
-		return !isOnlySpaces
+		return !isOnlySpaces && super.canUpdate(original, update, replacedText)
 	}
 }

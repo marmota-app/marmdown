@@ -25,6 +25,9 @@ import { MfMIndentedCodeBlockParser } from "./block/MfMIndentedCodeBlock";
 import { MfMParagraphParser } from "./block/MfMParagraph";
 import { MfMSectionParser } from "./block/MfMSection";
 import { MfMThematicBreakParser } from "./block/MfMThematicBreak";
+import { MfMLinkTextParser } from "./inline/link/MfMLinkText";
+import { MfMLinkTitleParser } from "./inline/link/MfMLinkTitle";
+import { MfMLinkDestinationParser } from "./inline/link/MfMLinkDestination";
 import { MfMCodeSpanParser } from "./inline/MfMCodeSpan";
 import { MfMContentLineParser } from "./inline/MfMContentLine";
 import { MfMEmphasisParser } from "./inline/MfMEmphasis";
@@ -33,6 +36,7 @@ import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
 import { MfMOptionsParser } from "./options/MfMOptions";
+import { TextSpanParser } from "$element/TextSpan";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -57,7 +61,11 @@ export type MfMInnerInline =
 
 export type MfMOtherInline =
 	MfMContentLineParser |
-	MfMTextParser
+	MfMTextParser |
+	MfMLinkDestinationParser |
+	MfMLinkTitleParser |
+	MfMLinkTextParser |
+	TextSpanParser
 
 export type MfMOptions =
 	MfMFirstOptionParser |
@@ -111,6 +119,12 @@ export class MfMParsers implements Parsers<KnownParsers> {
 
 	get MfMHardLineBreak() { return this.getParser('MfMHardLineBreak', () => new MfMHardLineBreakParser(this)) }
 
+	get MfMLinkDestination() { return this.getParser('MfMLinkDestination', () => new MfMLinkDestinationParser(this)) }
+	get MfMLinkTitle() { return this.getParser('MfMLinkTitle', () => new MfMLinkTitleParser(this)) }
+	get MfMLinkText() { return this.getParser('MfMLinkText', () => new MfMLinkTextParser(this)) }
+	
+	get TextSpan() { return this.getParser('TextSpan', () => new TextSpanParser(this)) }
+	
 	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
 	get allContainerBlocks(): KnownParsers[] { return [
 		//EmptyElement has priority over all other blocks: When a line is

@@ -105,7 +105,7 @@ export abstract class Parser<
 	 * @param original The original result that should be updated
 	 * @returns true when the original result can be updated, false otherwise
 	 */
-	canUpdate(original: RESULT, update: ContentUpdate): boolean {
+	canUpdate(original: RESULT, update: ContentUpdate, replacedText: string): boolean {
 		return true
 	}
 

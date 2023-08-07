@@ -30,11 +30,13 @@ import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
 import { MfMAside } from "$mfm/block/MfMAside";
 import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak";
 import { EmptyElement } from "$parser/EmptyElementParser";
-import { MfMEmphasis, MfMStrikeThrough, MfMStrongEmphasis, TextSpan } from "$mfm/inline/MfMEmphasis";
+import { MfMEmphasis, MfMStrikeThrough, MfMStrongEmphasis } from "$mfm/inline/MfMEmphasis";
 import { MfMHardLineBreak } from "$mfm/inline/MfMHardLineBreak";
 import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan";
 import { MfMIndentedCodeBlock } from "$mfm/block/MfMIndentedCodeBlock";
 import { MfMFencedCodeBlock } from "$mfm/block/MfMFencedCodeBlock";
+import { TextSpan } from "$element/TextSpan";
+import { MfMLinkText } from "$mfm/inline/link/MfMLinkText";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -53,8 +55,9 @@ export type MfMInlineElements =
 	MfMStrongEmphasis |
 	MfMStrikeThrough |
 	MfMCodeSpan |
-	TextSpan |
-	MfMHardLineBreak | 
+	TextSpan<MfMInlineElements> |
+	MfMHardLineBreak |
+	MfMLinkText |
 	MfMText
 
 /**

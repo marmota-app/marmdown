@@ -15,14 +15,29 @@ limitations under the License.
 */
 
 export function INCREASING<T> (v: T, l: T|null) { return l==null || v > l }
+export function CHANGING<T> (v: T, l: T|null) { return l==null || v !== l }
 
-export function finiteLoop<T>(variable: () => T, isValid: (v: T, l: T|null)=>boolean) {
+export function finiteLoop<T extends unknown | unknown[]>(
+	variable: () => T,
+	isValid: T extends unknown[]? ((v: T[number], l: T[number]|null)=>boolean)[] : (v: T, l: T|null)=>boolean
+) {
 	let lastVariable: T | null = null
 	return {
 		guard: () => {
 			let v = variable()
-			if(!isValid(v, lastVariable)) { varUnchanged(lastVariable, v) }
-			lastVariable = v
+			if(Array.isArray(v)) {
+				if(!Array.isArray(isValid)) { throw new Error('isValid must be an array of validators!') }
+				if(lastVariable != null && (!Array.isArray(lastVariable) || v.length !== lastVariable.length)) { throw new Error(`last variable ${lastVariable} must be null or an array and have the same length as current variable ${v}`) }
+
+				v.forEach((cv, i) => {
+					const lv = lastVariable != null? (lastVariable as any)[i] : null
+					if(!isValid[i](cv, lv)) { varUnchanged(lv, cv) }
+				})
+				lastVariable = v
+			} else {
+				if(!isValid(v, lastVariable)) { varUnchanged(lastVariable, v) }
+				lastVariable = v
+			}
 		}
 	}
 }

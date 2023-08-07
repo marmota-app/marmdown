@@ -72,7 +72,7 @@ describe('MfMCodeSpan', () => {
 
 			expect(result).toHaveProperty('type', 'code-span')
 			expect(result?.content).toHaveLength(1)
-			expect(result?.content[0]).toHaveProperty('text', 'code span\\')
+			expect(result?.content[0]).toHaveProperty('unescapedText', 'code span\\')
 
 			expect(result?.lines).toHaveLength(1)
 			expect(result?.lines[0]).toHaveProperty('asText', '`code span\\`')

@@ -15,9 +15,11 @@ limitations under the License.
 */
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
+import { TextSpan } from "$element/TextSpan";
 import { NumberedIdGenerator } from "$markdown/IdGenerator";
+import { MfMInlineElements } from "$markdown/MfMDialect";
 import { UpdateParser } from "$markdown/UpdateParser";
-import { MfMEmphasis, TextSpan } from "$mfm/inline/MfMEmphasis";
+import { MfMEmphasis } from "$mfm/inline/MfMEmphasis";
 import { createEmphasisParser } from "./createEmphasisParser";
 
 describe('MfMEmphasis', () => {
@@ -1049,7 +1051,7 @@ describe('MfMEmphasis', () => {
 		it('parses single-line, empty options', () => {
 			const parser = createEmphasisParser()
 			const text = `_{} emphazised_`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'emphasis')
@@ -1071,7 +1073,7 @@ describe('MfMEmphasis', () => {
 		})
 		it('parses single-line options with values', () => {			const parser = createEmphasisParser()
 			const text = `_{ some default value; key2=value2; key3=value3 }emphazised_`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length) as MfMEmphasis
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'emphasis')
@@ -1174,9 +1176,9 @@ describe('MfMEmphasis', () => {
 			expect(updated).not.toBeNull()
 			expect(updated?.content).toHaveLength(1)
 			expect(updated?.content[0]).toHaveProperty('type', '--text-span--')
-			expect((updated?.content[0] as TextSpan).content).toHaveLength(2)
-			expect((updated?.content[0] as TextSpan).content[0]).toHaveProperty('text', '*')
-			expect((updated?.content[0] as TextSpan).content[1]).toHaveProperty('text', 'some emphazised text')
+			expect((updated?.content[0] as TextSpan<any>).content).toHaveLength(2)
+			expect((updated?.content[0] as TextSpan<any>).content[0]).toHaveProperty('text', '*')
+			expect((updated?.content[0] as TextSpan<any>).content[1]).toHaveProperty('text', 'some emphazised text')
 
 			expect(updated?.lines[0].content).toHaveLength(3)
 			expect(updated?.lines[0].content[0]).toHaveProperty('asText', '_')
@@ -1214,7 +1216,7 @@ describe('MfMEmphasis', () => {
 			expect(updated?.content[0]).toHaveProperty('type', 'text')
 			expect(updated?.content[0]).toHaveProperty('text', 'some ')
 			expect(updated?.content[1]).toHaveProperty('type', 'strong')
-			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', 'emphazised')
+			expect((updated?.content[1] as TextSpan<any>).content[0]).toHaveProperty('text', 'emphazised')
 			expect(updated?.content[2]).toHaveProperty('type', 'text')
 			expect(updated?.content[2]).toHaveProperty('text', ' text')
 
@@ -1244,7 +1246,7 @@ describe('MfMEmphasis', () => {
 			expect(updated?.content[0]).toHaveProperty('type', 'text')
 			expect(updated?.content[0]).toHaveProperty('text', 'some ')
 			expect(updated?.content[1]).toHaveProperty('type', 'strong')
-			expect((updated?.content[1] as TextSpan).content[0]).toHaveProperty('text', 'strongly emphazised')
+			expect((updated?.content[1] as TextSpan<any>).content[0]).toHaveProperty('text', 'strongly emphazised')
 			expect(updated?.content[2]).toHaveProperty('type', 'text')
 			expect(updated?.content[2]).toHaveProperty('text', ' text')
 

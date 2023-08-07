@@ -17,6 +17,7 @@ limitations under the License.
 import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element";
 import { GenericLeafInline } from "$element/GenericElement";
 import { Text } from "$element/MarkdownElements";
+import { replaceEscaped } from "$markdown/escaping";
 import { InlineParser } from "$parser/Parser";
 
 const PUNCTUATION = [ 
@@ -27,10 +28,11 @@ const PUNCTUATION = [
 export class MfMText extends GenericLeafInline<MfMText, never, StringLineContent<MfMText>, 'text', MfMTextParser> implements Text<MfMText> {
 	constructor(id: string, pw: MfMTextParser) { super(id, 'text', pw) }
 
-	get text() { return this.lines.length===1? this.lines[0].content.map(l => l.asSafeText).join('') : '' }
+	get unescapedText() { return this.lines.length===1? this.lines[0].content.map(l => l.asSafeText).join('') : '' }
+	get text() { return replaceEscaped(this.unescapedText) }
 }
 
-export class MfMTextParser extends InlineParser<MfMText> {
+export class MfMTextParser extends InlineParser<MfMText, never> {
 	public readonly elementName = 'MfMText'
 
 	parseInline(text: string, start: number, length: number): MfMText | null {

@@ -18,12 +18,22 @@ import { jsonTransient } from "$markdown/jsonTransient";
 import { Parser } from "$parser/Parser";
 import { Block, Element, Inline, LineContent, ParsedLine } from "./Element";
 
+abstract class LineBasedElement<THIS extends Element<unknown, unknown, unknown, unknown> | unknown> {
+	abstract readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[]
+
+	addLine(lineId: string) {
+		const line = new ParsedLine(lineId, this)
+		this.lines.push(line as unknown as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>)
+		return line
+	}
+}
+
 export abstract class GenericBlock<
 	THIS extends Block<THIS, CONTENT, TYPE> | unknown,
 	CONTENT extends Element<unknown, unknown, unknown, unknown> | unknown,
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
-> implements Block<THIS, CONTENT, TYPE> {
+> extends LineBasedElement<THIS> implements Block<THIS, CONTENT, TYPE> {
 	readonly classification: string = 'block'
 
 	private _lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
@@ -44,13 +54,13 @@ export abstract class GenericBlock<
 			}, [] as CONTENT[])
 	}
 
-	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
-	}
+	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) { super() }
 
 	get isFullyParsed() { return true }
 
 	addContent(content: CONTENT) {
 		if(this._lines.length === 0) {
+			//FIXME remove and throw exception
 			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
 			this._lines.push(new ParsedLine(newId, this as unknown as THIS))
 		}
@@ -70,13 +80,14 @@ export abstract class GenericLeafInline<
 	LINE_CONTENT extends LineContent<THIS>,
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
-> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+> extends LineBasedElement<THIS> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
 	readonly classification: string = 'inline'
 
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 	public readonly content: CONTENT[] = []
 
 	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
+		super()
 		jsonTransient(this, 'lines')
 	}
 
@@ -84,6 +95,7 @@ export abstract class GenericLeafInline<
 
 	addContent(content: CONTENT) {
 		if(this.lines.length === 0) {
+			//FIXME remove and throw exception
 			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
 			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
 		}
@@ -102,12 +114,13 @@ export class GenericContainerInline<
 	LINE_CONTENT extends LineContent<THIS>,
 	TYPE extends string | unknown,
 	PARSER extends Parser<THIS, Element<unknown, unknown, unknown, unknown>>,
-> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
+> extends LineBasedElement<THIS> implements Inline<THIS, CONTENT, LINE_CONTENT, TYPE> {
 	readonly classification: string = 'inline'
 
 	public readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 
 	constructor(public id: string, public readonly type: TYPE, public readonly parsedWith: PARSER) {
+		super()
 		jsonTransient(this, 'lines')
 	}
 
@@ -115,6 +128,7 @@ export class GenericContainerInline<
 
 	addContent(content: CONTENT) {
 		if(this.lines.length === 0) {
+			//FIXME remove and throw exception
 			const newId = this.parsedWith.parsers.idGenerator.nextLineId()
 			this.lines.push(new ParsedLine(newId, this as unknown as THIS))
 		}

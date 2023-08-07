@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { TextSpanParser } from "$element/TextSpan"
 import { IdGenerator, NumberedIdGenerator } from "$markdown/IdGenerator"
 import { MfMEmphasisParser } from "$mfm/inline/MfMEmphasis"
 import { MfMTextParser } from "$mfm/inline/MfMText"
@@ -21,21 +22,23 @@ import { MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { Parsers } from "$parser/Parsers"
 import { createOptionsParser } from "../options/createOptionsParser"
 
-class TestParsers implements Parsers<MfMTextParser | MfMEmphasisParser | MfMOptionsParser> {
-	private knownParsers: { [key in (MfMTextParser | MfMEmphasisParser | MfMOptionsParser)['elementName']]?: MfMTextParser | MfMEmphasisParser | MfMOptionsParser } = {}
+type RequiredParsers = MfMTextParser | MfMEmphasisParser | MfMOptionsParser | TextSpanParser
+class TestParsers implements Parsers<RequiredParsers> {
+	private knownParsers: { [key in (RequiredParsers)['elementName']]?: RequiredParsers } = {}
 	
 	constructor(public idGenerator: IdGenerator) {}
 
 	get MfMOptions() { return this.getParser('MfMOptions', () => createOptionsParser(this.idGenerator) )}
 	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this))}
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
+	get TextSpan() { return this.getParser('TextSpan', () => new TextSpanParser(this)) }
 
 	get allInnerInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [
 		this.MfMEmphasis,
 	] }
 	get allInlines(): (MfMTextParser | MfMEmphasisParser)[] { return [this.MfMEmphasis, this.MfMText, ] }
 
-	private getParser<T extends MfMTextParser | MfMEmphasisParser | MfMOptionsParser>(name: T['elementName'], create: ()=>T): T {
+	private getParser<T extends RequiredParsers>(name: T['elementName'], create: ()=>T): T {
 		if(this.knownParsers[name] == null) {
 			this.knownParsers[name] = create()
 		}

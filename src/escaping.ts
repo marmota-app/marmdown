@@ -14,17 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export function isWhitespace(character: string) {
-	switch(character) {
-		case ' ': case '\t': case '\u00A0': case '\u1680': case '\u2000':
-		case '\u2001': case '\u2002': case '\u2003': case '\u2004': case '\u2005':
-		case '\u2006': case '\u2007': case '\u2008': case '\u2009': case '\u200A':
-		case '\u202F': case '\u205F': case '\u3000': return true
-	}
-	return false
+
+export function replaceEscaped(unescapedText: string) {
+	return unescapedText.replaceAll(/\\(.?)/g, '$1')
 }
 
-export function isUnescapedWhitespace(character: string, previousCharacter: string) {
-	if(previousCharacter !== '\\') return isWhitespace(character)
+export function isUnescaped(characters: string[], current: string, previous: string) {
+	if(previous !== '\\') {
+		for(let c of characters) {
+			if(current === c) { return true }
+		}
+	}
 	return false
 }

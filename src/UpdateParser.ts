@@ -80,7 +80,9 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		const rangeEndsWithinExistingBounds = changeEnd >= content.start && changeEnd <= content.start+content.length
 
 		if(rangeStartsWithingExistingBounds && rangeEndsWithinExistingBounds) {
-			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo, update)) {
+			const startInsideContent = update.rangeOffset-content.start
+			const replacedText = content.asText.substring(startInsideContent, startInsideContent+update.rangeLength)
+			if(content instanceof ParsedLine && content.belongsTo.parsedWith.canUpdate(content.belongsTo, update, replacedText)) {
 				if(this.updateCouldChangeElementType(content, update)) {
 					throw new Error('update-would-change-document-structure')
 				}

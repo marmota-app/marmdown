@@ -16,6 +16,7 @@ limitations under the License.
 
 import { ContainerInline, LineContent, ParsedLine, StringLineContent } from "$element/Element";
 import { Emphasis, StrikeThrough, StrongEmphasis } from "$element/MarkdownElements";
+import { TextSpan, TextSpanParser } from "$element/TextSpan";
 import { MfMInlineElements } from "$markdown/MfMDialect";
 import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
 import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions";
@@ -44,16 +45,16 @@ export class MfMStrongEmphasis extends MfMGenericContainerInline<MfMStrongEmphas
 export class MfMStrikeThrough extends MfMGenericContainerInline<MfMStrikeThrough, MfMInlineElements, LineContent<MfMStrikeThrough>, 'strike-through', MfMEmphasisParser> implements StrikeThrough<MfMStrikeThrough, MfMInlineElements> {
 	constructor(id: string, pw: MfMEmphasisParser) { super(id, 'strike-through', pw) }
 }
-export class TextSpan extends MfMGenericContainerInline<TextSpan, MfMInlineElements, LineContent<TextSpan>, '--text-span--', MfMEmphasisParser> implements ContainerInline<TextSpan, MfMInlineElements, '--text-span--'> {
-	constructor(id: string, pw: MfMEmphasisParser) { super(id, '--text-span--', pw) }
-}
 
 const DELIMITERS = [ '*', '_', '~', ]
 const PUNCTUATION = [ 
 	'!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/',
 	':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~',
 ]
-export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan, MfMOptionsParser | MfMTextParser> {
+export class MfMEmphasisParser extends InlineParser<
+	MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan<MfMInlineElements>,
+	MfMOptionsParser | MfMTextParser | TextSpanParser
+> {
 	public readonly elementName = 'MfMEmphasis'
 
 	/**
@@ -69,7 +70,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 	 * @param start The start index where parsing should begin
 	 * @param length The maximum lenght that can be parsed at this point
 	 */
-	override parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null {
+	override parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan<MfMInlineElements> | null {
 		const nextLeftRun = this.findLeftDelimiterRun(text, start, length)
 		let i=0
 
@@ -173,7 +174,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 		currentWasClosed: boolean, closingIndex: number, additionalParams: { [key: string]: any },
 	) {
 		//Create correct return value
-		let content: MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan | null = null
+		let content: MfMEmphasis | MfMStrongEmphasis | MfMStrikeThrough | TextSpan<MfMInlineElements> | null = null
 		let closingLineContent: StringLineContent<any> | null = null
 		if(currentWasClosed) {
 			content = new elementToCreate(this.parsers.idGenerator.nextId(), this)
@@ -184,7 +185,7 @@ export class MfMEmphasisParser extends InlineParser<MfMEmphasis | MfMStrongEmpha
 			//Add opening delimiter
 			content.lines[content.lines.length-1].content.push(new StringLineContent(openingDelimiter, nextLeftRun.start, openingDelimiter.length, content))
 		} else {
-			content = new TextSpan(this.parsers.idGenerator.nextId(), this)
+			content = this.parsers.TextSpan.create()
 			content.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), content))
 			if(openingDelimiter) {
 				const delimiterText = this.parsers.MfMText.parseLine(null, text, nextLeftRun.start, openingDelimiter.length, additionalParams)
