@@ -42,6 +42,13 @@ export interface FencedCodeBlock<
 	THIS extends FencedCodeBlock<THIS, CONTENT>,
 	CONTENT extends Text<any>
 > extends LeafBlock<THIS, CONTENT, 'fenced-code-block'> {}
+export interface LinkReference<
+	THIS extends LinkReference<THIS, CONTENT, TEXT, DESTINATION, TITLE>,
+	CONTENT extends TEXT | DESTINATION | TITLE,
+	TEXT extends LinkText<TEXT, any>,
+	DESTINATION extends LinkDestination<DESTINATION>,
+	TITLE extends LinkTitle<TITLE>,
+> extends LeafBlock<THIS, CONTENT, 'link-reference'>{}
 
 export interface Paragraph<
 	THIS extends Paragraph<THIS, CONTENT>,

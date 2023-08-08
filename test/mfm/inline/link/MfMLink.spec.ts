@@ -151,8 +151,89 @@ describe('MfMLink', () => {
 			})
 		})
 	})
-	describe.skip('parsing reference links', () => {})
-	describe.skip('parsing the content (image links)', () => {})
+	describe('parsing reference links', () => {
+		it('parses full reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[link text][link label]'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', 'link')
+			expect(result.references).toHaveProperty('type', 'link-text')
+			expect(result.references).toHaveProperty('normalized', 'link label')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('does not parse full reference link when there is no closing bracket', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[not a link][not a link label'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', '--text-span--')
+			expect(result.content).toHaveLength(4)
+			expect(result.content[0]).toHaveProperty('text', '[')
+			expect(result.content[1].content[0]).toHaveProperty('text', 'not a link')
+			expect(result.content[2]).toHaveProperty('text', '][')
+			expect(result.content[3].content[0]).toHaveProperty('text', 'not a link label')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses collapsed reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[link text and label][]'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', 'link')
+			expect(result.references).toHaveProperty('type', 'link-text')
+			expect(result.references).toHaveProperty('normalized', 'link text and label')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses shortcut reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[link text and label]'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', 'link')
+			expect(result.references).toHaveProperty('type', 'link-text')
+			expect(result.references).toHaveProperty('normalized', 'link text and label')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+	})
+	describe('parsing the content (image links)', () => {
+		it('parses normal image link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '![alt text](http://example.com "image title")'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', 'image')
+			expect(result.text?.content[0]).toHaveProperty('text', 'alt text')
+			expect(result.destination).toHaveProperty('target', 'http://example.com')
+			expect(result.title).toHaveProperty('value', 'image title')
+			expect(result.references).toBeUndefined()
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses reference image link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '![alt text][link reference]'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result).toHaveProperty('type', 'image')
+			expect(result.text?.content[0]).toHaveProperty('text', 'alt text')
+			expect(result.destination).toBeUndefined()
+			expect(result.title).toBeUndefined()
+			expect(result.references).toHaveProperty('normalized', 'link reference')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+	})
 	describe.skip('parsing options', () => {})
 	describe.skip('parsing updates', () => {})
 })

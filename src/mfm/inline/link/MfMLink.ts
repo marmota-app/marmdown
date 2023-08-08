@@ -31,19 +31,32 @@ import { MfMLinkText, MfMLinkTextParser } from "./MfMLinkText"
 import { MfMLinkDestination, MfMLinkDestinationParser } from "./MfMLinkDestination"
 
 type LinkContent = MfMLinkText | MfMLinkDestination | MfMLinkTitle
-export class MfMLink extends MfMGenericContainerInline<MfMLink, LinkContent, LineContent<MfMLink>, 'link', MfMLinkParser> implements Link<MfMLink, LinkContent, MfMLinkText, MfMLinkDestination, MfMLinkTitle> {
-	constructor(id: string, pw: MfMLinkParser) { super(id, 'link', pw) }
+class MfMLinkBase<THIS extends MfMLink | MfMImage,TYPE extends 'image' | 'link'> extends MfMGenericContainerInline<THIS, LinkContent, LineContent<THIS>, TYPE, MfMLinkParser> {
+	#collapsed = false
+
+	constructor(id: string, type: TYPE, pw: MfMLinkParser) { super(id, type, pw) }
 
 	get text(): MfMLinkText | undefined { return this.content.find(c => c.type==='link-text') as MfMLinkText }
 	get destination(): MfMLinkDestination | undefined { return this.content.find(c => c.type==='link-destination') as MfMLinkDestination }
 	get title(): MfMLinkTitle | undefined { return this.content.find(c => c.type === 'link-title') as MfMLinkTitle }
-}
-export class MfMImage extends MfMGenericContainerInline<MfMImage, LinkContent, LineContent<MfMImage>, 'image', MfMLinkParser> implements Image<MfMImage, LinkContent, MfMLinkText, MfMLinkDestination, MfMLinkTitle> {
-	constructor(id: string, pw: MfMLinkParser) { super(id, 'image', pw) }
+	get references(): MfMLinkText | undefined {
+		if(this.#collapsed) { return this.text }
 
-	get altText(): MfMLinkText | undefined { return undefined }
-	get destination(): MfMLinkDestination | undefined { return undefined }
-	get title(): MfMLinkTitle | undefined { return undefined }
+		const texts = this.content.filter(c => c.type === 'link-text') as MfMLinkText[]
+		if(texts.length > 1) { return texts[1] }
+
+		return undefined
+	}
+
+	collapse() {
+		this.#collapsed = true
+	}
+}
+export class MfMLink extends MfMLinkBase<MfMLink, 'link'> implements Link<MfMLink, LinkContent, MfMLinkText, MfMLinkDestination, MfMLinkTitle> {
+	constructor(id: string, pw: MfMLinkParser) { super(id, 'link', pw) }
+}
+export class MfMImage extends MfMLinkBase<MfMImage, 'image'> implements Image<MfMImage, LinkContent, MfMLinkText, MfMLinkDestination, MfMLinkTitle> {
+	constructor(id: string, pw: MfMLinkParser) { super(id, 'image', pw) }
 }
 
 export class MfMLinkParser extends InlineParser<
@@ -53,15 +66,25 @@ export class MfMLinkParser extends InlineParser<
 	public readonly elementName = 'MfMLink'
 
 	override parseInline(text: string, start: number, length: number, additionalParams: { [key: string]: any } = {}): MfMLink | MfMImage | TextSpan<MfMInlineElements> | null {
+		if(text.charAt(start) === '!') {
+			const image = new MfMImage(this.parsers.idGenerator.nextId(), this)
+			const contentBefore = new StringLineContent('!', start, 1, image)
+			return this.#parseLinkContent(image, text, start+1, length-1, additionalParams, contentBefore)
+		}
+		const link = new MfMLink(this.parsers.idGenerator.nextId(), this)
+		return this.#parseLinkContent(link, text, start, length, additionalParams)
+	}
+
+	#parseLinkContent(result: MfMLink | MfMImage, text: string, start: number, length: number, additionalParams: { [key: string]: any }, contentBefore?: StringLineContent<MfMLink | MfMImage>) {
 		if(text.charAt(start) === '[') {
 			let i=1
-			const link = new MfMLink(this.parsers.idGenerator.nextId(), this)
-			const line = link.addLine(this.parsers.idGenerator.nextLineId())
+			const line = result.addLine(this.parsers.idGenerator.nextLineId())
 			const linkText = this.parsers.MfMLinkText.parseLine(null, text, start+i, length-i, additionalParams)
 	
-			line.content.push(new StringLineContent('[', start, 1, link))
+			if(contentBefore) { line.content.push(contentBefore) }
+			line.content.push(new StringLineContent('[', start, 1, result))
 			if(linkText && linkText.content.length > 0) {
-				link.addContent(linkText)
+				result.addContent(linkText)
 				i += linkText.lines[0].length
 			}
 			if(text.charAt(start+i) !== ']') {
@@ -73,32 +96,32 @@ export class MfMLinkParser extends InlineParser<
 				}
 				return textSpan
 			}
-			line.content.push(new StringLineContent(']', start+i, 1, link))
+			line.content.push(new StringLineContent(']', start+i, 1, result))
 			i++
 			if(text.charAt(start+i) === '(') {
-				line.content.push(new StringLineContent('(', start+i, 1, link))
+				line.content.push(new StringLineContent('(', start+i, 1, result))
 				i++
-				const skipped = this.skipSpaces(text, start+i, length-i)
+				const skipped = this.#skipSpaces(text, start+i, length-i)
 				if(skipped > 0) {
-					line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, link))
+					line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
 					i += skipped
 				}
 
 				const linkDestination = this.parsers.MfMLinkDestination.parseLine(null, text, start+i, length-i, additionalParams)
 				if(linkDestination != null && linkDestination.target.length > 0) {
-					link.addContent(linkDestination)
+					result.addContent(linkDestination)
 					i += linkDestination.lines[0].length
 				}
 				if(linkDestination == null || isWhitespace(text.charAt(start+i))) {
-					const skipped = this.skipSpaces(text, start+i, length-i)
+					const skipped = this.#skipSpaces(text, start+i, length-i)
 					if(skipped > 0) {
-						line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, link))
+						line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
 						i += skipped
 					}
 
 					const linkTitle = this.parsers.MfMLinkTitle.parseLine(null, text, start+i, length-i, additionalParams)
 					if(linkTitle !== null) {
-						link.addContent(linkTitle)
+						result.addContent(linkTitle)
 						i += linkTitle.lines[0].length
 					}
 				}
@@ -115,16 +138,50 @@ export class MfMLinkParser extends InlineParser<
 					textSpan.addContent(rest)
 					return textSpan
 				}
-				line.content.push(new StringLineContent(')', start+i, 1, link))
+				line.content.push(new StringLineContent(')', start+i, 1, result))
+			} else if(text.charAt(start+i) === '[') {
+				line.content.push(new StringLineContent('[', start+i, 1, result))
+				i++
+				if(text.charAt(start+i) === ']') {
+					line.content.push(new StringLineContent(']', start+i, 1, result))
+					result.collapse()
+					return result
+				}
+				const references = this.parsers.MfMLinkText.parseLine(null, text, start+i, length-i, additionalParams)
+
+				if(references && references.content.length > 0) {
+					result.addContent(references)
+					i += references.lines[0].length
+				}
+				if(text.charAt(start+i) !== ']') {
+					const textSpan = this.parsers.TextSpan.create<MfMInlineElements>()
+					const openingDelimiter = this.parsers.MfMText.parseLine(null, text, start, 1) as MfMText
+					textSpan.addContent(openingDelimiter)
+					let textEnd = 1
+					if(linkText && linkText.content.length > 0) {
+						textSpan.addContent(linkText)
+						textEnd += linkText.lines[0].length
+					}
+					const innerDelimiter = this.parsers.MfMText.parseLine(null, text, start+textEnd, 2) as MfMText
+					textSpan.addContent(innerDelimiter)
+					if(references && references.content.length > 0) {
+						textSpan.addContent(references)
+					}
+					return textSpan
+				}
+				line.content.push(new StringLineContent(']', start+i, 1, result))
+				return result
+			} else {
+				result.collapse()
 			}
 	
-			return link
+			return result
 		}
 
 		return null
 	}
 
-	private skipSpaces(text: string, start: number, length: number) {
+	#skipSpaces(text: string, start: number, length: number) {
 		let i = 0
 		const loop = finiteLoop(() => i, INCREASING)
 		while(i < length && isWhitespace(text.charAt(start+i))) {

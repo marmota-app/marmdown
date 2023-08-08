@@ -49,6 +49,27 @@ describe('MfMLinkText', () => {
 			expect(result?.lines[0].asText).toEqual('link with **bold** text')
 		})
 	})
+	describe('normalizing the link text for link references', () => {
+		it('normalizes simple text', () => {
+			const { linkTextParser } = createLinkTextParser()
+			const text = 'simple text'
+
+			const result = linkTextParser.parseLine(null, text, 0, text.length)
+
+			expect(result).toHaveProperty('type', 'link-text')
+			expect(result).toHaveProperty('normalized', 'simple text')
+		})
+
+		it('normalizes combined text with whitespaces', () => {
+			const { linkTextParser } = createLinkTextParser()
+			const text = '    text    **with _formatting_\tand** \t whitespaces  \t '
+
+			const result = linkTextParser.parseLine(null, text, 0, text.length)
+
+			expect(result).toHaveProperty('type', 'link-text')
+			expect(result).toHaveProperty('normalized', 'text **with _formatting_ and** whitespaces')
+		})
+	})
 	describe('parsing updates', () => {
 		it('parses update to the text', () => {
 			const { linkTextParser, idGenerator } = createLinkTextParser()

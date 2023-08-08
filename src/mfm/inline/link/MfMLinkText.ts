@@ -25,6 +25,12 @@ import { MfMTextParser } from "../MfMText"
 
 export class MfMLinkText extends GenericContainerInline<MfMLinkText, MfMInlineElements, StringLineContent<MfMLinkText>, 'link-text', MfMLinkTextParser> implements LinkText<MfMLinkText, MfMInlineElements> {
 	constructor(id: string, pw: MfMLinkTextParser) { super(id, 'link-text', pw) }
+
+	get normalized(): string {
+		const innerText = this.content.map(c => c.lines[0].asSafeText).join('')
+		const normalizedText = innerText.trim().replaceAll(/[ \t]+/g, ' ')
+		return normalizedText
+	}
 }
 
 export class MfMLinkTextParser extends InlineParser<MfMLinkText, MfMTextParser> {
