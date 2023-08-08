@@ -29,6 +29,7 @@ import { MfMLinkTitle, MfMLinkTitleParser } from "./MfMLinkTitle"
 import { MfMText, MfMTextParser } from "../MfMText"
 import { MfMLinkText, MfMLinkTextParser } from "./MfMLinkText"
 import { MfMLinkDestination, MfMLinkDestinationParser } from "./MfMLinkDestination"
+import { ContentUpdate } from "$markdown/ContentUpdate"
 
 type LinkContent = MfMLinkText | MfMLinkDestination | MfMLinkTitle
 class MfMLinkBase<THIS extends MfMLink | MfMImage,TYPE extends 'image' | 'link'> extends MfMGenericContainerInline<THIS, LinkContent, LineContent<THIS>, TYPE, MfMLinkParser> {
@@ -139,46 +140,63 @@ export class MfMLinkParser extends InlineParser<
 					return textSpan
 				}
 				line.content.push(new StringLineContent(')', start+i, 1, result))
+				i++
 			} else if(text.charAt(start+i) === '[') {
 				line.content.push(new StringLineContent('[', start+i, 1, result))
 				i++
 				if(text.charAt(start+i) === ']') {
 					line.content.push(new StringLineContent(']', start+i, 1, result))
 					result.collapse()
-					return result
-				}
-				const references = this.parsers.MfMLinkText.parseLine(null, text, start+i, length-i, additionalParams)
+					i++
+				} else {
+					const references = this.parsers.MfMLinkText.parseLine(null, text, start+i, length-i, additionalParams)
 
-				if(references && references.content.length > 0) {
-					result.addContent(references)
-					i += references.lines[0].length
-				}
-				if(text.charAt(start+i) !== ']') {
-					const textSpan = this.parsers.TextSpan.create<MfMInlineElements>()
-					const openingDelimiter = this.parsers.MfMText.parseLine(null, text, start, 1) as MfMText
-					textSpan.addContent(openingDelimiter)
-					let textEnd = 1
-					if(linkText && linkText.content.length > 0) {
-						textSpan.addContent(linkText)
-						textEnd += linkText.lines[0].length
-					}
-					const innerDelimiter = this.parsers.MfMText.parseLine(null, text, start+textEnd, 2) as MfMText
-					textSpan.addContent(innerDelimiter)
 					if(references && references.content.length > 0) {
-						textSpan.addContent(references)
+						result.addContent(references)
+						i += references.lines[0].length
 					}
-					return textSpan
+					if(text.charAt(start+i) !== ']') {
+						const textSpan = this.parsers.TextSpan.create<MfMInlineElements>()
+						const openingDelimiter = this.parsers.MfMText.parseLine(null, text, start, 1) as MfMText
+						textSpan.addContent(openingDelimiter)
+						let textEnd = 1
+						if(linkText && linkText.content.length > 0) {
+							textSpan.addContent(linkText)
+							textEnd += linkText.lines[0].length
+						}
+						const innerDelimiter = this.parsers.MfMText.parseLine(null, text, start+textEnd, 2) as MfMText
+						textSpan.addContent(innerDelimiter)
+						if(references && references.content.length > 0) {
+							textSpan.addContent(references)
+						}
+						return textSpan
+					}
+					line.content.push(new StringLineContent(']', start+i, 1, result))
+					i++	
 				}
-				line.content.push(new StringLineContent(']', start+i, 1, result))
-				return result
 			} else {
 				result.collapse()
 			}
 	
+			this.parsers.MfMOptions.addOptionsTo(result, text, start+i, length-i)
 			return result
 		}
 
 		return null
+	}
+
+	override canUpdate(original: MfMLink | MfMImage, update: ContentUpdate, replacedText: string): boolean {
+		for(let c of update.text) {
+			switch(c) {
+				case '!': case '(': case ')': case '[': case ']': case '"': case "'": case '\\': case '<': case '>': return false
+			}
+		}
+		for(let c of replacedText) {
+			switch(c) {
+				case '!': case '(': case ')': case '[': case ']': case '"': case "'": case '\\': case '<': case '>': return false
+			}
+		}
+		return super.canUpdate(original, update, replacedText)
 	}
 
 	#skipSpaces(text: string, start: number, length: number) {

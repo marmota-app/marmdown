@@ -15,6 +15,7 @@ limit.skipations under the License.
 */
 
 import { TextSpan } from "$element/TextSpan"
+import { UpdateParser } from "$markdown/UpdateParser"
 import { MfMLink } from "$mfm/inline/link/MfMLink"
 import { createLinkParser } from "./createLinkParser"
 
@@ -234,6 +235,139 @@ describe('MfMLink', () => {
 			expect(result.lines[0]).toHaveProperty('asText', text)
 		})
 	})
-	describe.skip('parsing options', () => {})
-	describe.skip('parsing updates', () => {})
+	describe('parsing options', () => {
+		it('parses options after normal link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[alt text](http://example.com "image title"){ default value; key2=value2 }'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses options after normal reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[alt text][reference]{ default value; key2=value2 }'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses options after collapsed reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[alt text][]{ default value; key2=value2 }'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+		it('parses options after shortcut reference link', () => {
+			const { linkParser } = createLinkParser()
+			const text = '[alt text]{ default value; key2=value2 }'
+
+			const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+
+			expect(result.options.get('default')).toEqual('default value')
+			expect(result.options.get('key2')).toEqual('value2')
+
+			expect(result.lines[0]).toHaveProperty('asText', text)
+		})
+	})
+	describe('parsing updates', () => {
+		it('parses update to link text', () => {
+			const { linkParser, idGenerator } = createLinkParser()
+			const updateParser = new UpdateParser(idGenerator)
+			const text = '[link text](destination "title")'
+
+			const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+			const updated = updateParser.parse(original, { text: 'updated', rangeOffset: 1, rangeLength: 4}) as MfMLink
+
+			expect(updated).toHaveProperty('type', 'link')
+			expect(updated.text?.content[0]).toHaveProperty('text', 'updated text')
+			expect(updated.destination).toHaveProperty('target', 'destination')
+			expect(updated.title).toHaveProperty('value', 'title')
+			expect(updated.references).toBeUndefined()
+
+			expect(updated.lines[0]).toHaveProperty('asText', '[updated text](destination "title")')
+		})
+		it('parses update to link destination', () => {
+			const { linkParser, idGenerator } = createLinkParser()
+			const updateParser = new UpdateParser(idGenerator)
+			const text = '[link text](destination "title")'
+
+			const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+			const updated = updateParser.parse(original, { text: 'updated_', rangeOffset: '[link text]('.length, rangeLength: 0}) as MfMLink
+
+			expect(updated).toHaveProperty('type', 'link')
+			expect(updated.text?.content[0]).toHaveProperty('text', 'link text')
+			expect(updated.destination).toHaveProperty('target', 'updated_destination')
+			expect(updated.title).toHaveProperty('value', 'title')
+			expect(updated.references).toBeUndefined()
+
+			expect(updated.lines[0]).toHaveProperty('asText', '[link text](updated_destination "title")')
+		})
+		it('parses update to link title', () => {
+			const { linkParser, idGenerator } = createLinkParser()
+			const updateParser = new UpdateParser(idGenerator)
+			const text = '[link text](destination "title")'
+
+			const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+			const updated = updateParser.parse(original, { text: 'updated ', rangeOffset: '[link text](destination "'.length, rangeLength: 0}) as MfMLink
+
+			expect(updated).toHaveProperty('type', 'link')
+			expect(updated.text?.content[0]).toHaveProperty('text', 'link text')
+			expect(updated.destination).toHaveProperty('target', 'destination')
+			expect(updated.title).toHaveProperty('value', 'updated title')
+			expect(updated.references).toBeUndefined()
+
+			expect(updated.lines[0]).toHaveProperty('asText', '[link text](destination "updated title")')
+		})
+		it('parses update to link reference', () => {
+			const { linkParser, idGenerator } = createLinkParser()
+			const updateParser = new UpdateParser(idGenerator)
+			const text = '[link text][reference]'
+
+			const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+			const updated = updateParser.parse(original, { text: 'updated ', rangeOffset: '[link text]['.length, rangeLength: 0}) as MfMLink
+
+			expect(updated).toHaveProperty('type', 'link')
+			expect(updated.text?.content[0]).toHaveProperty('text', 'link text')
+			expect(updated.destination).toBeUndefined()
+			expect(updated.title).toBeUndefined()
+			expect(updated.references?.content[0]).toHaveProperty('text', 'updated reference')
+
+			expect(updated.lines[0]).toHaveProperty('asText', '[link text][updated reference]')
+		});
+
+		['!', '(', ')', '[', ']', '"', "'", '\\', '<', '>'].forEach(token => {
+			it(`does not update the link when "${token}" is inserted`, () => {
+				const { linkParser, idGenerator } = createLinkParser()
+				const updateParser = new UpdateParser(idGenerator)
+				const text = '[link text](destination "title")'
+	
+				const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+				const updated = updateParser.parse(original, { text: token, rangeOffset: 1, rangeLength: 0}) as MfMLink
+	
+				expect(updated).toBeNull()
+			})
+			it(`does not update the link when "${token}" is removed`, () => {
+				const { linkParser, idGenerator } = createLinkParser()
+				const updateParser = new UpdateParser(idGenerator)
+				const text = `[\\${token}link text](destination "title")`
+	
+				const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
+				const updated = updateParser.parse(original, { text: 'other text', rangeOffset: 2, rangeLength: 1}) as MfMLink
+	
+				expect(updated).toBeNull()
+			})
+		})
+	})
 })
