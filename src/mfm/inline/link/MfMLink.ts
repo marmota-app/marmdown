@@ -70,13 +70,13 @@ export class MfMLinkParser extends InlineParser<
 		if(text.charAt(start) === '!') {
 			const image = new MfMImage(this.parsers.idGenerator.nextId(), this)
 			const contentBefore = new StringLineContent('!', start, 1, image)
-			return this.#parseLinkContent(image, text, start+1, length-1, additionalParams, contentBefore)
+			return this.#parseLinkContent(image, text, start+1, length-1, additionalParams, start, 2, contentBefore)
 		}
 		const link = new MfMLink(this.parsers.idGenerator.nextId(), this)
-		return this.#parseLinkContent(link, text, start, length, additionalParams)
+		return this.#parseLinkContent(link, text, start, length, additionalParams, start, 1)
 	}
 
-	#parseLinkContent(result: MfMLink | MfMImage, text: string, start: number, length: number, additionalParams: { [key: string]: any }, contentBefore?: StringLineContent<MfMLink | MfMImage>) {
+	#parseLinkContent(result: MfMLink | MfMImage, text: string, start: number, length: number, additionalParams: { [key: string]: any }, textSpanStart: number, textSpanPrelude: number, contentBefore?: StringLineContent<MfMLink | MfMImage>) {
 		if(text.charAt(start) === '[') {
 			let i=1
 			const line = result.addLine(this.parsers.idGenerator.nextLineId())
@@ -90,7 +90,7 @@ export class MfMLinkParser extends InlineParser<
 			}
 			if(text.charAt(start+i) !== ']') {
 				const textSpan = this.parsers.TextSpan.create<MfMInlineElements>()
-				const openingText = this.parsers.MfMText.parseLine(null, text, start, 1) as MfMText
+				const openingText = this.parsers.MfMText.parseLine(null, text, textSpanStart, textSpanPrelude) as MfMText
 				textSpan.addContent(openingText)
 				if(linkText && linkText.content.length > 0) {
 					textSpan.addContent(linkText)
@@ -102,14 +102,14 @@ export class MfMLinkParser extends InlineParser<
 			if(text.charAt(start+i) === '(') {
 				line.content.push(new StringLineContent('(', start+i, 1, result))
 				i++
-				const skipped = skipSpaces(text, start+i, length-i)
+				let skipped = skipSpaces(text, start+i, length-i)
 				if(skipped > 0) {
 					line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
 					i += skipped
 				}
 
 				const linkDestination = this.parsers.MfMLinkDestination.parseLine(null, text, start+i, length-i, additionalParams)
-				if(linkDestination != null && linkDestination.target.length > 0) {
+				if(linkDestination != null) {
 					result.addContent(linkDestination)
 					i += linkDestination.lines[0].length
 				}
@@ -126,9 +126,14 @@ export class MfMLinkParser extends InlineParser<
 						i += linkTitle.lines[0].length
 					}
 				}
+				skipped = skipSpaces(text, start+i, length-i)
+				if(skipped > 0) {
+					line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
+					i += skipped
+				}
 				if(text.charAt(start+i) !== ')') {
 					const textSpan = this.parsers.TextSpan.create<MfMInlineElements>()
-					const openingText = this.parsers.MfMText.parseLine(null, text, start, 1) as MfMText
+					const openingText = this.parsers.MfMText.parseLine(null, text, textSpanStart, textSpanPrelude) as MfMText
 					textSpan.addContent(openingText)
 					let restIndex = 1
 					if(linkText && linkText.content.length > 0) {

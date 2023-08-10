@@ -37,6 +37,8 @@ import { MfMIndentedCodeBlock } from "$mfm/block/MfMIndentedCodeBlock";
 import { MfMFencedCodeBlock } from "$mfm/block/MfMFencedCodeBlock";
 import { TextSpan } from "$element/TextSpan";
 import { MfMLinkText } from "$mfm/inline/link/MfMLinkText";
+import { MfMImage, MfMLink } from "$mfm/inline/link/MfMLink";
+import { MfMLinkReference } from "$mfm/block/MfMLinkReference";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -47,6 +49,7 @@ export type MfMBlockElements =
 	MfMThematicBreak |
 	MfMIndentedCodeBlock |
 	MfMFencedCodeBlock |
+	MfMLinkReference |
 	EmptyElement
 
 export type MfMInlineElements =
@@ -58,6 +61,8 @@ export type MfMInlineElements =
 	TextSpan<MfMInlineElements> |
 	MfMHardLineBreak |
 	MfMLinkText |
+	MfMLink |
+	MfMImage |
 	MfMText
 
 /**
@@ -75,7 +80,9 @@ export class MfMDialect implements Dialect<MfMContainer> {
 		return this.parsers['MfMContainer'].create()
 	}
 	parseCompleteText(text: string): MfMContainer {
-		return this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
+		const container = this.lineByLineParser.parse(text) ?? this.createEmptyDocument()
+		container.updateLinkReferences()
+		return container
 	}
 	parseUpdate(document: MfMContainer, update: ContentUpdate): MfMContainer | null {
 		return this.updateParser.parse(document, update)

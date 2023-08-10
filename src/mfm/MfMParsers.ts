@@ -37,6 +37,8 @@ import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
 import { MfMOptionsParser } from "./options/MfMOptions";
 import { TextSpanParser } from "$element/TextSpan";
+import { MfMLinkParser } from "./inline/link/MfMLink";
+import { MfMLinkReference, MfMLinkReferenceParser } from "./block/MfMLinkReference";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -52,10 +54,12 @@ export type MfMLeafBlock =
 	MfMThematicBreakParser |
 	MfMIndentedCodeBlockParser |
 	MfMFencedCodeBlockParser |
+	MfMLinkReferenceParser |
 	EmptyElementParser
 
 export type MfMInnerInline =
 	MfMEmphasisParser |
+	MfMLinkParser |
 	MfMCodeSpanParser |
 	MfMHardLineBreakParser
 
@@ -101,7 +105,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get MfMThematicBreak() { return this.getParser('MfMThematicBreak', () => new MfMThematicBreakParser(this)) }
 	get MfMIndentedCodeBlock() { return this.getParser('MfMIndentedCodeBlock', () => new MfMIndentedCodeBlockParser(this)) }
 	get MfMFencedCodeBlock() { return this.getParser('MfMFencedCodeBlock', () => new MfMFencedCodeBlockParser(this)) }
-	
+	get MfMLinkReference() { return this.getParser('MfMLinkReference', () => new MfMLinkReferenceParser(this)) }
 	get MfMContentLine() { return this.getParser('MfMContentLine', () => new MfMContentLineParser(this)) }
 
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
@@ -114,6 +118,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this)) }
 
 	get MfMEmphasis() { return this.getParser('MfMEmphasis', () => new MfMEmphasisParser(this)) }
+	get MfMLink() { return this.getParser('MfMLink', () => new MfMLinkParser(this)) }
 	get MfMCodeSpan() { return this.getParser('MfMCodeSpan', () => new MfMCodeSpanParser(this)) }
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
 
@@ -142,6 +147,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 		this.MfMIndentedCodeBlock,
 		this.MfMFencedCodeBlock,
 		this.MfMHeading,
+		this.MfMLinkReference,
 		this.MfMParagraph,
 		this.MfMThematicBreak,
 	] }
@@ -149,6 +155,7 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	get allInlines(): KnownParsers[] { return [ ...this.allInnerInlines, ...this.allOtherInlines, ] }
 	get allInnerInlines(): KnownParsers[] { return [
 		this.MfMEmphasis,
+		this.MfMLink,
 		this.MfMCodeSpan,
 		this.MfMHardLineBreak,
 	] }

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { StringLineContent } from "$element/Element"
+import { Element, StringLineContent } from "$element/Element"
 import { LinkReference } from "$element/MarkdownElements"
 import { ContentUpdate } from "$markdown/ContentUpdate"
 import { MfMGenericBlock } from "$mfm/MfMGenericElement"
@@ -50,6 +50,8 @@ export class MfMLinkReferenceParser extends MfMParser<
 	 *       like MfMLink does.
 	 */
 	parseLine(previous: MfMLinkReference | null, text: string, start: number, length: number): MfMLinkReference | null {
+		if(previous !== null) { return null }
+
 		const reference = new MfMLinkReference(this.parsers.idGenerator.nextId(), this)
 		reference.options.isFullyParsed = true //Link references cannot have options!
 		const line = reference.addLine(this.parsers.idGenerator.nextLineId())
@@ -66,10 +68,9 @@ export class MfMLinkReferenceParser extends MfMParser<
 		i++
 
 		const linkText = this.parsers.MfMLinkText.parseLine(null, text, start+i, length-i)
-		if(linkText != null && linkText.content.length > 0) {
-			reference.addContent(linkText)
-			i += linkText.lines[0].length
-		}
+		if(linkText == null || linkText.content.length === 0) { return null }
+		reference.addContent(linkText)
+		i += linkText.lines[0].length
 
 		if(text.charAt(start+i) !== ']' || text.charAt(start+i+1) !== ':') { return null }
 		line.content.push(new StringLineContent(']:', start+i, 2, reference))
@@ -82,7 +83,7 @@ export class MfMLinkReferenceParser extends MfMParser<
 		}
 
 		const linkDestination = this.parsers.MfMLinkDestination.parseLine(null, text, start+i, length-i)
-		if(linkDestination == null || linkDestination.target.length === 0) { return null }
+		if(linkDestination == null || linkDestination.lines[0].length === 0) { return null }
 		reference.addContent(linkDestination)
 		i += linkDestination.lines[0].length
 
@@ -92,7 +93,7 @@ export class MfMLinkReferenceParser extends MfMParser<
 			i += skipped
 		}
 
-		if(i !== length) {
+		if(i < length && skipped > 0) {
 			const linkTitle = this.parsers.MfMLinkTitle.parseLine(null, text, start+i, length-i)
 			if(linkTitle != null && linkTitle.value.length > 0) {
 				reference.addContent(linkTitle)
@@ -106,7 +107,7 @@ export class MfMLinkReferenceParser extends MfMParser<
 			}
 		}
 
-		if(i !== length) {
+		if(i < length) {
 			return null
 		}
 
@@ -125,5 +126,9 @@ export class MfMLinkReferenceParser extends MfMParser<
 			}
 		}
 		return super.canUpdate(original, update, replacedText)
+	}
+
+	override shouldInterrupt(element: Element<unknown, unknown, unknown, unknown>, text: string, start: number, length: number): boolean {
+		return false
 	}
 }

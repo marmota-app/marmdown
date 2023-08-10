@@ -159,7 +159,11 @@ export function parseInlineContent<CONTENTS extends Element<unknown, unknown, un
 		}
 		i++
 		textLength++
-		lastChar = currentChar
+		if(currentChar === '\\' && lastChar === '\\') {
+			lastChar = '' //do not count the \\ as an escape character when it was escaped itself!
+		} else {
+			lastChar = currentChar
+		}
 	}
 	//Text content can occur at the very end (when there is no closing
 	//delimiter, so we exited the loop without finding a right-flanking

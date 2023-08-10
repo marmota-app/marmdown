@@ -29,7 +29,7 @@ describe('MfMLink', () => {
 
 			expect(result).toHaveProperty('type', 'link')
 			expect(result.text).toBeUndefined()
-			expect(result.destination).toBeUndefined()
+			expect(result.destination?.target).toEqual('')
 			expect(result.title).toBeUndefined()
 
 			expect(result.lines[0]).toHaveProperty('asText', '[]()')
@@ -42,7 +42,7 @@ describe('MfMLink', () => {
 
 			expect(result).toHaveProperty('type', 'link')
 			expect(result.text).toHaveProperty('type', 'link-text')
-			expect(result.destination).toBeUndefined()
+			expect(result.destination?.target).toEqual('')
 			expect(result.title).toBeUndefined()
 
 			expect(result.lines[0]).toHaveProperty('asText', text)

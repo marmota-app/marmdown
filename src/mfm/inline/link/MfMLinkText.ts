@@ -28,7 +28,7 @@ export class MfMLinkText extends GenericContainerInline<MfMLinkText, MfMInlineEl
 
 	get normalized(): string {
 		const innerText = this.content.map(c => c.lines[0].asSafeText).join('')
-		const normalizedText = innerText.trim().replaceAll(/[ \t]+/g, ' ')
+		const normalizedText = innerText.trim().replaceAll(/[ \t]+/g, ' ').toLowerCase()
 		return normalizedText
 	}
 }

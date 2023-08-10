@@ -14,15 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element";
+import { Element, ParsedLine, StringLineContent } from "$element/Element";
 import { Container } from "$element/MarkdownElements";
 import { ParseError } from "$markdown/LineByLineParser";
 import { MfMBlockElements } from "$markdown/MfMDialect";
 import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser";
 import { isEmpty } from "$parser/find";
 import { parseBlock, parseContainerBlock } from "$parser/parse";
+import { Parser } from "$parser/Parser";
+import { MfMLinkReference } from "./block/MfMLinkReference";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
-import { addOptionsToContainerBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
+import { addOptionsToContainerBlock, MfMGenericBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
 import { MfMParser } from "./MfMParser";
 import { MfMOptionsParser } from "./options/MfMOptions";
 
@@ -30,6 +32,8 @@ import { MfMOptionsParser } from "./options/MfMOptions";
  * Main container element for the "MfM" dialect. 
  */
 export class MfMContainer extends MfMGenericContainerBlock<MfMContainer, MfMBlockElements, 'container', MfMContainerParser> implements Container<MfMContainer, MfMBlockElements> {
+	#linkReferences: { [key: string]: MfMLinkReference } = {}
+
 	protected self: MfMContainer = this
 
 	constructor(id: string, pw: MfMContainerParser, private sectionParser: MfMSectionParser) { super(id, 'container', pw) }
@@ -41,6 +45,30 @@ export class MfMContainer extends MfMGenericContainerBlock<MfMContainer, MfMBloc
 			super.addContent(section)
 		} else {
 			super.addContent(content)
+		}
+	}
+	
+	get linkReferences() { return this.#linkReferences }
+
+	updateLinkReferences() {
+		this.#linkReferences = {}
+
+		this.#updateLinkReferences(this)
+	}
+
+	#updateLinkReferences(container: MfMGenericBlock<unknown, Element<unknown, unknown, unknown, unknown>, unknown, any>) {
+		if(container.type === 'link-reference') {
+			const ref = container as MfMLinkReference
+			const id = ref.text?.normalized
+			if(id != null && this.#linkReferences[id] == null) {
+				this.#linkReferences[id] = ref
+			}
+		} else {
+			container.content.forEach(c => {
+				if((c as unknown as { classification: string }).classification === 'block') {
+					this.#updateLinkReferences(c as any)
+				}
+			})
 		}
 	}
 }

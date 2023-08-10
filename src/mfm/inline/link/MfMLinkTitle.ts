@@ -25,7 +25,7 @@ import { InlineParser } from "$parser/Parser"
 export class MfMLinkTitle extends GenericLeafInline<MfMLinkTitle, never, StringLineContent<MfMLinkTitle>, 'link-title', MfMLinkTitleParser> implements LinkTitle<MfMLinkTitle> {
 	constructor(id: string, pw: MfMLinkTitleParser) { super(id, 'link-title', pw) }
 
-	get value() { return this.lines[0].content.length === 3? replaceEscaped(this.lines[0].content[1].asText) : '' }
+	get value() { return this.lines[0].content.length === 3? replaceEscaped(this.lines[0].content[1].asSafeText) : '' }
 }
 
 const DELIMITERS: [string, string][] = [

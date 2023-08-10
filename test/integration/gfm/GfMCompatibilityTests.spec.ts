@@ -35,7 +35,7 @@ interface ImplementedSection {
 const __escaping_special__ = 'Escaping special characters is not yet implemented'
 const __leading__ = 'Leading spaces are not yet removed correctly'
 
-const __links__ = 'Links are not yet implemented'
+const __links_in_headings__ = 'Links in headings are not yet implemented'
 
 const __fenced__ = 'Fenced code blocks are not yet implemented'
 const __indented_code_blocks__ = 'Indented code blocks are not yet implemented'
@@ -44,6 +44,9 @@ const __inline_code__ = 'Inline code elements are not yet implemented'
 const __hard_break__ = 'Hard line breaks (<br/>) are not yet implemented'
 const __paragraph_indentation__ = 'Indentation after the first line of a paragraph is not yet removed correctly'
 const __lists__ = 'Lists are not yet implemented'
+
+const __autolinks__ = 'Autolinks <in angle brackets> are not yet implemented'
+const __entity_references__ = 'Entity references are not yet fully supported'
 
 //Known / intended incompatibilities
 const __laziness__ = 'Laziness clause (https://github.github.com/gfm/#paragraph-continuation-text) is not implemented'
@@ -56,6 +59,10 @@ const __spaces__ = 'In MfM, spaces are usually not removed at the end of a line'
 const __line_break_end_of_block__ = 'In MfM, hard line breaks are always added, even at the end of a block'
 const __tabs_expansion_after_character__ = 'MfM never expands tabs, not even after the list character or block character'
 const __autolinks_extension_incompatible__ = "MfM does not support the autolinks extension, which tries to recognize links in plain text"
+const __multiline_link_reference__ = "MfM does not support multiline link references"
+const __unescaped_backslash__ = "In MfM, all backslashes must be escaped, even if they would be unambiguous in GfM"
+const __link_destination_unescaped_parens__ = 'MfM does not allow unescaped parenthesis in link destinations, even when they are balanced'
+const __links_left_to_right__ = 'In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not'
 
 const implementedSections: ImplementedSection[] = [
 	{ chapter: '1.1', name: 'What is GitHub Flavored Markdown?', notYetImplemented: [], incompatible: []},
@@ -213,6 +220,24 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 160', reason: __html_content__ },
 		]
 	},
+	{
+		chapter: '4.7', name: 'Link reference definitions',
+		notYetImplemented: [
+			{ name: 'Example 183', reason: __links_in_headings__ },
+		],
+		incompatible: [
+			{ name: 'Example 162', reason: __multiline_link_reference__ },
+			{ name: 'Example 163', reason: __link_destination_unescaped_parens__ },
+			{ name: 'Example 164', reason: __multiline_link_reference__ },
+			{ name: 'Example 165', reason: __multiline_link_reference__ },
+			{ name: 'Example 167', reason: __multiline_link_reference__ },
+			{ name: 'Example 170', reason: __html_content__ },
+			{ name: 'Example 171', reason: __unescaped_backslash__ },
+			{ name: 'Example 177', reason: __multiline_link_reference__ },
+			{ name: 'Example 184', reason: __multiline_link_reference__ },
+			{ name: 'Example 186', reason: __multiline_link_reference__ },
+		]
+	},
 	{ 
 		chapter: '4.8', name: 'Paragraphs',
 		notYetImplemented: [
@@ -261,16 +286,10 @@ const implementedSections: ImplementedSection[] = [
 	{
 		chapter: '6.4', name: 'Emphasis and strong emphasis',
 		notYetImplemented: [
-			{ name: 'Example 413', reason: __links__ },
-			{ name: 'Example 428', reason: __links__ },
-			{ name: 'Example 431', reason: __links__ },
-			{ name: 'Example 442', reason: __links__ },
 			{ name: 'Example 446', reason: __escaping_special__ },
 			{ name: 'Example 449', reason: __escaping_special__ },
 			{ name: 'Example 458', reason: __escaping_special__ },
 			{ name: 'Example 461', reason: __escaping_special__ },
-			{ name: 'Example 482', reason: __links__ },
-			{ name: 'Example 483', reason: __links__ },
 			{ name: 'Example 487', reason: __inline_code__ },
 			{ name: 'Example 488', reason: __inline_code__ }
 		],
@@ -300,6 +319,58 @@ const implementedSections: ImplementedSection[] = [
 		notYetImplemented: [],
 		incompatible: [
 			{ name: 'Example 493', reason: __strike_through_incompatibility__ },
+		]
+	},
+	{
+		chapter: '6.6', name: 'Links',
+		notYetImplemented: [
+			{ name: 'Example 512', reason: __entity_references__ },
+			{ name: 'Example 515', reason: __entity_references__ },
+			{ name: 'Example 535', reason: __autolinks__ },
+			{ name: 'Example 547', reason: __autolinks__ },
+		],
+		incompatible: [
+			{ name: 'Example 501', reason: __html_content__ },
+			{ name: 'Example 504', reason: __html_content__ },
+			{ name: 'Example 506', reason: __link_destination_unescaped_parens__ },
+			{ name: 'Example 511', reason: __unescaped_backslash__ },
+			{ name: 'Example 513', reason: 'MfM never tries to parse quoted strings as destinations' },
+			{ name: 'Example 516', reason: 'MfM treats all whitespace equally for links' },
+			{ name: 'Example 519', reason: __multiline_inline__ },
+			{ name: 'Example 527', reason: 'In MfM, links can contain other links' },
+			{ name: 'Example 528', reason: 'In MfM, links can contain other links' },
+			{ name: 'Example 529', reason: 'In MfM, links can contain other links' },
+			{ name: 'Example 532', reason: __links_left_to_right__ },
+			{ name: 'Example 533', reason: __html_content__ },
+			{ name: 'Example 541', reason: 'In MfM, links can contain other links' },
+			{ name: 'Example 542', reason: 'In MfM, links can contain other links' },
+			{ name: 'Example 545', reason: __html_content__ },
+			{ name: 'Example 549', reason: 'MfM does not use unicode case fold' },
+			{ name: 'Example 550', reason: __multiline_link_reference__ },
+			{ name: 'Example 556', reason: __links_left_to_right__ },
+			{ name: 'Example 557', reason: __links_left_to_right__ },
+			{ name: 'Example 561', reason: __multiline_inline__ },
+			{ name: 'Example 565', reason: 'MfM preserves whitespace at the end of the line, which the test does not expect.' },
+			{ name: 'Example 568', reason: __links_left_to_right__ },
+			{ name: 'Example 577', reason: __links_left_to_right__ },
+			{ name: 'Example 578', reason: __links_left_to_right__ },
+			{ name: 'Example 579', reason: __links_left_to_right__ },
+			{ name: 'Example 580', reason: __links_left_to_right__ },
+		]
+	},
+	{
+		chapter: '6.7', name: 'Images',
+		notYetImplemented: [],
+		incompatible: [
+			{ name: 'Example 582', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 583', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 584', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 585', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 586', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 594', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 596', reason: 'MfM preserves whitespace at the end of the line, which the test does not expect.' },
+			{ name: 'Example 598', reason: 'In MfM, alt text is not re-processed just for the sake of the test' },
+			{ name: 'Example 599', reason: 'In MfM, labels can contain brackets' },
 		]
 	},
 	{

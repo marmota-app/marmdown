@@ -65,7 +65,7 @@ describe('MfMLinkTitle', () => {
 
 			const result = linkTitleParser.parseLine(null, text, 0, text.length)
 			expect(result).toHaveProperty('type', 'link-title')
-			expect(result?.value).toEqual(`the ${start}link${end} title`)
+			expect(result?.value).toEqual(`the ${start}link${end} title`.replaceAll('"', '&quot;'))
 			
 			expect(result?.lines[0]).toHaveProperty('asText', `${start}the \\${start}link\\${end} title${end}`)
 		})
@@ -81,7 +81,7 @@ describe('MfMLinkTitle', () => {
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
 				const updated = updateParser.parse(original, { text: 'updated ', rangeOffset: `${start}the `.length, rangeLength: 0 })
 
-				expect(updated).toHaveProperty('value', `the updated ${start}link${end} title`)
+				expect(updated).toHaveProperty('value', `the updated ${start}link${end} title`.replaceAll('"', '&quot;'))
 				expect(updated?.lines[0]).toHaveProperty('asText', `${start}the updated \\${start}link\\${end} title${end}`)
 			})
 			it(`does not parse update that contains the starting delimiter ${start}`, () => {

@@ -85,7 +85,7 @@ export class MfMLinkDestinationParser extends InlineParser<MfMLinkDestination, n
 		let previousChar = ''
 		let currentChar = text.charAt(start+i)
 		const loop = finiteLoop(() => i, INCREASING)
-		while(i <= length && isValid(currentChar, previousChar)) {
+		while(i < length && isValid(currentChar, previousChar)) {
 			loop.guard()
 
 			i++

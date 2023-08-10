@@ -55,7 +55,7 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 		if(newDocument) {
 			this._document = newDocument
 		} else {
-			this._document = this.dialect.parseCompleteText(getCompleteText())
+			this._document = this.#parseFully(getCompleteText())
 		}
 	}
 
@@ -69,7 +69,7 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 	 * tree represented by `document`.
 	 */
 	set textContent(text: string) {
-		this._document = this.dialect.parseCompleteText(text)
+		this._document = this.#parseFully(text)
 	}
 	get textContent() {
 		return this._document?.lines.map(l => l.asText).join('\n') ?? ''
@@ -80,5 +80,10 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 	 */
 	get document(): CONTAINER | undefined {
 		return this._document
+	}
+
+	#parseFully(text: string) {
+		const container = this.dialect.parseCompleteText(text)
+		return container
 	}
 }
