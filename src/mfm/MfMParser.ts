@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import { Element } from "$element/Element";
+import { ContentUpdate } from "$markdown/ContentUpdate";
 import { Parser } from "$parser/Parser";
 import { MfMOptions } from "./options/MfMOptions";
 
@@ -27,7 +28,7 @@ export abstract class MfMParser<
 	META_RESULT extends Element<unknown, unknown, unknown, unknown> | unknown=RESULT,
 	REQUIRED_PARSERS extends Parser<Element<unknown, unknown, unknown, unknown>> = any,
 > extends Parser<RESULT, META_RESULT, REQUIRED_PARSERS> {
-	override canUpdate(original: RESULT): boolean {
+	override canUpdate(original: RESULT, update: ContentUpdate, replacedText: string): boolean {
 		//When the options are not fully parsed, the element cannot be updated:
 		//An update might add another options line at the end of the options,
 		//but the update parser would have no way to know that this update

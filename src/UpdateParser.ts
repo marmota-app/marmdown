@@ -125,6 +125,8 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			//the update might insert a "#", making the current line a heading.
 			//See UpdatesThatChangeElements.spec.ts
 			return update.rangeOffset === content.start && update.text.length > 0
+		} else if(content.belongsTo.type === 'link-reference') {
+			return true
 		} else if(content.belongsTo.classification === 'block') {
 			//When the indentation changes, i.e. when the text before the update
 			//consists only of spaces AND the update consists only of space, that

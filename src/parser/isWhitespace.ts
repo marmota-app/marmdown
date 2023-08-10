@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
+
 export function isWhitespace(character: string) {
 	switch(character) {
 		case ' ': case '\t': case '\u00A0': case '\u1680': case '\u2000':
@@ -27,4 +29,14 @@ export function isWhitespace(character: string) {
 export function isUnescapedWhitespace(character: string, previousCharacter: string) {
 	if(previousCharacter !== '\\') return isWhitespace(character)
 	return false
+}
+
+export function skipSpaces(text: string, start: number, length: number) {
+	let i = 0
+	const loop = finiteLoop(() => i, INCREASING)
+	while(i < length && isWhitespace(text.charAt(start+i))) {
+		loop.guard()
+		i++
+	}
+	return i
 }

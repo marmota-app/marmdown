@@ -22,7 +22,7 @@ import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
 import { MfMGenericContainerInline } from "$mfm/MfMGenericElement"
 import { MfMOptionsParser } from "$mfm/options/MfMOptions"
 import { InlineParser } from "$parser/Parser"
-import { isWhitespace } from "$parser/isWhitespace"
+import { isWhitespace, skipSpaces } from "$parser/isWhitespace"
 import { parseInlineContent } from "$parser/parse"
 import { MfMContentLine } from "../MfMContentLine"
 import { MfMLinkTitle, MfMLinkTitleParser } from "./MfMLinkTitle"
@@ -102,7 +102,7 @@ export class MfMLinkParser extends InlineParser<
 			if(text.charAt(start+i) === '(') {
 				line.content.push(new StringLineContent('(', start+i, 1, result))
 				i++
-				const skipped = this.#skipSpaces(text, start+i, length-i)
+				const skipped = skipSpaces(text, start+i, length-i)
 				if(skipped > 0) {
 					line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
 					i += skipped
@@ -114,7 +114,7 @@ export class MfMLinkParser extends InlineParser<
 					i += linkDestination.lines[0].length
 				}
 				if(linkDestination == null || isWhitespace(text.charAt(start+i))) {
-					const skipped = this.#skipSpaces(text, start+i, length-i)
+					const skipped = skipSpaces(text, start+i, length-i)
 					if(skipped > 0) {
 						line.content.push(new StringLineContent(text.substring(start+i, start+i+skipped), start+i, skipped, result))
 						i += skipped
@@ -197,15 +197,5 @@ export class MfMLinkParser extends InlineParser<
 			}
 		}
 		return super.canUpdate(original, update, replacedText)
-	}
-
-	#skipSpaces(text: string, start: number, length: number) {
-		let i = 0
-		const loop = finiteLoop(() => i, INCREASING)
-		while(i < length && isWhitespace(text.charAt(start+i))) {
-			loop.guard()
-			i++
-		}
-		return i
 	}
 }

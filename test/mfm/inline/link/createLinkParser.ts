@@ -16,6 +16,7 @@ limitations under the License.
 
 import { TextSpanParser } from "$element/TextSpan"
 import { IdGenerator, NumberedIdGenerator } from "$markdown/IdGenerator"
+import { MfMLinkReferenceParser } from "$mfm/block/MfMLinkReference"
 import { MfMEmphasisParser } from "$mfm/inline/MfMEmphasis"
 import { MfMTextParser } from "$mfm/inline/MfMText"
 import { MfMLinkParser } from "$mfm/inline/link/MfMLink"
@@ -28,7 +29,7 @@ import { createOptionsParser } from "../../options/createOptionsParser"
 
 type RequiredParsers = MfMTextParser | MfMEmphasisParser | MfMOptionsParser
 	| MfMLinkParser | MfMLinkTextParser | MfMLinkTitleParser | MfMLinkDestinationParser
-	| TextSpanParser
+	| TextSpanParser | MfMLinkReferenceParser
 	
 class TestParsers implements Parsers<RequiredParsers> {
 	private knownParsers: { [key in (RequiredParsers)['elementName']]?: RequiredParsers } = {}
@@ -43,6 +44,7 @@ class TestParsers implements Parsers<RequiredParsers> {
 	get MfMLinkDestination() { return this.getParser('MfMLinkDestination', () => new MfMLinkDestinationParser(this)) }
 	get MfMLink() { return this.getParser('MfMLink', () => new MfMLinkParser(this)) }
 	get TextSpan() { return this.getParser('TextSpan', () => new TextSpanParser(this)) }
+	get MfMLinkReference() { return this.getParser('MfMLinkReference', () => new MfMLinkReferenceParser(this)) }
 
 	get allInnerInlines(): (MfMTextParser | MfMEmphasisParser | MfMLinkParser)[] { return [
 		this.MfMEmphasis,
@@ -81,4 +83,9 @@ export function createLinkDestinationParser(idGenerator = new NumberedIdGenerato
 export function createLinkTitleParser(idGenerator = new NumberedIdGenerator()) {
 	const linkTitleParser = new TestParsers(idGenerator).MfMLinkTitle
 	return { linkTitleParser, idGenerator, }
+}
+
+export function createLinkReferenceParser(idGenerator = new NumberedIdGenerator()) {
+	const linkReferenceParser = new TestParsers(idGenerator).MfMLinkReference
+	return { linkReferenceParser, idGenerator, }
 }
