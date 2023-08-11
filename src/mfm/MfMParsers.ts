@@ -39,6 +39,7 @@ import { MfMOptionsParser } from "./options/MfMOptions";
 import { TextSpanParser } from "$element/TextSpan";
 import { MfMLinkParser } from "./inline/link/MfMLink";
 import { MfMLinkReference, MfMLinkReferenceParser } from "./block/MfMLinkReference";
+import { MfMDialectOptions } from "$markdown/MfMDialect";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -95,7 +96,7 @@ export type KnownParsers =
 export class MfMParsers implements Parsers<KnownParsers> {
 	private knownParsers: { [key in KnownParsers['elementName']]?: KnownParsers } = {}
 
-	constructor(public readonly idGenerator: IdGenerator) {}
+	constructor(public readonly idGenerator: IdGenerator, public readonly dialectOptions: MfMDialectOptions) {}
 
 	get MfMContainer() { return this.getParser('MfMContainer', () => new MfMContainerParser(this)) }
 	get MfMSection() { return this.getParser('MfMSection', () => new MfMSectionParser(this)) }

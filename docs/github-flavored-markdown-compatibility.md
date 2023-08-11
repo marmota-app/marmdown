@@ -1680,7 +1680,180 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   </table>
   
   ```
-## 4.7 NOT yet Implemented
+## 4.7 Link reference definitions - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 162: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+     [foo]: 
+        /url  
+             'the title'  
+  
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url" title="the title">foo</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 163: MfM does not allow unescaped parenthesis in link destinations, even when they are balanced;  
+  Markdown input:
+  ```markdown
+  [Foo*bar\]]:my_(url) 'title (with parens)'
+  
+  [Foo*bar\]]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="my_(url)" title="title (with parens)">Foo*bar]</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 164: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [Foo bar]:
+  <my url>
+  'title'
+  
+  [Foo bar]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="my%20url" title="title">Foo bar</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 165: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [foo]: /url '
+  title
+  line1
+  line2
+  '
+  
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url" title="
+  title
+  line1
+  line2
+  ">foo</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 167: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [foo]:
+  /url
+  
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url">foo</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 170: HTML content is not supported in MfM;  
+  Markdown input:
+  ```markdown
+  [foo]: <bar>(baz)
+  
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo]: <bar>(baz)</p>
+  <p>[foo]</p>
+  
+  ```
+* INCOMPATIBLE - Example 171: In MfM, all backslashes must be escaped, even if they would be unambiguous in GfM;  
+  Markdown input:
+  ```markdown
+  [foo]: /url\bar\*baz "foo\"bar\baz"
+  
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url%5Cbar*baz" title="foo&quot;bar\baz">foo</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 177: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [
+  foo
+  ]: /url
+  bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>bar</p>
+  
+  ```
+* Example 183: Links in headings are not yet implemented;  
+  Markdown input:
+  ```markdown
+  # [Foo]
+  [foo]: /url
+  > bar
+  
+  ```
+  Expected HTML:
+  ```html
+  <h1><a href="/url">Foo</a></h1>
+  <blockquote>
+  <p>bar</p>
+  </blockquote>
+  
+  ```
+* INCOMPATIBLE - Example 184: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [foo]: /url
+  bar
+  ===
+  [foo]
+  
+  ```
+  Expected HTML:
+  ```html
+  <h1>bar</h1>
+  <p><a href="/url">foo</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 186: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [foo]: /foo-url "foo"
+  [bar]: /bar-url
+    "bar"
+  [baz]: /baz-url
+  
+  [foo],
+  [bar],
+  [baz]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/foo-url" title="foo">foo</a>,
+  <a href="/bar-url" title="bar">bar</a>,
+  <a href="/baz-url">baz</a></p>
+  
+  ```
 ## 4.8 Paragraphs - Implemented
 
 Except **not yet implemented** functionality and known **incompatibilities**:
@@ -2093,17 +2266,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <em>Asclepias physocarpa</em>)</strong></p>
   
   ```
-* Example 413: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  *foo [bar](/url)*
-  
-  ```
-  Expected HTML:
-  ```html
-  <p><em>foo <a href="/url">bar</a></em></p>
-  
-  ```
 * INCOMPATIBLE - Example 414: MfM does not support multi-line inline content;  
   Markdown input:
   ```markdown
@@ -2161,28 +2323,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p><em>foo<strong>bar</strong></em></p>
   
   ```
-* Example 428: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  *foo [*bar*](/url)*
-  
-  ```
-  Expected HTML:
-  ```html
-  <p><em>foo <a href="/url"><em>bar</em></a></em></p>
-  
-  ```
-* Example 431: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  **foo [bar](/url)**
-  
-  ```
-  Expected HTML:
-  ```html
-  <p><strong>foo <a href="/url">bar</a></strong></p>
-  
-  ```
 * INCOMPATIBLE - Example 432: MfM does not support multi-line inline content;  
   Markdown input:
   ```markdown
@@ -2218,17 +2358,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   ```html
   <p><strong>foo <em>bar <strong>baz</strong>
   bim</em> bop</strong></p>
-  
-  ```
-* Example 442: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  **foo [*bar*](/url)**
-  
-  ```
-  Expected HTML:
-  ```html
-  <p><strong>foo <a href="/url"><em>bar</em></a></strong></p>
   
   ```
 * Example 446: Escaping special characters is not yet implemented;  
@@ -2317,28 +2446,6 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   Expected HTML:
   ```html
   <p>___<em>foo</em></p>
-  
-  ```
-* Example 482: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  *[bar*](/url)
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>*<a href="/url">bar*</a></p>
-  
-  ```
-* Example 483: Links are not yet implemented;  
-  Markdown input:
-  ```markdown
-  _foo [bar_](/url)
-  
-  ```
-  Expected HTML:
-  ```html
-  <p>_foo <a href="/url">bar_</a></p>
   
   ```
 * INCOMPATIBLE - Example 484: HTML content is not supported in MfM;  
@@ -2433,8 +2540,509 @@ Except **not yet implemented** functionality and known **incompatibilities**:
   <p>This will ~~~not~~~ strike.</p>
   
   ```
-## 6.6 NOT yet Implemented
-## 6.7 NOT yet Implemented
+## 6.6 Links - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 501: HTML content is not supported in MfM;  
+  Markdown input:
+  ```markdown
+  [link](<foo
+  bar>)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[link](<foo
+  bar>)</p>
+  
+  ```
+* INCOMPATIBLE - Example 504: HTML content is not supported in MfM;  
+  Markdown input:
+  ```markdown
+  [a](<b)c
+  [a](<b)c>
+  [a](<b>c)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[a](&lt;b)c
+  [a](&lt;b)c&gt;
+  [a](<b>c)</p>
+  
+  ```
+* INCOMPATIBLE - Example 506: MfM does not allow unescaped parenthesis in link destinations, even when they are balanced;  
+  Markdown input:
+  ```markdown
+  [link](foo(and(bar)))
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="foo(and(bar))">link</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 511: In MfM, all backslashes must be escaped, even if they would be unambiguous in GfM;  
+  Markdown input:
+  ```markdown
+  [link](foo\bar)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="foo%5Cbar">link</a></p>
+  
+  ```
+* Example 512: Entity references are not yet fully supported;  
+  Markdown input:
+  ```markdown
+  [link](foo%20b&auml;)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="foo%20b%C3%A4">link</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 513: MfM never tries to parse quoted strings as destinations;  
+  Markdown input:
+  ```markdown
+  [link]("title")
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="%22title%22">link</a></p>
+  
+  ```
+* Example 515: Entity references are not yet fully supported;  
+  Markdown input:
+  ```markdown
+  [link](/url "title \"&quot;")
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url" title="title &quot;&quot;">link</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 516: MfM treats all whitespace equally for links;  
+  Markdown input:
+  ```markdown
+  [link](/url "title")
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url%C2%A0%22title%22">link</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 519: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  [link](   /uri
+    "title"  )
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/uri" title="title">link</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 527: In MfM, links can contain other links;  
+  Markdown input:
+  ```markdown
+  [foo [bar](/uri)](/uri)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <a href="/uri">bar</a>](/uri)</p>
+  
+  ```
+* INCOMPATIBLE - Example 528: In MfM, links can contain other links;  
+  Markdown input:
+  ```markdown
+  [foo *[bar [baz](/uri)](/uri)*](/uri)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <em>[bar <a href="/uri">baz</a>](/uri)</em>](/uri)</p>
+  
+  ```
+* INCOMPATIBLE - Example 529: In MfM, links can contain other links;  
+  Markdown input:
+  ```markdown
+  ![[[foo](uri1)](uri2)](uri3)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="uri3" alt="[foo](uri2)" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 532: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  *foo [bar* baz]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><em>foo [bar</em> baz]</p>
+  
+  ```
+* INCOMPATIBLE - Example 533: HTML content is not supported in MfM;  
+  Markdown input:
+  ```markdown
+  [foo <bar attr="](baz)">
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <bar attr="](baz)"></p>
+  
+  ```
+* Example 535: Autolinks <in angle brackets> are not yet implemented;  
+  Markdown input:
+  ```markdown
+  [foo<http://example.com/?search=](uri)>
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 541: In MfM, links can contain other links;  
+  Markdown input:
+  ```markdown
+  [foo [bar](/uri)][ref]
+  
+  [ref]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <a href="/uri">bar</a>]<a href="/uri">ref</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 542: In MfM, links can contain other links;  
+  Markdown input:
+  ```markdown
+  [foo *bar [baz][ref]*][ref]
+  
+  [ref]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <em>bar <a href="/uri">baz</a></em>]<a href="/uri">ref</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 545: HTML content is not supported in MfM;  
+  Markdown input:
+  ```markdown
+  [foo <bar attr="][ref]">
+  
+  [ref]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo <bar attr="][ref]"></p>
+  
+  ```
+* Example 547: Autolinks <in angle brackets> are not yet implemented;  
+  Markdown input:
+  ```markdown
+  [foo<http://example.com/?search=][ref]>
+  
+  [ref]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo<a href="http://example.com/?search=%5D%5Bref%5D">http://example.com/?search=][ref]</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 549: MfM does not use unicode case fold;  
+  Markdown input:
+  ```markdown
+  [ẞ]
+  
+  [SS]: /url
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url">ẞ</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 550: MfM does not support multiline link references;  
+  Markdown input:
+  ```markdown
+  [Foo
+    bar]: /url
+  
+  [Baz][Foo bar]
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url">Baz</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 556: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [foo][ref[bar]]
+  
+  [ref[bar]]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo][ref[bar]]</p>
+  <p>[ref[bar]]: /uri</p>
+  
+  ```
+* INCOMPATIBLE - Example 557: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [[[foo]]]
+  
+  [[[foo]]]: /url
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[[[foo]]]</p>
+  <p>[[[foo]]]: /url</p>
+  
+  ```
+* INCOMPATIBLE - Example 561: MfM does not support multi-line inline content;  
+  Markdown input:
+  ```markdown
+  [
+   ]
+  
+  [
+   ]: /uri
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[
+  ]</p>
+  <p>[
+  ]: /uri</p>
+  
+  ```
+* INCOMPATIBLE - Example 565: MfM preserves whitespace at the end of the line, which the test does not expect.;  
+  Markdown input:
+  ```markdown
+  [foo] 
+  []
+  
+  [foo]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url" title="title">foo</a>
+  []</p>
+  
+  ```
+* INCOMPATIBLE - Example 568: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [[*foo* bar]]
+  
+  [*foo* bar]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[<a href="/url" title="title"><em>foo</em> bar</a>]</p>
+  
+  ```
+* INCOMPATIBLE - Example 577: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [foo](not a link)
+  
+  [foo]: /url1
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url1">foo</a>(not a link)</p>
+  
+  ```
+* INCOMPATIBLE - Example 578: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [foo][bar][baz]
+  
+  [baz]: /url
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo]<a href="/url">bar</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 579: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [foo][bar][baz]
+  
+  [baz]: /url1
+  [bar]: /url2
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><a href="/url2">foo</a><a href="/url1">baz</a></p>
+  
+  ```
+* INCOMPATIBLE - Example 580: In MfM, links are always parsed completely from left to right, regardless of whether a reference is defined or not;  
+  Markdown input:
+  ```markdown
+  [foo][bar][baz]
+  
+  [baz]: /url1
+  [foo]: /url2
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>[foo]<a href="/url1">bar</a></p>
+  
+  ```
+## 6.7 Images - Implemented
+
+Except **not yet implemented** functionality and known **incompatibilities**:
+
+* INCOMPATIBLE - Example 582: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![foo *bar*]
+  
+  [foo *bar*]: train.jpg "train & tracks"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 583: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![foo ![bar](/url)](/url2)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="/url2" alt="foo bar" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 584: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![foo [bar](/url)](/url2)
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="/url2" alt="foo bar" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 585: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![foo *bar*][]
+  
+  [foo *bar*]: train.jpg "train & tracks"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 586: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![foo *bar*][foobar]
+  
+  [FOOBAR]: train.jpg "train & tracks"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 594: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![*foo* bar][]
+  
+  [*foo* bar]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="/url" alt="foo bar" title="title" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 596: MfM preserves whitespace at the end of the line, which the test does not expect.;  
+  Markdown input:
+  ```markdown
+  ![foo] 
+  []
+  
+  [foo]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="/url" alt="foo" title="title" />
+  []</p>
+  
+  ```
+* INCOMPATIBLE - Example 598: In MfM, alt text is not re-processed just for the sake of the test;  
+  Markdown input:
+  ```markdown
+  ![*foo* bar]
+  
+  [*foo* bar]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p><img src="/url" alt="foo bar" title="title" /></p>
+  
+  ```
+* INCOMPATIBLE - Example 599: In MfM, labels can contain brackets;  
+  Markdown input:
+  ```markdown
+  ![[foo]]
+  
+  [[foo]]: /url "title"
+  
+  ```
+  Expected HTML:
+  ```html
+  <p>![[foo]]</p>
+  <p>[[foo]]: /url &quot;title&quot;</p>
+  
+  ```
 ## 6.8 NOT yet Implemented
 ## 6.9 Autolinks (extension) - Implemented
 

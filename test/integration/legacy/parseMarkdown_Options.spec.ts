@@ -7,6 +7,9 @@ import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
 import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { greaterThanOrEqual } from "omnimock"
 import { parseMarkdown } from "./parseMarkdown"
+import { MfMImage, MfMLink } from "$mfm/inline/link/MfMLink"
+
+const assume = expect
 
 describe('parseMarkdown: Options with curly braces', () => {
 	it.skip('supports options on code blocks', () => {/*
@@ -94,50 +97,50 @@ describe('parseMarkdown: Options with curly braces', () => {
 		})
 	})
 
-	it.skip('supports options on links', () => {/*
+	it('supports options on links', () => {
 		const markdown = '[text](target){defaultoption}'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 	
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('options')
-	
-		const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const paragraphLine = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
 
-	it.skip('supports options on image links', () => {/*
+		const options = (paragraphLine.content[0] as MfMLink).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
+
+	it('supports options on image links', () => {
 		const markdown = '![text](target){defaultoption}'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 	
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('options')
+		const paragraphLine = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
 	
-		const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
-		expect(options).to.have.property('default', 'defaultoption')
-	*/})
+		const options = (paragraphLine.content[0] as MfMImage).options
+		expect(options.get('default')).toEqual('defaultoption')
+	})
 
 	const lowercaseLinks = [
-		'https://youtu.be/x_0EH-mLyRM', 'https://vimeo.com/123123123', 'https://www.youtube.com/watch?v=x_0EH-mLyRM&feature=youtu.be',
+		'https://youtu.be/x_0EH-mLyRM', 'https://vimeo.com/123123123', 'https://www.youtube.com/watch?v=x_0EH-mLyRM',
 		'./file.mp4', './file.mov', './file.avi','./file.wmv', './file.webm',
 	]
 	const uppercaseLinks = lowercaseLinks.map(l => l.toUpperCase())
 	const videoLinks = [ ...lowercaseLinks, ...uppercaseLinks, ]
-	videoLinks.forEach(link => it.skip(`has "video" type option when link is ${link}`, () => {/*
+	videoLinks.forEach(link => it(`has "video" type option when link is ${link}`, () => {
 		const markdown = `![text](${link})`
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'paragraph')
 	
-		assume(result.content).to.have.length(1)
-		assume(result.content[0]).to.have.property('type', 'Paragraph')
-		assume((result.content[0] as Paragraph).content[0]).to.have.property('options')
+		const paragraphLine = (result.content[0] as MfMParagraph).content[0] as MfMContentLine
 	
-		const options = ((result.content[0] as Paragraph).content[0] as { options: ContentOptions }).options
-		expect(options).to.have.property('type', 'video')
-	*/}))
+		const options = (paragraphLine.content[0] as MfMImage).options
+		expect(options.get('type')).toEqual('video')
+	}))
 
 	it('supports options on asides', () => {
 		const markdown = '^{defaultoption} Aside content'

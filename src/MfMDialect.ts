@@ -39,6 +39,7 @@ import { TextSpan } from "$element/TextSpan";
 import { MfMLinkText } from "$mfm/inline/link/MfMLinkText";
 import { MfMImage, MfMLink } from "$mfm/inline/link/MfMLink";
 import { MfMLinkReference } from "$mfm/block/MfMLinkReference";
+import { MfMOptions } from "$mfm/options/MfMOptions";
 
 export type MfMBlockElements =
 	MfMSection |
@@ -65,13 +66,18 @@ export type MfMInlineElements =
 	MfMImage |
 	MfMText
 
+export type OptionsPostprocessor<T> = (element: T, options: MfMOptions, setOption: (key: string, value: string) => unknown) => unknown
+export interface MfMDialectOptions {
+	optionsPostprocessors?: { [key: string]: OptionsPostprocessor<any>[] }
+}
 /**
  * All known parsers for the "Marmota Flavored Markdown" dialect. 
  */
 export class MfMDialect implements Dialect<MfMContainer> {
 	constructor(
+		private dialectOptions: MfMDialectOptions = {},
 		private idGenerator: IdGenerator = new NumberedIdGenerator(),
-		private parsers: MfMParsers = new MfMParsers(idGenerator),
+		private parsers: MfMParsers = new MfMParsers(idGenerator, dialectOptions),
 		private lineByLineParser: LineByLineParser<MfMContainer> = new LineByLineParser(parsers['MfMContainer']),
 		private updateParser: UpdateParser<MfMContainer> = new UpdateParser(idGenerator),
 	) {}

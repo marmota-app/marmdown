@@ -1,9 +1,11 @@
 import { GenericBlock } from "$element/GenericElement"
+import { MfMFencedCodeBlock } from "$mfm/block/MfMFencedCodeBlock"
 import { MfMParagraph } from "$mfm/block/MfMParagraph"
 import { MfMSection } from "$mfm/block/MfMSection"
 import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
 import { MfMContentLine } from "$mfm/inline/MfMContentLine"
 import { MfMEmphasis, MfMStrikeThrough } from "$mfm/inline/MfMEmphasis"
+import { MfMLink } from "$mfm/inline/link/MfMLink"
 import { parseMarkdown } from "./parseMarkdown"
 
 const assume = expect
@@ -151,32 +153,30 @@ describe('parseMarkdown', () => {
 		})
 	})
 
-	it.skip('parses a multiline code block that starts and ends with triple-backquote', () => {/*
+	it('parses a multiline code block that starts and ends with triple-backquote', () => {
 		const markdown = '```\nlorem ipsum\ndolor sit amet\n```'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'fenced-code-block')
 
-		expect(result.content.filter(c => c.type === 'Preformatted')).to.have.length(1)
-		expect(result.content[0]).to.have.property('type', 'Preformatted')
+		const preformattedContent = (result.content[0] as MfMFencedCodeBlock).content
+		expect(preformattedContent).toHaveLength(2)
+		expect(preformattedContent[0]).toHaveProperty('text', 'lorem ipsum')
+		expect(preformattedContent[1]).toHaveProperty('text', 'dolor sit amet')
+	})
 
-		const preformattedContent = (result.content[0] as Preformatted).content
-		expect(preformattedContent).to.have.length(3)
-		expect(preformattedContent[0]).to.have.property('content', 'lorem ipsum')
-		expect(preformattedContent[1]).to.have.property('type', 'Newline')
-		expect(preformattedContent[2]).to.have.property('content', 'dolor sit amet')
-	*/})
-
-	it.skip('parses github-style highlighted code blocks into the default option', () => {/*
+	it('parses github-style highlighted code blocks into the default option', () => {
 		const markdown = '```javascript\nlorem ipsum\n```'
 
-		const result = parseMarkdown(markdown)
+		const result = parseMarkdown(markdown).content[0] as MfMSection
+		assume(result.content).toHaveLength(1)
+		assume(result.content[0]).toHaveProperty('type', 'fenced-code-block')
 
-		expect(result.content.filter(c => c.type === 'Preformatted')).to.have.length(1)
-		expect(result.content[0]).to.have.property('type', 'Preformatted')
 
-		const options = (result.content[0] as Preformatted).options
-		expect(options).to.have.property('default', 'javascript')
-	*/})
+		const options = (result.content[0] as MfMFencedCodeBlock).options
+		expect(options.get('default')).toEqual('javascript')
+	})
 
 	describe('horizontal rule', () => {
 		it('parses --- as horizontal rule', () => {
@@ -646,24 +646,26 @@ describe('parseMarkdown', () => {
 	})
 
 	describe('paragraph content: other', () => {
-		it.skip('parses simple link', () => {/*
+		it('parses simple link', () => {
 			const markdown = 'text [description](href) text'
 
-			const result = parseMarkdown(markdown)
-			assume(result.content).to.have.length(1)
-			assume(result.content[0]).to.have.property('type', 'Paragraph')
+			const result = parseMarkdown(markdown).content[0] as MfMSection
+			assume(result.content).toHaveLength(1)
+			assume(result.content[0]).toHaveProperty('type', 'paragraph')
 
-			expect((result.content[0] as Paragraph).content).to.have.length(3)
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[0]).to.have.property('content', 'text ')
+			const paragraphLine = result.content[0].content[0] as MfMContentLine
 
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('type', 'InlineLink')
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('description', 'description')
-			expect((result.content[0] as Paragraph).content[1]).to.have.property('href', 'href')
+			expect(paragraphLine.content).toHaveLength(3)
+			expect(paragraphLine.content[0]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[0]).toHaveProperty('text', 'text ')
 
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('type', 'Text')
-			expect((result.content[0] as Paragraph).content[2]).to.have.property('content', ' text')
-		*/})
+			expect(paragraphLine.content[1]).toHaveProperty('type', 'link')
+			expect((paragraphLine.content[1] as MfMLink).text).toHaveProperty('normalized', 'description')
+			expect((paragraphLine.content[1] as MfMLink).destination).toHaveProperty('target', 'href')
+
+			expect(paragraphLine.content[2]).toHaveProperty('type', 'text')
+			expect(paragraphLine.content[2]).toHaveProperty('text', ' text')
+		})
 	})
 
 

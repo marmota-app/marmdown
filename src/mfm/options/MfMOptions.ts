@@ -16,6 +16,8 @@ limitations under the License.
 
 import { Element, LeafBlock, LineContent, ParsedLine, StringLineContent } from "$element/Element";
 import { GenericBlock } from "$element/GenericElement";
+import { OptionsPostprocessor } from "$markdown/MfMDialect";
+import { MfMParsers } from "$mfm/MfMParsers";
 import { isEmpty } from "$parser/find";
 import { Parser } from "$parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
@@ -36,6 +38,7 @@ export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionP
 
 export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options', Parser<MfMOptions>> implements Options {
 	readonly classification = 'options'
+	public readonly additionalOptions: { [key: string]: string } = {}
 
 	private _isFullyParsed: boolean
 
@@ -49,10 +52,10 @@ export class MfMOptions extends GenericBlock<MfMOptions, MfMOption<MfMFirstOptio
 	
 	get isEmpty(): boolean { return this.content.length === 0 }
 
-	get(key: string) { return this.content.find(c => c.key===key)?.value }
+	get(key: string) { return this.content.find(c => c.key===key)?.value ?? this.additionalOptions[key] }
 
 	get keys(): string[] {
-		return this.content.map(c => c.key)
+		return [ ...this.content.map(c => c.key), ...Object.keys(this.additionalOptions) ]
 	}
 }
 
@@ -72,19 +75,23 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 
 		const previousOptions = element.options
 
+		const dialectOptions = (this.parsers as MfMParsers).dialectOptions
 		if(previousOptions.id==='__empty__' && !previousOptions.isFullyParsed && text.charAt(start+i) === '{') {
 			const options = this.parseLine(null, text, start+i, length-i)
 			if(options != null) {
+				this.#postprocess(element, options, dialectOptions?.optionsPostprocessors)
 				lastOptionLine = options.lines[options.lines.length-1] as ParsedLine<StringLineContent<MfMOptions>, MfMOptions>
 				i += lastOptionLine.length
 			}
 		} else if(!previousOptions.isEmpty && !previousOptions.isFullyParsed) {
 			const options = this.parseLine(previousOptions as MfMOptions, text, start+i, length-i)
 			if(options != null) {
+				this.#postprocess(element, options, dialectOptions?.optionsPostprocessors)
 				lastOptionLine = options.lines[options.lines.length-1] as ParsedLine<StringLineContent<MfMOptions>, MfMOptions>
 				i += lastOptionLine.length
 			}
 		} else if(previousOptions.id==='__empty__') {
+			this.#postprocess(element, previousOptions, dialectOptions?.optionsPostprocessors)
 			previousOptions.isFullyParsed = true
 		}
 
@@ -93,6 +100,12 @@ export class MfMOptionsParser extends Parser<MfMOptions, MfMOptions, MfMFirstOpt
 		}
 
 		return { parsedLength: i }
+	}
+
+	#postprocess(element: any, options: MfMOptions, postprocessors?: { [key: string]: OptionsPostprocessor<any>[] }) {
+		if(postprocessors && postprocessors[element.type]) {
+			postprocessors[element.type].forEach(p => p(element, options, (key: string, value: string) => { options.additionalOptions[key]=value} ))
+		}
 	}
 
 	override parseLine(previous: MfMOptions | null, text: string, start: number, length: number): MfMOptions | null {

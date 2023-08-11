@@ -42,7 +42,7 @@ describe('MfMDialect', () => {
 		const updateParserMock = mock(UpdateParser)
 
 		const idg = new NumberedIdGenerator()
-		const dialect = new MfMDialect(idg, new MfMParsers(idg), instance(lblParserMock))
+		const dialect = new MfMDialect({}, idg, new MfMParsers(idg, {}), instance(lblParserMock))
 		const doc = dialect.parseCompleteText('dummy text')
 
 		expect(doc).toEqual(expectedDocument)
@@ -58,7 +58,7 @@ describe('MfMDialect', () => {
 		when(updateParserMock.parse(currentDocument, anyObject())).return(expectedDocument)
 
 		const idg = new NumberedIdGenerator()
-		const dialect = new MfMDialect(idg, new MfMParsers(idg), instance(lblParserMock), instance(updateParserMock))
+		const dialect = new MfMDialect({}, idg, new MfMParsers(idg, {}), instance(lblParserMock), instance(updateParserMock))
 
 		const doc = dialect.parseUpdate(currentDocument, { text: 'dummy', rangeOffset: 2, rangeLength: 3, })
 
