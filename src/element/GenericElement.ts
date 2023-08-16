@@ -26,6 +26,8 @@ abstract class LineBasedElement<THIS extends Element<unknown, unknown, unknown, 
 		this.lines.push(line as unknown as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>)
 		return line
 	}
+
+	childrenChanged: (() => unknown) | undefined
 }
 
 export abstract class GenericBlock<

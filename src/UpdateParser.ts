@@ -15,10 +15,11 @@ limitations under the License.
 */
 
 import { Element, LineContent, ParsedLine } from "$element/Element";
-import { MfMGenericBlock, MfMGenericContainerBlock } from "$mfm/MfMGenericElement";
-import { isEmpty } from "$parser/find";
+import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement";
 import { ContentUpdate } from "./ContentUpdate";
-import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
+import { IdGenerator } from "./IdGenerator";
+
+type UpdateResult = { line: LineContent<unknown>, directUpdate: boolean } | { line: null }
 
 /**
  * Parses updates to a document. 
@@ -57,9 +58,9 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 
 		try {
 			for(let i=0; i<element.lines.length; i++) {
-				const updatedLine = this.parseContent(element.lines[i] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
-				if(updatedLine) {
-					element.lines[i] = updatedLine as ParsedLine<unknown, unknown>
+				const updatedResult = this.parseContent(element.lines[i] as LineContent<Element<unknown, unknown, unknown, unknown>>, update)
+				if(updatedResult.line) {
+					element.lines[i] = updatedResult.line as ParsedLine<unknown, unknown>
 					return element
 				}
 			}
@@ -73,7 +74,7 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		}
 	}
 
-	private parseContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
+	private parseContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): UpdateResult {
 		const changeStart = update.rangeOffset
 		const changeEnd = update.rangeOffset + update.rangeLength
 		const rangeStartsWithingExistingBounds = changeStart >= content.start && changeStart <= content.start+content.length
@@ -89,33 +90,35 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 				for(var i=0; i<content.content.length; i++) {
 					const innerContent = content.content[i]
 					const result = this.parseContent(innerContent, update)
-					if(result) {
-						content.content[i] = result
+					if(result.line) {
+						content.content[i] = result.line
 
 						if((content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach) {
 							(content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach(
-								(result as ParsedLine<unknown, unknown>).originalId,
-								(result as ParsedLine<unknown, unknown>).id,
+								(result.line as ParsedLine<unknown, unknown>).originalId,
+								(result.line as ParsedLine<unknown, unknown>).id,
 							)
 						}
 
-						//TODO we probably need better tests for updating the
-						//     start index of all following elements!
-						let start = result.start+result.length
+						let start = result.line.start+result.line.length
 						for(var j=i+1; j<content.content.length; j++) {
 							this.updateStart(content.content[j], start)
 							start += content.content[j].length
 						}
-						return content
+
+						if(result.directUpdate) {
+							content.belongsTo.childrenChanged?.()
+						}
+						return { line: content, directUpdate: false }
 					}
 				}
 				return this.parseInnerContent(content, update)
 			} else {
-				return null
+				return { line: null }
 			}
 		}
 
-		return null
+		return { line: null }
 	}
 
 	updateCouldChangeElementType(content: ParsedLine<any, any>, update: ContentUpdate) {
@@ -147,7 +150,7 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		return false
 	}
 
-	private parseInnerContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): LineContent<unknown> | null {
+	private parseInnerContent(content: LineContent<Element<unknown, unknown, unknown, unknown>>, update: ContentUpdate): UpdateResult {
 		const originalText = content.asText
 		const rangeStartWithin = update.rangeOffset - content.start
 		const beforeChange = originalText.substring(0, rangeStartWithin)
@@ -174,14 +177,14 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 			}
 			if(!lineFound) {
 				console.warn('Could not parse update: Line was not found in original element!')
-				return null
+				return { line: null }
 			}
 
 			this.updateStart(updated, content.start)
-			return updated
+			return { line: updated, directUpdate: true }
 		}
 
-		return null
+		return { line: null }
 	}
 
 	private updateContentOwner(updated: ParsedLine<LineContent<unknown>, unknown>, newOwner: Element<unknown, unknown, unknown, unknown>) {

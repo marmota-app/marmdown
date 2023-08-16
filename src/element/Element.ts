@@ -121,6 +121,8 @@ export interface Element<
 	 * the next line to this element. 
 	 */
 	readonly isFullyParsed: boolean,
+
+	childrenChanged: (() => unknown) | undefined,
 }
 
 /**
