@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, ParsedLine } from "$element/Element";
-import { Container } from "$element/MarkdownElements";
-import { MfMBlockElements } from "$markdown/MfMDialect";
-import { EmptyElementParser } from "$parser/EmptyElementParser";
-import { parseContainerBlock } from "$parser/parse";
+import { Element, ParsedLine } from "../element/Element";
+import { Container } from "../element/MarkdownElements";
+import { MfMBlockElements } from "../MfMDialect";
+import { EmptyElementParser } from "../parser/EmptyElementParser";
+import { parseContainerBlock } from "../parser/parse";
 import { MfMLinkReference } from "./block/MfMLinkReference";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
 import { addOptionsToContainerBlock, MfMGenericBlock, MfMGenericContainerBlock } from "./MfMGenericElement";

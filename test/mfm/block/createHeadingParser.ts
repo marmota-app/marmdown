@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element } from "$element/Element"
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMHeadingParser } from "$mfm/block/MfMHeading"
-import { MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
+import { Element } from "../../../src/element/Element"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMHeadingParser } from "../../../src/mfm/block/MfMHeading"
+import { MfMSectionParser } from "../../../src/mfm/block/MfMSection"
+import { MfMContentLineParser } from "../../../src/mfm/inline/MfMContentLine"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
+import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions"
+import { Parser } from "../../../src/parser/Parser"
+import { Parsers } from "../../../src/parser/Parsers"
 import { createOptionsParser } from "../options/createOptionsParser"
 
 export function createHeadingParser(sectionBlockParsers: Parser<Element<unknown, unknown, unknown, unknown>>[] = []) {

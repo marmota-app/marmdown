@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { StringLineContent } from "$element/Element"
-import { GenericLeafInline } from "$element/GenericElement"
-import { LinkTitle } from "$element/MarkdownElements"
-import { ContentUpdate } from "$markdown/ContentUpdate"
-import { isUnescaped, replaceEscaped } from "$markdown/escaping"
-import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
-import { InlineParser } from "$parser/Parser"
+import { StringLineContent } from "../../../element/Element"
+import { GenericLeafInline } from "../../../element/GenericElement"
+import { LinkTitle } from "../../../element/MarkdownElements"
+import { ContentUpdate } from "../../../ContentUpdate"
+import { isUnescaped, replaceEscaped } from "../../../escaping"
+import { INCREASING, finiteLoop } from "../../../finiteLoop"
+import { InlineParser } from "../../../parser/Parser"
 
 export class MfMLinkTitle extends GenericLeafInline<MfMLinkTitle, never, StringLineContent<MfMLinkTitle>, 'link-title', MfMLinkTitleParser> implements LinkTitle<MfMLinkTitle> {
 	constructor(id: string, pw: MfMLinkTitleParser) { super(id, 'link-title', pw) }

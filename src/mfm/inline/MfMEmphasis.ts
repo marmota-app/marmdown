@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerInline, LineContent, ParsedLine, StringLineContent } from "$element/Element";
-import { Emphasis, StrikeThrough, StrongEmphasis } from "$element/MarkdownElements";
-import { TextSpan, TextSpanParser } from "$element/TextSpan";
-import { MfMInlineElements } from "$markdown/MfMDialect";
-import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
-import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions";
-import { InlineParser } from "$parser/Parser";
-import { isWhitespace } from "$parser/isWhitespace";
-import { parseInlineContent, parseInnerInlineElement } from "$parser/parse";
+import { ContainerInline, LineContent, ParsedLine, StringLineContent } from "../../element/Element";
+import { Emphasis, StrikeThrough, StrongEmphasis } from "../../element/MarkdownElements";
+import { TextSpan, TextSpanParser } from "../../element/TextSpan";
+import { MfMInlineElements } from "../../MfMDialect";
+import { MfMGenericContainerInline } from "../MfMGenericElement";
+import { MfMOptions, MfMOptionsParser } from "../options/MfMOptions";
+import { InlineParser } from "../../parser/Parser";
+import { isWhitespace } from "../../parser/isWhitespace";
+import { parseInlineContent, parseInnerInlineElement } from "../../parser/parse";
 import { MfMTextParser } from "./MfMText";
 
 export interface DelimiterRun {

@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IdGenerator, NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { IdGenerator, NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMFirstOptionParser, MfMOptionParser } from "../../../src/mfm/options/MfMOption"
+import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions"
+import { Parsers } from "../../../src/parser/Parsers"
 
 export function createOptionsParser(idGenerator: IdGenerator = new NumberedIdGenerator()) {
 	const parsers: Parsers<MfMOptionParser | MfMFirstOptionParser> = {

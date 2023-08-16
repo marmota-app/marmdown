@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element } from "$element/Element";
-import { ContentUpdate } from "$markdown/ContentUpdate";
-import { Parser } from "$parser/Parser";
+import { Element } from "../element/Element";
+import { ContentUpdate } from "../ContentUpdate";
+import { Parser } from "../parser/Parser";
 import { MfMOptions } from "./options/MfMOptions";
 
 export interface MfMElement extends Element<unknown, unknown, unknown, unknown> {

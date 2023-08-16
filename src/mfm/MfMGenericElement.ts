@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Block, Element, Inline, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock, GenericContainerInline, GenericLeafInline } from "$element/GenericElement"
-import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
+import { Block, Element, Inline, LineContent, ParsedLine, StringLineContent } from "../element/Element"
+import { GenericBlock, GenericContainerInline, GenericLeafInline } from "../element/GenericElement"
+import { Parser } from "../parser/Parser"
+import { Parsers } from "../parser/Parsers"
 import { EMPTY_OPTIONS_PARSER, MfMOptions, MfMOptionsParser } from "./options/MfMOptions"
 
 /**

@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
-import { Parsers } from "$parser/Parsers"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMText, MfMTextParser } from "../../../src/mfm/inline/MfMText"
+import { Parsers } from "../../../src/parser/Parsers"
 
 describe('MfMText', () => {
 	describe('parsing the content', () => {

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { IdGenerator } from "$markdown/IdGenerator";
-import { EmptyElementParser } from "$parser/EmptyElementParser";
-import { Parsers } from "$parser/Parsers";
+import { IdGenerator } from "../IdGenerator";
+import { EmptyElementParser } from "../parser/EmptyElementParser";
+import { Parsers } from "../parser/Parsers";
 import { MfMAsideParser } from "./block/MfMAside";
 import { MfMFencedCodeBlockParser } from "./block/MfMFencedCodeBlock";
 import { MfMGeneralPurposeBlockParser } from "./block/MfMGeneralPurposeBlock";
@@ -36,10 +36,10 @@ import { MfMTextParser } from "./inline/MfMText";
 import { MfMContainerParser } from "./MfMContainer";
 import { MfMFirstOptionParser, MfMOptionParser } from "./options/MfMOption";
 import { MfMOptionsParser } from "./options/MfMOptions";
-import { TextSpanParser } from "$element/TextSpan";
+import { TextSpanParser } from "../element/TextSpan";
 import { MfMLinkParser } from "./inline/link/MfMLink";
 import { MfMLinkReference, MfMLinkReferenceParser } from "./block/MfMLinkReference";
-import { MfMDialectOptions } from "$markdown/MfMDialect";
+import { MfMDialectOptions } from "../MfMDialect";
 
 export type MfMMetaBlock =
 	MfMContainerParser |

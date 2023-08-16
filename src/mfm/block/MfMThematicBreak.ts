@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element"
-import { ThematicBreak } from "$element/MarkdownElements"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
-import { MfMParser } from "$mfm/MfMParser"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { ParsedLine, StringLineContent } from "../../element/Element"
+import { ThematicBreak } from "../../element/MarkdownElements"
+import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMParser } from "../MfMParser"
+import { MfMOptionsParser } from "../options/MfMOptions"
 
 export class MfMThematicBreak extends MfMGenericBlock<MfMThematicBreak, never, 'thematic-break', MfMThematicBreakParser> implements ThematicBreak<MfMThematicBreak> {
 	constructor(id: string, pw: MfMThematicBreakParser) { super(id, 'thematic-break', pw) }

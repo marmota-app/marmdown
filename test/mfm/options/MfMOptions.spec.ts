@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMFirstOptionParser, MfMOptionParser } from "$mfm/options/MfMOption"
-import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
-import { not } from "omnimock"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMOptions } from "../../../src/mfm/options/MfMOptions"
 import { createOptionsParser } from "./createOptionsParser"
 
 describe('MfMOptions', () => {
@@ -132,7 +129,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ the value'
 			const secondLine = 'key2=value2 }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length)
 
@@ -155,7 +152,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ the value }'
 			const secondLine = 'key2=value2 }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length)
 
@@ -167,7 +164,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ the value'
 			const secondLine = '{ key2=value2 }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length)
 
@@ -179,7 +176,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ the value'
 			const secondLine = ' another default }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length)
 
@@ -384,7 +381,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
@@ -418,11 +415,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: ' key4=value4', rangeOffset: `${firstLine}\nkey3=value3;`.length, rangeLength: 0 })
+			const updated = updateParser.parse(result, { text: ' key4=value4', rangeOffset: `../../../src/{firstLine}\nkey3=value3;`.length, rangeLength: 0 })
 
 			expect(updated).not.toBeNull()
 			expect(updated?.content).toHaveLength(4)
@@ -451,7 +448,7 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
@@ -478,11 +475,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: '', rangeOffset: `${firstLine}\n`.length, rangeLength: 'key3=value3;'.length })
+			const updated = updateParser.parse(result, { text: '', rangeOffset: `../../../src/{firstLine}\n`.length, rangeLength: 'key3=value3;'.length })
 
 			expect(updated).not.toBeNull()
 			expect(updated?.content).toHaveLength(2)
@@ -505,11 +502,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: '}', rangeOffset: `${firstLine}`.length, rangeLength: 0 })
+			const updated = updateParser.parse(result, { text: '}', rangeOffset: `../../../src/{firstLine}`.length, rangeLength: 0 })
 
 			expect(updated).toBeNull()
 		})
@@ -518,11 +515,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3; }'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: '{', rangeOffset: `${firstLine}\n`.length, rangeLength: 0 })
+			const updated = updateParser.parse(result, { text: '{', rangeOffset: `../../../src/{firstLine}\n`.length, rangeLength: 0 })
 
 			expect(updated).toBeNull()
 		})
@@ -531,11 +528,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3;'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: ' }', rangeOffset: `${firstLine}\n${secondLine}`.length, rangeLength: ''.length })
+			const updated = updateParser.parse(result, { text: ' }', rangeOffset: `../../../src/{firstLine}\n../../../src/{secondLine}`.length, rangeLength: ''.length })
 
 			expect(updated).not.toBeNull()
 			expect(updated?.content).toHaveLength(3)
@@ -561,11 +558,11 @@ describe('MfMOptions', () => {
 
 			const firstLine = '{ default value; key2=value2'
 			const secondLine = 'key3=value3;'
-			const text = `${firstLine}\n${secondLine}`
+			const text = `../../../src/{firstLine}\n../../../src/{secondLine}`
 			const first = parser.parseLine(null, text, 0, firstLine.length)
 			const result = parser.parseLine(first, text, firstLine.length+1, secondLine.length) as MfMOptions
 
-			const updated = updateParser.parse(result, { text: ' ', rangeOffset: `${firstLine}\nkey3`.length, rangeLength: '='.length })
+			const updated = updateParser.parse(result, { text: ' ', rangeOffset: `../../../src/{firstLine}\nkey3`.length, rangeLength: '='.length })
 
 			expect(updated).toBeNull()
 		})

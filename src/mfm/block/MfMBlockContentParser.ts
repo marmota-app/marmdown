@@ -14,14 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { MfMBlockElements } from "$markdown/MfMDialect"
-import { MfMGenericContainerBlock, addOptionsToContainerBlock } from "$mfm/MfMGenericElement"
-import { MfMParser } from "$mfm/MfMParser"
-import { MfMOptions, MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser"
-import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
+import { Element, LineContent, ParsedLine, StringLineContent } from "../../element/Element"
+import { MfMBlockElements } from "../../MfMDialect"
+import { MfMGenericContainerBlock, addOptionsToContainerBlock } from "../MfMGenericElement"
+import { MfMParser } from "../MfMParser"
+import { MfMOptions, MfMOptionsParser } from "../options/MfMOptions"
+import { EmptyElement, EmptyElementParser } from "../../parser/EmptyElementParser"
+import { Parser } from "../../parser/Parser"
 
 export type MfMBlockElementContent = MfMBlockElements
 

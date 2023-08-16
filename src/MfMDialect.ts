@@ -15,31 +15,31 @@ limitations under the License.
 */
 
 import { ContentUpdate } from "./ContentUpdate";
-import { Dialect } from "$parser/Dialect";
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer";
+import { Dialect } from "./parser/Dialect";
+import { MfMContainer, MfMContainerParser } from "./mfm/MfMContainer";
 import { IdGenerator, NumberedIdGenerator } from "./IdGenerator";
 import { LineByLineParser } from "./LineByLineParser";
-import { MfMParsers } from "$mfm/MfMParsers";
-import { MfMSection } from "$mfm/block/MfMSection";
-import { MfMHeading, } from "$mfm/block/MfMHeading";
-import { MfMParagraph } from "$mfm/block/MfMParagraph";
-import { MfMText } from "$mfm/inline/MfMText";
+import { MfMParsers } from "./mfm/MfMParsers";
+import { MfMSection } from "./mfm/block/MfMSection";
+import { MfMHeading, } from "./mfm/block/MfMHeading";
+import { MfMParagraph } from "./mfm/block/MfMParagraph";
+import { MfMText } from "./mfm/inline/MfMText";
 import { UpdateParser } from "./UpdateParser";
-import { MfMContentLine } from "$mfm/inline/MfMContentLine";
-import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
-import { MfMAside } from "$mfm/block/MfMAside";
-import { MfMThematicBreak } from "$mfm/block/MfMThematicBreak";
-import { EmptyElement } from "$parser/EmptyElementParser";
-import { MfMEmphasis, MfMStrikeThrough, MfMStrongEmphasis } from "$mfm/inline/MfMEmphasis";
-import { MfMHardLineBreak } from "$mfm/inline/MfMHardLineBreak";
-import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan";
-import { MfMIndentedCodeBlock } from "$mfm/block/MfMIndentedCodeBlock";
-import { MfMFencedCodeBlock } from "$mfm/block/MfMFencedCodeBlock";
-import { TextSpan } from "$element/TextSpan";
-import { MfMLinkText } from "$mfm/inline/link/MfMLinkText";
-import { MfMImage, MfMLink } from "$mfm/inline/link/MfMLink";
-import { MfMLinkReference } from "$mfm/block/MfMLinkReference";
-import { MfMOptions } from "$mfm/options/MfMOptions";
+import { MfMContentLine } from "./mfm/inline/MfMContentLine";
+import { MfMGeneralPurposeBlock } from "./mfm/block/MfMGeneralPurposeBlock";
+import { MfMAside } from "./mfm/block/MfMAside";
+import { MfMThematicBreak } from "./mfm/block/MfMThematicBreak";
+import { EmptyElement } from "./parser/EmptyElementParser";
+import { MfMEmphasis, MfMStrikeThrough, MfMStrongEmphasis } from "./mfm/inline/MfMEmphasis";
+import { MfMHardLineBreak } from "./mfm/inline/MfMHardLineBreak";
+import { MfMCodeSpan } from "./mfm/inline/MfMCodeSpan";
+import { MfMIndentedCodeBlock } from "./mfm/block/MfMIndentedCodeBlock";
+import { MfMFencedCodeBlock } from "./mfm/block/MfMFencedCodeBlock";
+import { TextSpan } from "./element/TextSpan";
+import { MfMLinkText } from "./mfm/inline/link/MfMLinkText";
+import { MfMImage, MfMLink } from "./mfm/inline/link/MfMLink";
+import { MfMLinkReference } from "./mfm/block/MfMLinkReference";
+import { MfMOptions } from "./mfm/options/MfMOptions";
 
 export type MfMBlockElements =
 	MfMSection |

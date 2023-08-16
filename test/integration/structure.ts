@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Marmdown } from "$markdown/Marmdown";
-import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
-import { MfMAside } from "$mfm/block/MfMAside";
-import { MfMGeneralPurposeBlock } from "$mfm/block/MfMGeneralPurposeBlock";
-import { MfMHeading } from "$mfm/block/MfMHeading";
-import { MfMParagraph } from "$mfm/block/MfMParagraph";
-import { MfMSection } from "$mfm/block/MfMSection";
-import { MfMContainer } from "$mfm/MfMContainer";
-import { MfMOption } from "$mfm/options/MfMOption";
-import { MfMOptions } from "$mfm/options/MfMOptions";
+import { Marmdown } from "../../src/Marmdown";
+import { MfMBlockElements, MfMInlineElements } from "../../src/MfMDialect";
+import { MfMAside } from "../../src/mfm/block/MfMAside";
+import { MfMGeneralPurposeBlock } from "../../src/mfm/block/MfMGeneralPurposeBlock";
+import { MfMHeading } from "../../src/mfm/block/MfMHeading";
+import { MfMParagraph } from "../../src/mfm/block/MfMParagraph";
+import { MfMSection } from "../../src/mfm/block/MfMSection";
+import { MfMContainer } from "../../src/mfm/MfMContainer";
+import { MfMOption } from "../../src/mfm/options/MfMOption";
+import { MfMOptions } from "../../src/mfm/options/MfMOptions";
 
 export function structure(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content, 0) : ''

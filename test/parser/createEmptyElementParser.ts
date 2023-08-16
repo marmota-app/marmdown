@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { EmptyElementParser } from "$parser/EmptyElementParser"
+import { NumberedIdGenerator } from "../../src/IdGenerator"
+import { EmptyElementParser } from "../../src/parser/EmptyElementParser"
 
 export function createEmptyElementParser() {
 	const idGenerator = new NumberedIdGenerator()

@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element";
-import { IndentedCodeBlock } from "$element/MarkdownElements";
-import { MfMGenericBlock } from "$mfm/MfMGenericElement";
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText";
-import { Parser } from "$parser/Parser";
-import { isEmpty } from "$parser/find";
+import { ParsedLine, StringLineContent } from "../../element/Element";
+import { IndentedCodeBlock } from "../../element/MarkdownElements";
+import { MfMGenericBlock } from "../MfMGenericElement";
+import { MfMText, MfMTextParser } from "../inline/MfMText";
+import { Parser } from "../../parser/Parser";
+import { isEmpty } from "../../parser/find";
 
 export class MfMIndentedCodeBlock extends MfMGenericBlock<MfMIndentedCodeBlock, MfMText, 'indented-code-block', MfMIndentedCodeBlockParser> implements IndentedCodeBlock<MfMIndentedCodeBlock, MfMText> {
 	constructor(id: string, pw: MfMIndentedCodeBlockParser) { super(id, 'indented-code-block', pw) }

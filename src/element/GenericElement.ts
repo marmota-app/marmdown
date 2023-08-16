@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { jsonTransient } from "$markdown/jsonTransient";
-import { Parser } from "$parser/Parser";
+import { jsonTransient } from "../jsonTransient";
+import { Parser } from "../parser/Parser";
 import { Block, Element, Inline, LineContent, ParsedLine } from "./Element";
 
 abstract class LineBasedElement<THIS extends Element<unknown, unknown, unknown, unknown> | unknown> {

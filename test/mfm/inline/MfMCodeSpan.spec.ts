@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMCodeSpan } from "../../../src/mfm/inline/MfMCodeSpan"
 import { createCodeSpanParser } from "./createCodeSpanParser"
 
 describe('MfMCodeSpan', () => {
@@ -79,22 +79,22 @@ describe('MfMCodeSpan', () => {
 		});
 
 		[ '``', '```', '````', ].forEach(delimiter => {
-			it(`finds code span delimited by ${delimiter}`, () => {
+			it(`finds code span delimited by ../../../src/{delimiter}`, () => {
 				const { codeSpanParser } = createCodeSpanParser()
-				const text = `${delimiter}code ${delimiter}\` span${delimiter} with text after`
+				const text = `../../../src/{delimiter}code ../../../src/{delimiter}\` span../../../src/{delimiter} with text after`
 	
 				const result = codeSpanParser.parseInline(text, 0, text.length)
 	
 				expect(result).toHaveProperty('type', 'code-span')
 				expect(result?.content).toHaveLength(1)
-				expect(result?.content[0]).toHaveProperty('text', `code ${delimiter}\` span`)
+				expect(result?.content[0]).toHaveProperty('text', `code ../../../src/{delimiter}\` span`)
 	
 				expect(result?.lines).toHaveLength(1)
-				expect(result?.lines[0]).toHaveProperty('asText', `${delimiter}code ${delimiter}\` span${delimiter}`)
+				expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{delimiter}code ../../../src/{delimiter}\` span../../../src/{delimiter}`)
 			})
-			it(`does not find code span when the closing delimiter is longer (${delimiter})`, () => {
+			it(`does not find code span when the closing delimiter is longer (../../../src/{delimiter})`, () => {
 				const { codeSpanParser } = createCodeSpanParser()
-				const text = `${delimiter}not code span${delimiter}\``
+				const text = `../../../src/{delimiter}not code span../../../src/{delimiter}\``
 	
 				const result = codeSpanParser.parseInline(text, 0, text.length)
 	

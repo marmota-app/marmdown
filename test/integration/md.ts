@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Marmdown } from "$markdown/Marmdown"
-import { MfMDialect } from "$markdown/MfMDialect"
+import { Marmdown } from "../../src/Marmdown"
+import { MfMDialect } from "../../src/MfMDialect"
 
 export function md(title: string) {
 	return {

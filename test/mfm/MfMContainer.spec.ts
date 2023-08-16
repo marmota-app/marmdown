@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine } from "$element/Element"
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
-import { Parsers } from "$parser/Parsers"
+import { ParsedLine } from "../../src/element/Element"
+import { NumberedIdGenerator } from "../../src/IdGenerator"
+import { MfMSection, MfMSectionParser } from "../../src/mfm/block/MfMSection"
+import { MfMContainer, MfMContainerParser } from "../../src/mfm/MfMContainer"
+import { Parsers } from "../../src/parser/Parsers"
 import { anyNumber, anyString, instance, mock, verify, when } from "omnimock"
 import { createHeadingParser } from "./block/createHeadingParser"
 import { createParagraphParser } from "./block/createParagraphParser"
 import { createOptionsParser } from "./options/createOptionsParser"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser"
+import { MfMOptionsParser } from "../../src/mfm/options/MfMOptions"
+import { UpdateParser } from "../../src/UpdateParser"
+import { EmptyElement, EmptyElementParser } from "../../src/parser/EmptyElementParser"
 import { createEmptyElementParser } from "../parser/createEmptyElementParser"
-import { MfMHeadingParser } from "$mfm/block/MfMHeading"
+import { MfMHeadingParser } from "../../src/mfm/block/MfMHeading"
 
 describe('MfMContainer parser', () => {
 	function createSectionParserMock() {

@@ -17,8 +17,8 @@ limitations under the License.
 import { JSDOM } from 'jsdom'
 import fs from 'fs'
 
-import { Marmdown } from "$markdown/Marmdown"
-import { MfMDialect } from "$markdown/MfMDialect"
+import { Marmdown } from "../../../src/Marmdown"
+import { MfMDialect } from "../../../src/MfMDialect"
 import { html } from "../html"
 
 interface ImplementedExample {

@@ -14,15 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
-import { Paragraph } from "$element/MarkdownElements"
-import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { isEmpty } from "$parser/find"
-import { Parser } from "$parser/Parser"
-import { Parsers } from "$parser/Parsers"
+import { Element, ParsedLine, StringLineContent } from "../../element/Element"
+import { Paragraph } from "../../element/MarkdownElements"
+import { MfMContentLine, MfMContentLineParser } from "../inline/MfMContentLine"
+import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMOptionsParser } from "../options/MfMOptions"
+import { isEmpty } from "../../parser/find"
+import { Parser } from "../../parser/Parser"
+import { Parsers } from "../../parser/Parsers"
 
 export type MfMParagraphContent = MfMContentLine
 export class MfMParagraph extends MfMGenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {

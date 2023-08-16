@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser } from "$mfm/block/MfMGeneralPurposeBlock"
-import { MfMHeading } from "$mfm/block/MfMHeading"
-import { MfMParagraph, MfMParagraphParser } from "$mfm/block/MfMParagraph"
-import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { EmptyElementParser } from "$parser/EmptyElementParser"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMGeneralPurposeBlock, MfMGeneralPurposeBlockParser } from "../../../src/mfm/block/MfMGeneralPurposeBlock"
+import { MfMHeading } from "../../../src/mfm/block/MfMHeading"
+import { MfMParagraph, MfMParagraphParser } from "../../../src/mfm/block/MfMParagraph"
+import { MfMContentLineParser } from "../../../src/mfm/inline/MfMContentLine"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
+import { EmptyElementParser } from "../../../src/parser/EmptyElementParser"
 import { createOptionsParser } from "../options/createOptionsParser"
 import { createHeadingParser } from "./createHeadingParser"
 

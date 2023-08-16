@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContentUpdate } from "$markdown/ContentUpdate";
-import { ContainerBlock } from "$element/Element";
+import { ContentUpdate } from "../ContentUpdate";
+import { ContainerBlock } from "../element/Element";
 
 /**
  * Abstraction of all parsers that represent a markdown dialect. 

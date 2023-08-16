@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericLeafInline } from "$element/GenericElement"
-import { LinkDestination } from "$element/MarkdownElements"
-import { ContentUpdate } from "$markdown/ContentUpdate"
-import { isUnescaped, replaceEscaped } from "$markdown/escaping"
-import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
-import { InlineParser } from "$parser/Parser"
-import { isUnescapedWhitespace } from "$parser/isWhitespace"
+import { Element, LineContent, ParsedLine, StringLineContent } from "../../../element/Element"
+import { GenericLeafInline } from "../../../element/GenericElement"
+import { LinkDestination } from "../../../element/MarkdownElements"
+import { ContentUpdate } from "../../../ContentUpdate"
+import { isUnescaped, replaceEscaped } from "../../../escaping"
+import { INCREASING, finiteLoop } from "../../../finiteLoop"
+import { InlineParser } from "../../../parser/Parser"
+import { isUnescapedWhitespace } from "../../../parser/isWhitespace"
 
 export class MfMLinkDestination extends GenericLeafInline<MfMLinkDestination, never, StringLineContent<MfMLinkDestination>, 'link-destination', MfMLinkDestinationParser> implements LinkDestination<MfMLinkDestination> {
 	constructor(id: string, pw: MfMLinkDestinationParser) { super(id, 'link-destination', pw) }

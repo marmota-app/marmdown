@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LineByLineParser, ParseError } from "$markdown/LineByLineParser"
-import { MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
-import { Parser } from "$parser/Parser"
+import { LineByLineParser, ParseError } from "../src/LineByLineParser"
+import { MfMSectionParser } from "../src/mfm/block/MfMSection"
+import { MfMContainer, MfMContainerParser } from "../src/mfm/MfMContainer"
 import { instance, mock, verify, when } from "omnimock"
 
 describe('LineByLineParser', () => {

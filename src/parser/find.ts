@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
+import { Element, LineContent, ParsedLine, StringLineContent } from "../element/Element"
 
 export function isEmpty(text: string, start: number, length: number) {
 	if(length === 0) { return true }

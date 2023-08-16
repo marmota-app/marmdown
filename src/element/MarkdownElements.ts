@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContentUpdate } from "$markdown/ContentUpdate";
 import { Block, ContainerBlock, ContainerInline, Element, Inline, LeafBlock, LeafInline, LineContent } from "./Element";
 
 export interface Container<

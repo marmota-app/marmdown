@@ -14,17 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { TextSpanParser } from "$element/TextSpan"
-import { IdGenerator, NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMLinkReferenceParser } from "$mfm/block/MfMLinkReference"
-import { MfMEmphasisParser } from "$mfm/inline/MfMEmphasis"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { MfMLinkParser } from "$mfm/inline/link/MfMLink"
-import { MfMLinkDestinationParser } from "$mfm/inline/link/MfMLinkDestination"
-import { MfMLinkTextParser } from "$mfm/inline/link/MfMLinkText"
-import { MfMLinkTitleParser } from "$mfm/inline/link/MfMLinkTitle"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { TextSpanParser } from "../../../../src/element/TextSpan"
+import { IdGenerator, NumberedIdGenerator } from "../../../../src/IdGenerator"
+import { MfMLinkReferenceParser } from "../../../../src/mfm/block/MfMLinkReference"
+import { MfMEmphasisParser } from "../../../../src/mfm/inline/MfMEmphasis"
+import { MfMTextParser } from "../../../../src/mfm/inline/MfMText"
+import { MfMLinkParser } from "../../../../src/mfm/inline/link/MfMLink"
+import { MfMLinkDestinationParser } from "../../../../src/mfm/inline/link/MfMLinkDestination"
+import { MfMLinkTextParser } from "../../../../src/mfm/inline/link/MfMLinkText"
+import { MfMLinkTitleParser } from "../../../../src/mfm/inline/link/MfMLinkTitle"
+import { MfMOptionsParser } from "../../../../src/mfm/options/MfMOptions"
+import { Parsers } from "../../../../src/parser/Parsers"
 import { createOptionsParser } from "../../options/createOptionsParser"
 
 type RequiredParsers = MfMTextParser | MfMEmphasisParser | MfMOptionsParser

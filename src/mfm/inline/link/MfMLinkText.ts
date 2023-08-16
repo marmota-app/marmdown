@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element"
-import { GenericContainerInline } from "$element/GenericElement"
-import { LinkText } from "$element/MarkdownElements"
-import { ContentUpdate } from "$markdown/ContentUpdate"
-import { MfMInlineElements } from "$markdown/MfMDialect"
-import { InlineParser } from "$parser/Parser"
-import { parseInlineContent } from "$parser/parse"
+import { ParsedLine, StringLineContent } from "../../../element/Element"
+import { GenericContainerInline } from "../../../element/GenericElement"
+import { LinkText } from "../../../element/MarkdownElements"
+import { ContentUpdate } from "../../../ContentUpdate"
+import { MfMInlineElements } from "../../../MfMDialect"
+import { InlineParser } from "../../../parser/Parser"
+import { parseInlineContent } from "../../../parser/parse"
 import { MfMTextParser } from "../MfMText"
 
 export class MfMLinkText extends GenericContainerInline<MfMLinkText, MfMInlineElements, StringLineContent<MfMLinkText>, 'link-text', MfMLinkTextParser> implements LinkText<MfMLinkText, MfMInlineElements> {

@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element"
-import { FencedCodeBlock } from "$element/MarkdownElements"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
-import { EMPTY_OPTIONS_PARSER, MfMOptions, MfMOptionsParser, Options } from "$mfm/options/MfMOptions"
-import { Parser } from "$parser/Parser"
-import { isWhitespace } from "$parser/isWhitespace"
+import { ParsedLine, StringLineContent } from "../../element/Element"
+import { FencedCodeBlock } from "../../element/MarkdownElements"
+import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMText, MfMTextParser } from "../inline/MfMText"
+import { EMPTY_OPTIONS_PARSER, MfMOptions, MfMOptionsParser, Options } from "../options/MfMOptions"
+import { Parser } from "../../parser/Parser"
+import { isWhitespace } from "../../parser/isWhitespace"
 
 class MfMFencedCodeOptions extends MfMOptions {
 	constructor(private block: MfMFencedCodeBlock, id: string, pw: Parser<MfMOptions>, isFullyParsed: boolean) {

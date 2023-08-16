@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, LineContent, Element, StringLineContent } from "$element/Element"
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMHeading, MfMHeadingParser } from "$mfm/block/MfMHeading"
-import { MfMSection, MfMSectionParser } from "$mfm/block/MfMSection"
-import { EmptyElement } from "$parser/EmptyElementParser"
-import { Parsers } from "$parser/Parsers"
+import { ParsedLine, LineContent, Element, StringLineContent } from "../../../src/element/Element"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMHeading, MfMHeadingParser } from "../../../src/mfm/block/MfMHeading"
+import { MfMSection, MfMSectionParser } from "../../../src/mfm/block/MfMSection"
+import { EmptyElement } from "../../../src/parser/EmptyElementParser"
+import { Parsers } from "../../../src/parser/Parsers"
 import { anyObject, anything, instance, mock, when } from "omnimock"
 import { createEmptyElementParser } from "../../parser/createEmptyElementParser"
 

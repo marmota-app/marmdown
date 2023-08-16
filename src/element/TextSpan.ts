@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContentUpdate } from "$markdown/ContentUpdate";
-import { IdGenerator } from "$markdown/IdGenerator";
-import { Parser } from "$parser/Parser";
+import { ContentUpdate } from "../ContentUpdate";
+import { Parser } from "../parser/Parser";
 import { ContainerInline, Element, Inline, LineContent, ParsedLine } from "./Element";
 import { GenericContainerInline } from "./GenericElement";
 

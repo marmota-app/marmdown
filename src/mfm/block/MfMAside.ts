@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Aside } from "$element/MarkdownElements"
-import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
+import { Aside } from "../../element/MarkdownElements"
+import { MfMGenericContainerBlock } from "../MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
 export class MfMAside extends MfMGenericContainerBlock<

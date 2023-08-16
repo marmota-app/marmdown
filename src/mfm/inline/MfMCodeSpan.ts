@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element";
-import { CodeSpan } from "$element/MarkdownElements";
-import { ContentUpdate } from "$markdown/ContentUpdate";
-import { MfMGenericContainerInline } from "$mfm/MfMGenericElement";
-import { MfMOptionsParser } from "$mfm/options/MfMOptions";
-import { InlineParser } from "$parser/Parser";
+import { Element, LineContent, ParsedLine, StringLineContent } from "../../element/Element";
+import { CodeSpan } from "../../element/MarkdownElements";
+import { ContentUpdate } from "../../ContentUpdate";
+import { MfMGenericContainerInline } from "../MfMGenericElement";
+import { MfMOptionsParser } from "../options/MfMOptions";
+import { InlineParser } from "../../parser/Parser";
 import { MfMText, MfMTextParser } from "./MfMText";
 
 export class MfMCodeSpan extends MfMGenericContainerInline<MfMCodeSpan, MfMText, LineContent<MfMCodeSpan>, 'code-span', MfMCodeSpanParser> implements CodeSpan<MfMCodeSpan, MfMText> {

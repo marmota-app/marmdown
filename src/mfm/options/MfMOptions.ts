@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LeafBlock, LineContent, ParsedLine, StringLineContent } from "$element/Element";
-import { GenericBlock } from "$element/GenericElement";
-import { OptionsPostprocessor } from "$markdown/MfMDialect";
-import { MfMParsers } from "$mfm/MfMParsers";
-import { isEmpty } from "$parser/find";
-import { Parser } from "$parser/Parser";
+import { Element, LeafBlock, LineContent, ParsedLine, StringLineContent } from "../../element/Element";
+import { GenericBlock } from "../../element/GenericElement";
+import { OptionsPostprocessor } from "../../MfMDialect";
+import { MfMParsers } from "../MfMParsers";
+import { isEmpty } from "../../parser/find";
+import { Parser } from "../../parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
 
 class EmptyOptionsParser extends Parser<MfMOptions> {

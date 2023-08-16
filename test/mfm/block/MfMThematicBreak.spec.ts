@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMThematicBreak, MfMThematicBreakParser } from "$mfm/block/MfMThematicBreak"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMThematicBreak, MfMThematicBreakParser } from "../../../src/mfm/block/MfMThematicBreak"
+import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions"
+import { Parsers } from "../../../src/parser/Parsers"
 import { createOptionsParser } from "../options/createOptionsParser"
 
 describe('MfMThematicBreak parser', () => {

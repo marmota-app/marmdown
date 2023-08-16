@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { StringLineContent } from "$element/Element"
-import { BlockQuote } from "$element/MarkdownElements"
-import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
+import { BlockQuote } from "../../element/MarkdownElements"
+import { MfMGenericContainerBlock } from "../MfMGenericElement"
 import { MfMBlockContentParser, MfMBlockElementContent } from "./MfMBlockContentParser"
 
 export class MfMGeneralPurposeBlock extends MfMGenericContainerBlock<

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMParagraph } from "$mfm/block/MfMParagraph"
-import { MfMContentLine } from "$mfm/inline/MfMContentLine"
+import { UpdateParser } from "$../../../src/UpdateParser"
+import { MfMParagraph } from "../../../src/mfm/block/MfMParagraph"
+import { MfMContentLine } from "../../../src/mfm/inline/MfMContentLine"
 import { createParagraphParser } from "./createParagraphParser"
 
 describe('MfMParagraph parser', () => {

@@ -14,22 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Inline, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { Image, Link } from "$element/MarkdownElements"
-import { TextSpan, TextSpanParser } from "$element/TextSpan"
-import { MfMInlineElements } from "$markdown/MfMDialect"
-import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
-import { MfMGenericContainerInline } from "$mfm/MfMGenericElement"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { InlineParser } from "$parser/Parser"
-import { isWhitespace, skipSpaces } from "$parser/isWhitespace"
-import { parseInlineContent } from "$parser/parse"
-import { MfMContentLine } from "../MfMContentLine"
+import { Inline, LineContent, ParsedLine, StringLineContent } from "../../../element/Element"
+import { Image, Link } from "../../../element/MarkdownElements"
+import { TextSpan, TextSpanParser } from "../../../element/TextSpan"
+import { MfMInlineElements } from "../../../MfMDialect"
+import { INCREASING, finiteLoop } from "../../../finiteLoop"
+import { MfMGenericContainerInline } from "../../MfMGenericElement"
+import { MfMOptionsParser } from "../../options/MfMOptions"
+import { InlineParser } from "../../../parser/Parser"
+import { isWhitespace, skipSpaces } from "../../../parser/isWhitespace"
 import { MfMLinkTitle, MfMLinkTitleParser } from "./MfMLinkTitle"
 import { MfMText, MfMTextParser } from "../MfMText"
 import { MfMLinkText, MfMLinkTextParser } from "./MfMLinkText"
 import { MfMLinkDestination, MfMLinkDestinationParser } from "./MfMLinkDestination"
-import { ContentUpdate } from "$markdown/ContentUpdate"
+import { ContentUpdate } from "../../../ContentUpdate"
 
 type LinkContent = MfMLinkText | MfMLinkDestination | MfMLinkTitle
 class MfMLinkBase<THIS extends MfMLink | MfMImage,TYPE extends 'image' | 'link'> extends MfMGenericContainerInline<THIS, LinkContent, LineContent<THIS>, TYPE, MfMLinkParser> {

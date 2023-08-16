@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
-import { IdGenerator } from "$markdown/IdGenerator"
-import { INCREASING, finiteLoop } from "$markdown/finiteLoop"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
+import { Element, LineContent, ParsedLine } from "../element/Element"
+import { GenericBlock } from "../element/GenericElement"
+import { IdGenerator } from "../IdGenerator"
+import { INCREASING, finiteLoop } from "../finiteLoop"
+//FIXME should be generic text, not MfMText!
+import { MfMText, MfMTextParser } from "../mfm/inline/MfMText"
 import { InlineParser, Parser } from "./Parser"
 import { Parsers } from "./Parsers"
 

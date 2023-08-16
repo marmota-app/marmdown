@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine } from "$element/Element";
-import { ContentUpdate } from "$markdown/ContentUpdate";
-import { jsonTransient } from "$markdown/jsonTransient";
+import { Element, LineContent, ParsedLine } from "../element/Element";
+import { ContentUpdate } from "../ContentUpdate";
+import { jsonTransient } from "../jsonTransient";
 import { Parsers } from "./Parsers";
 
 /**

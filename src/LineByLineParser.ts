@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerBlock } from "$element/Element";
-import { Parser } from "$parser/Parser";
+import { ContainerBlock } from "./element/Element";
+import { Parser } from "./parser/Parser";
 
 /**
  * Parses a document line-by-line.

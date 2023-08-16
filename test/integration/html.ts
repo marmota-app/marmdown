@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { replaceEscaped } from "$markdown/escaping";
-import { Marmdown } from "$markdown/Marmdown";
-import { MfMBlockElements, MfMInlineElements } from "$markdown/MfMDialect";
-import { MfMHeading } from "$mfm/block/MfMHeading";
-import { MfMLinkReference } from "$mfm/block/MfMLinkReference";
-import { MfMImage, MfMLink } from "$mfm/inline/link/MfMLink";
-import { MfMContainer } from "$mfm/MfMContainer";
-import { MfMOptions } from "$mfm/options/MfMOptions";
+import { replaceEscaped } from "../../src/escaping";
+import { Marmdown } from "../../src/Marmdown";
+import { MfMBlockElements, MfMInlineElements } from "../../src/MfMDialect";
+import { MfMHeading } from "../../src/mfm/block/MfMHeading";
+import { MfMLinkReference } from "../../src/mfm/block/MfMLinkReference";
+import { MfMImage, MfMLink } from "../../src/mfm/inline/link/MfMLink";
+import { MfMContainer } from "../../src/mfm/MfMContainer";
+import { MfMOptions } from "../../src/mfm/options/MfMOptions";
 
 export function html(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content, document.document.linkReferences) : ''

@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element";
-import { GenericLeafInline } from "$element/GenericElement";
-import { Text } from "$element/MarkdownElements";
-import { replaceEscaped } from "$markdown/escaping";
-import { InlineParser } from "$parser/Parser";
+import { Element, LineContent, ParsedLine, StringLineContent } from "../../element/Element";
+import { GenericLeafInline } from "../../element/GenericElement";
+import { Text } from "../../element/MarkdownElements";
+import { replaceEscaped } from "../../escaping";
+import { InlineParser } from "../../parser/Parser";
 
 const PUNCTUATION = [ 
 	'!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/',

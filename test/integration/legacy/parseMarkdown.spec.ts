@@ -1,11 +1,27 @@
-import { GenericBlock } from "$element/GenericElement"
-import { MfMFencedCodeBlock } from "$mfm/block/MfMFencedCodeBlock"
-import { MfMParagraph } from "$mfm/block/MfMParagraph"
-import { MfMSection } from "$mfm/block/MfMSection"
-import { MfMCodeSpan } from "$mfm/inline/MfMCodeSpan"
-import { MfMContentLine } from "$mfm/inline/MfMContentLine"
-import { MfMEmphasis, MfMStrikeThrough } from "$mfm/inline/MfMEmphasis"
-import { MfMLink } from "$mfm/inline/link/MfMLink"
+/*
+Copyright [2020-2023] [David Tanzer - @dtanzer@social.devteams.at]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import { GenericBlock } from "../../../src/element/GenericElement"
+import { MfMFencedCodeBlock } from "../../../src/mfm/block/MfMFencedCodeBlock"
+import { MfMParagraph } from "../../../src/mfm/block/MfMParagraph"
+import { MfMSection } from "../../../src/mfm/block/MfMSection"
+import { MfMCodeSpan } from "../../../src/mfm/inline/MfMCodeSpan"
+import { MfMContentLine } from "../../../src/mfm/inline/MfMContentLine"
+import { MfMEmphasis, MfMStrikeThrough } from "../../../src/mfm/inline/MfMEmphasis"
+import { MfMLink } from "../../../src/mfm/inline/link/MfMLink"
 import { parseMarkdown } from "./parseMarkdown"
 
 const assume = expect

@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine } from "$element/Element"
-import { Section } from "$element/MarkdownElements"
-import { MfMBlockElements } from "$markdown/MfMDialect"
-import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement"
-import { parseBlock, parseContainerBlock } from "$parser/parse"
-import { Parser } from "$parser/Parser"
+import { ParsedLine } from "../../element/Element"
+import { Section } from "../../element/MarkdownElements"
+import { MfMBlockElements } from "../../MfMDialect"
+import { MfMGenericContainerBlock } from "../MfMGenericElement"
+import { parseBlock, parseContainerBlock } from "../../parser/parse"
+import { Parser } from "../../parser/Parser"
 
 export type MfMSectionContent = MfMBlockElements
 export class MfMSection extends MfMGenericContainerBlock<MfMSection, MfMSectionContent, 'section', MfMSectionParser> implements Section<MfMSection, MfMSectionContent> {

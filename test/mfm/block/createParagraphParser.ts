@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMParagraphParser } from "$mfm/block/MfMParagraph"
-import { MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { EmptyElementParser } from "$parser/EmptyElementParser"
-import { Parsers } from "$parser/Parsers"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMParagraphParser } from "../../../src/mfm/block/MfMParagraph"
+import { MfMContentLineParser } from "../../../src/mfm/inline/MfMContentLine"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
+import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions"
+import { EmptyElementParser } from "../../../src/parser/EmptyElementParser"
+import { Parsers } from "../../../src/parser/Parsers"
 import { createEmphasisParser } from "../inline/createEmphasisParser"
 import { createOptionsParser } from "../options/createOptionsParser"
 import { createHeadingParser } from "./createHeadingParser"

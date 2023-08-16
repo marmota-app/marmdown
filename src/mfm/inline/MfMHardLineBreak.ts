@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { HardLineBreak } from "$element/MarkdownElements"
-import { MfMGenericLeafInline } from "$mfm/MfMGenericElement"
-import { InlineParser } from "$parser/Parser"
+import { LineContent, ParsedLine, StringLineContent } from "../../element/Element"
+import { HardLineBreak } from "../../element/MarkdownElements"
+import { MfMGenericLeafInline } from "../MfMGenericElement"
+import { InlineParser } from "../../parser/Parser"
 
 export class MfMHardLineBreak extends MfMGenericLeafInline<MfMHardLineBreak, never, LineContent<MfMHardLineBreak>, 'line-break', MfMHardLineBreakParser> implements HardLineBreak<MfMHardLineBreak> {
 	constructor(id: string, pw: MfMHardLineBreakParser) { super(id, 'line-break', pw) }

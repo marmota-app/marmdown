@@ -14,18 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMText, MfMTextParser } from "$mfm/inline/MfMText"
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
+import { NumberedIdGenerator } from "../src/IdGenerator"
+import { UpdateParser } from "../src/UpdateParser"
+import { MfMSectionParser } from "../src/mfm/block/MfMSection"
+import { MfMContentLine, MfMContentLineParser } from "../src/mfm/inline/MfMContentLine"
+import { MfMText, MfMTextParser } from "../src/mfm/inline/MfMText"
+import { MfMContainer, MfMContainerParser } from "../src/mfm/MfMContainer"
 import { instance, mock } from "omnimock"
 import { createLinkParser } from "./mfm/inline/link/createLinkParser"
-import { MfMLink } from "$mfm/inline/link/MfMLink"
-import { MfMLinkText } from "$mfm/inline/link/MfMLinkText"
-import { MfMLinkDestination } from "$mfm/inline/link/MfMLinkDestination"
-import { MfMLinkTitle } from "$mfm/inline/link/MfMLinkTitle"
+import { MfMLink } from "../src/mfm/inline/link/MfMLink"
+import { MfMLinkText } from "../src/mfm/inline/link/MfMLinkText"
+import { MfMLinkDestination } from "../src/mfm/inline/link/MfMLinkDestination"
+import { MfMLinkTitle } from "../src/mfm/inline/link/MfMLinkTitle"
 
 describe('UpdateParser', () => {
 	[ '\r', '\n' ].forEach(nl => it(`does not parse a document that contains the newline character ${nl.replaceAll('\r', '\\r').replaceAll('\n', '\\n')}`, () => {

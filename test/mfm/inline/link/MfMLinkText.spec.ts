@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMLinkText } from "$mfm/inline/link/MfMLinkText"
+import { UpdateParser } from "../../../../src/UpdateParser"
+import { MfMLinkText } from "../../../../src/mfm/inline/link/MfMLinkText"
 import { createLinkTextParser } from "./createLinkParser"
 
 describe('MfMLinkText', () => {
@@ -89,7 +89,7 @@ describe('MfMLinkText', () => {
 			expect(result?.lines[0].asText).toEqual('link with some **bold** text')
 		});
 
-		['[', ']'].forEach(special => it(`does not parse update when the inserted string contains "${special}"`, () => {
+		['[', ']'].forEach(special => it(`does not parse update when the inserted string contains "../../../../src/{special}"`, () => {
 			const { linkTextParser, idGenerator } = createLinkTextParser()
 			const updateParser = new UpdateParser(idGenerator)
 			const text = 'link with **bold** text]'

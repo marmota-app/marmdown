@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { TextSpanParser } from "$element/TextSpan"
-import { IdGenerator, NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMEmphasisParser } from "$mfm/inline/MfMEmphasis"
-import { MfMTextParser } from "$mfm/inline/MfMText"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { Parsers } from "$parser/Parsers"
+import { TextSpanParser } from "../../../src/element/TextSpan"
+import { IdGenerator, NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMEmphasisParser } from "../../../src/mfm/inline/MfMEmphasis"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
+import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions"
+import { Parsers } from "../../../src/parser/Parsers"
 import { createOptionsParser } from "../options/createOptionsParser"
 
 type RequiredParsers = MfMTextParser | MfMEmphasisParser | MfMOptionsParser | TextSpanParser

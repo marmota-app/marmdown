@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LeafInline, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericLeafInline } from "$element/GenericElement"
-import { findTrimmed } from "$parser/find"
-import { InlineParser, Parser } from "$parser/Parser"
+import { LeafInline, ParsedLine, StringLineContent } from "../../element/Element"
+import { GenericLeafInline } from "../../element/GenericElement"
+import { findTrimmed } from "../../parser/find"
+import { InlineParser, Parser } from "../../parser/Parser"
 
 export interface Option<P extends MfMGenericOptionParser<P>> extends LeafInline<MfMOption<P>, 'option'> {
 }

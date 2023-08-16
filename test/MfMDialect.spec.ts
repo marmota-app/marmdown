@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { LineByLineParser } from "$markdown/LineByLineParser"
-import { MfMDialect } from "$markdown/MfMDialect"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMSectionParser } from "$mfm/block/MfMSection"
-import { MfMContainer, MfMContainerParser } from "$mfm/MfMContainer"
-import { MfMParsers } from "$mfm/MfMParsers"
+import { NumberedIdGenerator } from "../src/IdGenerator"
+import { LineByLineParser } from "../src/LineByLineParser"
+import { MfMDialect } from "../src/MfMDialect"
+import { UpdateParser } from "../src/UpdateParser"
+import { MfMSectionParser } from "../src/mfm/block/MfMSection"
+import { MfMContainer, MfMContainerParser } from "../src/mfm/MfMContainer"
+import { MfMParsers } from "../src/mfm/MfMParsers"
 import { anyObject, anyString, instance, mock, when } from "omnimock"
 
 describe('MfMDialect', () => {

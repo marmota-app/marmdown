@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMLinkReference } from "$mfm/block/MfMLinkReference"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMLinkReference } from "../../../src/mfm/block/MfMLinkReference"
 import { createLinkReferenceParser } from "../inline/link/createLinkParser"
 
 describe('MfMLinkReference', () => {

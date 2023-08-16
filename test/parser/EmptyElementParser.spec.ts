@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { EmptyElement, EmptyElementParser } from "$parser/EmptyElementParser"
+import { NumberedIdGenerator } from "../../src/IdGenerator"
+import { UpdateParser } from "../../src/UpdateParser"
+import { EmptyElement, EmptyElementParser } from "../../src/parser/EmptyElementParser"
 import { createEmptyElementParser } from "./createEmptyElementParser"
 
 describe('EmptyElement parser', () => {

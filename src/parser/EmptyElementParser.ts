@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { GenericBlock } from "$element/GenericElement"
-import { Empty } from "$element/MarkdownElements"
-import { MfMText } from "$mfm/inline/MfMText"
+import { Element, LineContent, ParsedLine, StringLineContent } from "../element/Element"
+import { GenericBlock } from "../element/GenericElement"
+import { Empty } from "../element/MarkdownElements"
 import { Parser } from "./Parser"
 import { isEmpty } from "./find"
 

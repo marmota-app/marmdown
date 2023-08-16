@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { LineContent } from "$element/Element"
-import { GenericContainerInline } from "$element/GenericElement"
-import { MfMInlineElements } from "$markdown/MfMDialect"
-import { parseInlineContent } from "$parser/parse"
-import { Parser } from "$parser/Parser"
+import { LineContent } from "../../element/Element"
+import { GenericContainerInline } from "../../element/GenericElement"
+import { MfMInlineElements } from "../../MfMDialect"
+import { parseInlineContent } from "../../parser/parse"
+import { Parser } from "../../parser/Parser"
 import { MfMTextParser } from "./MfMText"
 
 export type MfMContentLineContent = MfMInlineElements

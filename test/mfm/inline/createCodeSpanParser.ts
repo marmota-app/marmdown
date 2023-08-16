@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMCodeSpanParser } from "$mfm/inline/MfMCodeSpan"
-import { MfMTextParser } from "$mfm/inline/MfMText"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMCodeSpanParser } from "../../../src/mfm/inline/MfMCodeSpan"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
 import { createOptionsParser } from "../options/createOptionsParser"
 
 export function createCodeSpanParser() {

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ContainerBlock } from "$element/Element"
-import { Dialect } from "$parser/Dialect"
+import { ContainerBlock } from "./element/Element"
+import { Dialect } from "./parser/Dialect"
 import { ContentUpdate as ContentUpdate } from "./ContentUpdate"
 
 /**

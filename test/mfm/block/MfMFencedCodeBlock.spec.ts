@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { MfMFencedCodeBlock, MfMFencedCodeBlockParser } from "$mfm/block/MfMFencedCodeBlock"
-import { MfMTextParser } from "$mfm/inline/MfMText"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { MfMFencedCodeBlock, MfMFencedCodeBlockParser } from "../../../src/mfm/block/MfMFencedCodeBlock"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
 import { createOptionsParser } from "../options/createOptionsParser"
 
 function createFencedCodeBlockParser() {

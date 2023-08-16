@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { ParsedLine, StringLineContent } from "$element/Element"
-import { Heading } from "$element/MarkdownElements"
-import { MfMContentLine, MfMContentLineParser } from "$mfm/inline/MfMContentLine"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
-import { MfMParser } from "$mfm/MfMParser"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
+import { ParsedLine, StringLineContent } from "../../element/Element"
+import { Heading } from "../../element/MarkdownElements"
+import { MfMContentLine, MfMContentLineParser } from "../inline/MfMContentLine"
+import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMParser } from "../MfMParser"
+import { MfMOptionsParser } from "../options/MfMOptions"
 import { MfMSection, MfMSectionParser } from "./MfMSection"
 
 export type MfMHeadingContent = MfMContentLine

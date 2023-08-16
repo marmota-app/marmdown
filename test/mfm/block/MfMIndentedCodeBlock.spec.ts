@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMIndentedCodeBlock, MfMIndentedCodeBlockParser } from "$mfm/block/MfMIndentedCodeBlock"
-import { MfMTextParser } from "$mfm/inline/MfMText"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMIndentedCodeBlock, MfMIndentedCodeBlockParser } from "../../../src/mfm/block/MfMIndentedCodeBlock"
+import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
 
 function createIndentedCodeBlockParser() {
 	const idGenerator = new NumberedIdGenerator()

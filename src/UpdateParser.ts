@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, LineContent, ParsedLine } from "$element/Element";
-import { MfMGenericContainerBlock } from "$mfm/MfMGenericElement";
+import { Element, LineContent, ParsedLine } from "./element/Element";
+import { MfMGenericContainerBlock } from "./mfm/MfMGenericElement";
 import { ContentUpdate } from "./ContentUpdate";
 import { IdGenerator } from "./IdGenerator";
 

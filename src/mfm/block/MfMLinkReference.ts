@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element, StringLineContent } from "$element/Element"
-import { LinkReference } from "$element/MarkdownElements"
-import { ContentUpdate } from "$markdown/ContentUpdate"
-import { MfMGenericBlock } from "$mfm/MfMGenericElement"
-import { MfMParser } from "$mfm/MfMParser"
-import { MfMLinkDestination, MfMLinkDestinationParser } from "$mfm/inline/link/MfMLinkDestination"
-import { MfMLinkText, MfMLinkTextParser } from "$mfm/inline/link/MfMLinkText"
-import { MfMLinkTitle, MfMLinkTitleParser } from "$mfm/inline/link/MfMLinkTitle"
-import { MfMOptionsParser } from "$mfm/options/MfMOptions"
-import { skipSpaces } from "$parser/isWhitespace"
+import { Element, StringLineContent } from "../../element/Element"
+import { LinkReference } from "../../element/MarkdownElements"
+import { ContentUpdate } from "../../ContentUpdate"
+import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMParser } from "../MfMParser"
+import { MfMLinkDestination, MfMLinkDestinationParser } from "../inline/link/MfMLinkDestination"
+import { MfMLinkText, MfMLinkTextParser } from "../inline/link/MfMLinkText"
+import { MfMLinkTitle, MfMLinkTitleParser } from "../inline/link/MfMLinkTitle"
+import { MfMOptionsParser } from "../options/MfMOptions"
+import { skipSpaces } from "../../parser/isWhitespace"
 
 export type MfMLinkReferenceContent = MfMLinkTitle | MfMLinkDestination | MfMLinkText
 export class MfMLinkReference extends MfMGenericBlock<MfMLinkReference, MfMLinkReferenceContent, 'link-reference', MfMLinkReferenceParser> implements LinkReference<MfMLinkReference, MfMLinkReferenceContent, MfMLinkText, MfMLinkDestination, MfMLinkTitle> {

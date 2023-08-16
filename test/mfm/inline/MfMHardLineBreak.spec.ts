@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMHardLineBreak, MfMHardLineBreakParser } from "$mfm/inline/MfMHardLineBreak"
-import { Parsers } from "$parser/Parsers"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMHardLineBreak, MfMHardLineBreakParser } from "../../../src/mfm/inline/MfMHardLineBreak"
+import { Parsers } from "../../../src/parser/Parsers"
 
 describe('MfMHardLineBreak', () => {
 	function createLineBreakParser() {
@@ -29,7 +29,7 @@ describe('MfMHardLineBreak', () => {
 	describe('parsing the content', () => {
 		it('parses two spaces at the end of the content as hard line break', () => {
 			const before = 'foo bar'
-			const text = `${before}  `
+			const text = `../../../src/{before}  `
 			const { parser } = createLineBreakParser()
 
 			const result = parser.parseLine(null, text, before.length, text.length-before.length)
@@ -42,7 +42,7 @@ describe('MfMHardLineBreak', () => {
 
 		it('does not parse hard line break when there is a different character after the spaces', () => {
 			const before = 'foo bar'
-			const text = `${before}  \t`
+			const text = `../../../src/{before}  \t`
 			const { parser } = createLineBreakParser()
 
 			const result = parser.parseLine(null, text, before.length, text.length-before.length)
@@ -51,7 +51,7 @@ describe('MfMHardLineBreak', () => {
 		})
 		it('does not parse hard line break when there is only one space', () => {
 			const before = 'foo bar'
-			const text = `${before} `
+			const text = `../../../src/{before} `
 			const { parser } = createLineBreakParser()
 
 			const result = parser.parseLine(null, text, before.length, text.length-before.length)
@@ -61,7 +61,7 @@ describe('MfMHardLineBreak', () => {
 
 		it('parses five spaces at the end of the content as hard line break', () => {
 			const before = 'foo bar'
-			const text = `${before}     `
+			const text = `../../../src/{before}     `
 			const { parser } = createLineBreakParser()
 
 			const result = parser.parseLine(null, text, before.length, text.length-before.length)
@@ -74,7 +74,7 @@ describe('MfMHardLineBreak', () => {
 
 		it('parses single backslash at the end of the line as line break', () => {
 			const before = 'foo bar'
-			const text = `${before}\\`
+			const text = `../../../src/{before}\\`
 			const { parser } = createLineBreakParser()
 
 			const result = parser.parseLine(null, text, before.length, text.length-before.length)
@@ -91,7 +91,7 @@ describe('MfMHardLineBreak', () => {
 			const updateParser = new UpdateParser(idGenerator)
 	
 			const before = 'foo bar'
-			const text = `${before}  `
+			const text = `../../../src/{before}  `
 
 			const original = parser.parseLine(null, text, before.length, text.length-before.length) as MfMHardLineBreak
 			expect(original).not.toBeNull()
@@ -105,7 +105,7 @@ describe('MfMHardLineBreak', () => {
 			const updateParser = new UpdateParser(idGenerator)
 	
 			const before = 'foo bar'
-			const text = `${before}  `
+			const text = `../../../src/{before}  `
 
 			const original = parser.parseLine(null, text, before.length, text.length-before.length) as MfMHardLineBreak
 			expect(original).not.toBeNull()
@@ -119,7 +119,7 @@ describe('MfMHardLineBreak', () => {
 			const updateParser = new UpdateParser(idGenerator)
 	
 			const before = 'foo bar'
-			const text = `${before}  `
+			const text = `../../../src/{before}  `
 
 			const original = parser.parseLine(null, text, before.length, text.length-before.length) as MfMHardLineBreak
 			expect(original).not.toBeNull()
@@ -138,7 +138,7 @@ describe('MfMHardLineBreak', () => {
 			const updateParser = new UpdateParser(idGenerator)
 	
 			const before = 'foo bar'
-			const text = `${before}  `
+			const text = `../../../src/{before}  `
 
 			const original = parser.parseLine(null, text, before.length, text.length-before.length) as MfMHardLineBreak
 			expect(original).not.toBeNull()

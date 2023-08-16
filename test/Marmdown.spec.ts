@@ -16,12 +16,12 @@ limitations under the License.
 
 import { Marmdown } from "../src/Marmdown"
 import { mock, instance, when, anyObject } from 'omnimock'
-import { ContentUpdate } from "$markdown/ContentUpdate"
-import { Dialect } from "$parser/Dialect"
-import { Parser } from "$parser/Parser"
-import { GenericBlock } from "$element/GenericElement"
-import { LineContent, ParsedLine, StringLineContent } from "$element/Element"
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
+import { ContentUpdate } from "../src/ContentUpdate"
+import { Dialect } from "../src/parser/Dialect"
+import { Parser } from "../src/parser/Parser"
+import { GenericBlock } from "../src/element/GenericElement"
+import { LineContent, ParsedLine, StringLineContent } from "../src/element/Element"
+import { NumberedIdGenerator } from "../src/IdGenerator"
 
 class TestContainer extends GenericBlock<TestContainer, unknown, string, TestContainerParser> {}
 class TestContainerParser extends Parser<TestContainer> {

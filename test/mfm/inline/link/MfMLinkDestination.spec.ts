@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMLinkDestination } from "$mfm/inline/link/MfMLinkDestination"
+import { UpdateParser } from "../../../../src/UpdateParser"
+import { MfMLinkDestination } from "../../../../src/mfm/inline/link/MfMLinkDestination"
 import { createLinkDestinationParser } from "./createLinkParser"
 
 describe('MfMLinkDestination', () => {
@@ -65,21 +65,21 @@ describe('MfMLinkDestination', () => {
 			expect(result?.lines[0]).toHaveProperty('asText', 'http://example.com\\ with\\ whitespaces')
 		});
 
-		['(', ')'].forEach(parens => it(`does not end URL content at escaped parenthesis "${parens}"`, () => {
+		['(', ')'].forEach(parens => it(`does not end URL content at escaped parenthesis "../../../../src/{parens}"`, () => {
 			const { linkDestinationParser } = createLinkDestinationParser()
-			const text = `http://example.com\\${parens}with\\${parens}parenthesis and more content)`
+			const text = `http://example.com\\../../../../src/{parens}with\\../../../../src/{parens}parenthesis and more content)`
 
 			const result = linkDestinationParser.parseLine(null, text, 0, text.length)
 
 			expect(result).toHaveProperty('type', 'link-destination')
-			expect(result).toHaveProperty('target', `http://example.com${parens}with${parens}parenthesis`)
+			expect(result).toHaveProperty('target', `http://example.com../../../../src/{parens}with../../../../src/{parens}parenthesis`)
 
-			expect(result?.lines[0]).toHaveProperty('asText', `http://example.com\\${parens}with\\${parens}parenthesis`)
+			expect(result?.lines[0]).toHaveProperty('asText', `http://example.com\\../../../../src/{parens}with\\../../../../src/{parens}parenthesis`)
 		}));
 
-		['"', "'", '('].forEach(delimiter => it(`ends URL that is started by delimiter "${delimiter}"`, () => {
+		['"', "'", '('].forEach(delimiter => it(`ends URL that is started by delimiter "../../../../src/{delimiter}"`, () => {
 			const { linkDestinationParser } = createLinkDestinationParser()
-			const text = `${delimiter}http://example.com)`
+			const text = `../../../../src/{delimiter}http://example.com)`
 
 			const result = linkDestinationParser.parseLine(null, text, 0, text.length)
 			
@@ -98,27 +98,27 @@ describe('MfMLinkDestination', () => {
 
 			expect(result?.lines[0]).toHaveProperty('asText', '<>')
 		});
-		['destination', 'destination with spaces', 'destination(with)parenthesis', 'destination "with" quotes', "destination 'with' single quotes"].forEach(target => it(`parses destination target "${target}" in angle brackets`, () => {
+		['destination', 'destination with spaces', 'destination(with)parenthesis', 'destination "with" quotes', "destination 'with' single quotes"].forEach(target => it(`parses destination target "../../../../src/{target}" in angle brackets`, () => {
 			const { linkDestinationParser } = createLinkDestinationParser()
-			const text = `<${target}>`
+			const text = `<../../../../src/{target}>`
 
 			const result = linkDestinationParser.parseLine(null, text, 0, text.length)
 
 			expect(result).toHaveProperty('type', 'link-destination')
 			expect(result?.target).toEqual(target)
 
-			expect(result?.lines[0]).toHaveProperty('asText', `<${target}>`)
+			expect(result?.lines[0]).toHaveProperty('asText', `<../../../../src/{target}>`)
 		}));
-		['destination\\>with bracket', 'destination\\<with bracket'].forEach(target => it(`does not end destination with escaped bracket "${target}" in angle brackets`, () => {
+		['destination\\>with bracket', 'destination\\<with bracket'].forEach(target => it(`does not end destination with escaped bracket "../../../../src/{target}" in angle brackets`, () => {
 			const { linkDestinationParser } = createLinkDestinationParser()
-			const text = `<${target}>`
+			const text = `<../../../../src/{target}>`
 
 			const result = linkDestinationParser.parseLine(null, text, 0, text.length)
 
 			expect(result).toHaveProperty('type', 'link-destination')
 			expect(result?.target).toEqual(target.replaceAll('\\', ''))
 
-			expect(result?.lines[0]).toHaveProperty('asText', `<${target}>`)
+			expect(result?.lines[0]).toHaveProperty('asText', `<../../../../src/{target}>`)
 		}))
 		it('does not parse destination when the closing angle bracket is missing', () => {
 			const { linkDestinationParser } = createLinkDestinationParser()
@@ -141,7 +141,7 @@ describe('MfMLinkDestination', () => {
 			expect(updated).toHaveProperty('target', 'the updated link destination')
 			expect(updated?.lines[0]).toHaveProperty('asText', '<the updated link destination>')
 		});
-		['<', '>', '(', ')'].forEach(char => it(`does not update destination when "${char}" is inserted`, () => {
+		['<', '>', '(', ')'].forEach(char => it(`does not update destination when "../../../../src/{char}" is inserted`, () => {
 			const { linkDestinationParser, idGenerator } = createLinkDestinationParser()
 			const updateParser = new UpdateParser(idGenerator)
 			const text = `<the link destination>`
@@ -150,10 +150,10 @@ describe('MfMLinkDestination', () => {
 			const updated = updateParser.parse(original, { text: ' '+char+' ', rangeOffset: '<the '.length, rangeLength: 0, })
 			expect(updated).toBeNull()
 		}));
-		['\\', '<', '>', '(', ')'].forEach(char => it(`does not update destination when "${char} is removed`, () => {
+		['\\', '<', '>', '(', ')'].forEach(char => it(`does not update destination when "../../../../src/{char} is removed`, () => {
 			const { linkDestinationParser, idGenerator } = createLinkDestinationParser()
 			const updateParser = new UpdateParser(idGenerator)
-			const text = `<the link\\${char} destination>`
+			const text = `<the link\\../../../../src/{char} destination>`
 
 			const original = linkDestinationParser.parseLine(null, text, 0, text.length) as MfMLinkDestination
 			const updated = updateParser.parse(original, { text: '', rangeOffset: '<the link\\'.length, rangeLength: 3, })

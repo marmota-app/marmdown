@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "$markdown/IdGenerator"
-import { UpdateParser } from "$markdown/UpdateParser"
-import { MfMHeading } from "$mfm/block/MfMHeading"
-import { MfMSection } from "$mfm/block/MfMSection"
+import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { UpdateParser } from "../../../src/UpdateParser"
+import { MfMHeading } from "../../../src/mfm/block/MfMHeading"
+import { MfMSection } from "../../../src/mfm/block/MfMSection"
 import { createHeadingParser } from "./createHeadingParser"
 
 describe('MfMHeading parser', () => {

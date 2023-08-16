@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Element } from '$element/Element'
-import { IdGenerator } from '$markdown/IdGenerator'
+import { Element } from '../element/Element'
+import { IdGenerator } from '../IdGenerator'
 import { Parser } from './Parser'
 
 /**
