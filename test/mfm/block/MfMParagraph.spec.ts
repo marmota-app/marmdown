@@ -302,6 +302,29 @@ describe('MfMParagraph parser', () => {
 				if(i === 1) { expect(updated.lines[i]).toHaveProperty('asText', 'key2 = value two } first line text') }
 				else { expect(updated.lines[i]).toHaveProperty('asText', l) }
 			})
-		})
+		});
+
+		['#', '[', '`', '*', '-', '=', '>', '^'].forEach(char => it(`does not parse update when the paragraph line starts with special character ${char}`, () => {
+			const { paragraphParser, idGenerator } = createParagraphParser()
+			const updateParser = new UpdateParser(idGenerator)
+
+			const lines = [
+				'#hello world',
+				'second line text',
+				'more paragraph text'
+			]
+			const text = lines.join('\n')
+			const original = lines.reduce(
+				(r: { value: MfMParagraph | null, start: number, }, line) => ({
+					value: paragraphParser.parseLine(r.value, text, r.start, line.length),
+					start: r.start+line.length+1,
+				}),
+				{ value: null, start: 0, }
+			).value as MfMParagraph
+			expect(original).not.toBeNull()
+			const updated = updateParser.parse(original, { text: ' updated', rangeOffset: '#hello'.length, rangeLength: 0 }) as MfMParagraph
+
+			expect(updated).toBeNull()
+		}));
 	})
 })

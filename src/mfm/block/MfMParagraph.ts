@@ -22,6 +22,7 @@ import { MfMOptionsParser } from "../options/MfMOptions"
 import { isEmpty } from "../../parser/find"
 import { Parser } from "../../parser/Parser"
 import { Parsers } from "../../parser/Parsers"
+import { ContentUpdate } from "src/ContentUpdate"
 
 export type MfMParagraphContent = MfMContentLine
 export class MfMParagraph extends MfMGenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {
@@ -60,6 +61,16 @@ export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMCo
 
 	override shouldInterrupt(element: Element<unknown, unknown, unknown, unknown>, text: string, start: number, length: number): boolean {
 		return false
+	}
+
+	override canUpdate(original: MfMParagraph, update: ContentUpdate, replacedText: string): boolean {
+		for(let i=0; i<original.lines.length; i++) {
+			const firstChar = original.lines[i].asText.charAt(0)
+			switch(firstChar) {
+				case '#': case '[': case '`': case '*': case '-': case '=': case '>': case '^': return false
+			}
+		}
+		return super.canUpdate(original, update, replacedText)
 	}
 }
 

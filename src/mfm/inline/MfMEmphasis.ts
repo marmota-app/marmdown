@@ -297,13 +297,6 @@ export class MfMEmphasisParser extends InlineParser<
 		}
 		return true
 	}
-
-	private isSpecialCharacter(character: string) {
-		switch(character) {
-			case '_': case '*': case '~': return true
-		}
-		return false
-	}
 }
 
 function isBeginningOfLine(char: string, index: number) {
