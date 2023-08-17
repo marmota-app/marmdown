@@ -20,127 +20,127 @@ import { createLinkTitleParser } from "./createLinkParser"
 
 describe('MfMLinkTitle', () => {
 	const delimiters: [string, string][] = [['"', '"'], ["'", "'"], ['(', ')']]
-	delimiters.forEach(([start, end]) => describe(`parsing the content between ../../../../src/{start} and ../../../../src/{end}`, () => {
-		it(`parses empty title ../../../../src/{start}../../../../src/{end}`, () => {
+	delimiters.forEach(([start, end]) => describe(`parsing the content between ${start} and ${end}`, () => {
+		it(`parses empty title ${start}${end}`, () => {
 			const { linkTitleParser } = createLinkTitleParser()
-			const text = `text before ../../../../src/{start}../../../../src/{end}`
+			const text = `text before ${start}${end}`
 
 			const result = linkTitleParser.parseLine(null, text, 'text before '.length, text.length-'text before '.length)
 			expect(result).toHaveProperty('type', 'link-title')
 			expect(result?.value).toEqual('')
 			
-			expect(result?.lines[0]).toHaveProperty('asText', `../../../../src/{start}../../../../src/{end}`)
+			expect(result?.lines[0]).toHaveProperty('asText', `${start}${end}`)
 		})
 
-		it(`parses link title text between ../../../../src/{start} and ../../../../src/{end}`, () => {
+		it(`parses link title text between ${start} and ${end}`, () => {
 			const { linkTitleParser } = createLinkTitleParser()
-			const text = `../../../../src/{start}the link title../../../../src/{end} text after link ../../../../src/{end}`
+			const text = `${start}the link title${end} text after link ${end}`
 
 			const result = linkTitleParser.parseLine(null, text, 0, text.length)
 			expect(result).toHaveProperty('type', 'link-title')
 			expect(result?.value).toEqual('the link title')
 			
-			expect(result?.lines[0]).toHaveProperty('asText', `../../../../src/{start}the link title../../../../src/{end}`)
+			expect(result?.lines[0]).toHaveProperty('asText', `${start}the link title${end}`)
 		})
 
-		it(`does not parse link text when opening ../../../../src/{start} is missing`, () => {
+		it(`does not parse link text when opening ${start} is missing`, () => {
 			const { linkTitleParser } = createLinkTitleParser()
-			const text = `the link title../../../../src/{end}`
+			const text = `the link title${end}`
 
 			const result = linkTitleParser.parseLine(null, text, 0, text.length)
 			expect(result).toBeNull()
 		})
 
-		it(`does not parse link text when clsoing ../../../../src/{end} is missing`, () => {
+		it(`does not parse link text when clsoing ${end} is missing`, () => {
 			const { linkTitleParser } = createLinkTitleParser()
-			const text = `../../../../src/{start}the link title`
+			const text = `${start}the link title`
 
 			const result = linkTitleParser.parseLine(null, text, 0, text.length)
 			expect(result).toBeNull()
 		})
 
-		it(`parses link title text with escaped ../../../../src/{start} and ../../../../src/{end}`, () => {
+		it(`parses link title text with escaped ${start} and ${end}`, () => {
 			const { linkTitleParser } = createLinkTitleParser()
-			const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+			const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 			const result = linkTitleParser.parseLine(null, text, 0, text.length)
 			expect(result).toHaveProperty('type', 'link-title')
-			expect(result?.value).toEqual(`the ../../../../src/{start}link../../../../src/{end} title`.replaceAll('"', '&quot;'))
+			expect(result?.value).toEqual(`the ${start}link${end} title`.replaceAll('"', '&quot;'))
 			
-			expect(result?.lines[0]).toHaveProperty('asText', `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end}`)
+			expect(result?.lines[0]).toHaveProperty('asText', `${start}the \\${start}link\\${end} title${end}`)
 		})
 	}))
 	describe('parsing updates', () => {
 		const delimiters: [string, string][] = [['"', '"'], ["'", "'"], ['(', ')']]
-		delimiters.forEach(([start, end]) => describe(`parsing update for title between ../../../../src/{start} and ../../../../src/{end}`, () => {
+		delimiters.forEach(([start, end]) => describe(`parsing update for title between ${start} and ${end}`, () => {
 			it('parses update do link title', () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: 'updated ', rangeOffset: `../../../../src/{start}the `.length, rangeLength: 0 })
+				const updated = updateParser.parse(original, { text: 'updated ', rangeOffset: `${start}the `.length, rangeLength: 0 })
 
-				expect(updated).toHaveProperty('value', `the updated ../../../../src/{start}link../../../../src/{end} title`.replaceAll('"', '&quot;'))
-				expect(updated?.lines[0]).toHaveProperty('asText', `../../../../src/{start}the updated \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end}`)
+				expect(updated).toHaveProperty('value', `the updated ${start}link${end} title`.replaceAll('"', '&quot;'))
+				expect(updated?.lines[0]).toHaveProperty('asText', `${start}the updated \\${start}link\\${end} title${end}`)
 			})
-			it(`does not parse update that contains the starting delimiter ../../../../src/{start}`, () => {
+			it(`does not parse update that contains the starting delimiter ${start}`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: `../../../../src/{start}`, rangeOffset: `../../../../src/{start}the `.length, rangeLength: 0 })
+				const updated = updateParser.parse(original, { text: `${start}`, rangeOffset: `${start}the `.length, rangeLength: 0 })
 
 				expect(updated).toBeNull()
 			})
-			it(`does not parse update that contains the ending delimiter ../../../../src/{end}`, () => {
+			it(`does not parse update that contains the ending delimiter ${end}`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: `../../../../src/{end}`, rangeOffset: `../../../../src/{start}the `.length, rangeLength: 0 })
+				const updated = updateParser.parse(original, { text: `${end}`, rangeOffset: `${start}the `.length, rangeLength: 0 })
 
 				expect(updated).toBeNull()
 			})
 			it(`does not parse update that contains a backslash`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: `\\`, rangeOffset: `../../../../src/{start}the `.length, rangeLength: 0 })
+				const updated = updateParser.parse(original, { text: `\\`, rangeOffset: `${start}the `.length, rangeLength: 0 })
 
 				expect(updated).toBeNull()
 			})
-			it(`does not parse update that replaces the starting delimiter ../../../../src/{start}`, () => {
+			it(`does not parse update that replaces the starting delimiter ${start}`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: ``, rangeOffset: `../../../../src/{start}the \\`.length, rangeLength: 1 })
+				const updated = updateParser.parse(original, { text: ``, rangeOffset: `${start}the \\`.length, rangeLength: 1 })
 
 				expect(updated).toBeNull()
 			})
-			it(`does not parse update that replaces the ending delimiter ../../../../src/{end}`, () => {
+			it(`does not parse update that replaces the ending delimiter ${end}`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: ``, rangeOffset: `../../../../src/{start}the \\../../../../src/{start}link\\`.length, rangeLength: 1 })
+				const updated = updateParser.parse(original, { text: ``, rangeOffset: `${start}the \\${start}link\\`.length, rangeLength: 1 })
 
 				expect(updated).toBeNull()
 			})
 			it(`does not parse update that replaces a backslash`, () => {
 				const { linkTitleParser, idGenerator, } = createLinkTitleParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `../../../../src/{start}the \\../../../../src/{start}link\\../../../../src/{end} title../../../../src/{end} text after link ../../../../src/{end}`
+				const text = `${start}the \\${start}link\\${end} title${end} text after link ${end}`
 
 				const original = linkTitleParser.parseLine(null, text, 0, text.length) as MfMLinkTitle
-				const updated = updateParser.parse(original, { text: ``, rangeOffset: `../../../../src/{start}the `.length, rangeLength: 1 })
+				const updated = updateParser.parse(original, { text: ``, rangeOffset: `${start}the `.length, rangeLength: 1 })
 
 				expect(updated).toBeNull()
 			})

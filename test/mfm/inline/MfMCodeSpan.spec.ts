@@ -79,22 +79,22 @@ describe('MfMCodeSpan', () => {
 		});
 
 		[ '``', '```', '````', ].forEach(delimiter => {
-			it(`finds code span delimited by ../../../src/{delimiter}`, () => {
+			it(`finds code span delimited by ${delimiter}`, () => {
 				const { codeSpanParser } = createCodeSpanParser()
-				const text = `../../../src/{delimiter}code ../../../src/{delimiter}\` span../../../src/{delimiter} with text after`
+				const text = `${delimiter}code ${delimiter}\` span${delimiter} with text after`
 	
 				const result = codeSpanParser.parseInline(text, 0, text.length)
 	
 				expect(result).toHaveProperty('type', 'code-span')
 				expect(result?.content).toHaveLength(1)
-				expect(result?.content[0]).toHaveProperty('text', `code ../../../src/{delimiter}\` span`)
+				expect(result?.content[0]).toHaveProperty('text', `code ${delimiter}\` span`)
 	
 				expect(result?.lines).toHaveLength(1)
-				expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{delimiter}code ../../../src/{delimiter}\` span../../../src/{delimiter}`)
+				expect(result?.lines[0]).toHaveProperty('asText', `${delimiter}code ${delimiter}\` span${delimiter}`)
 			})
-			it(`does not find code span when the closing delimiter is longer (../../../src/{delimiter})`, () => {
+			it(`does not find code span when the closing delimiter is longer (${delimiter})`, () => {
 				const { codeSpanParser } = createCodeSpanParser()
-				const text = `../../../src/{delimiter}not code span../../../src/{delimiter}\``
+				const text = `${delimiter}not code span${delimiter}\``
 	
 				const result = codeSpanParser.parseInline(text, 0, text.length)
 	

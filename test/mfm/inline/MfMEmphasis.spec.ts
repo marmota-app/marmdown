@@ -26,9 +26,9 @@ describe('MfMEmphasis', () => {
 	describe('parsing the content', () => {
 		describe('finding left-flanking delimiter runs', () => {
 			['_', '__', '___', '____', '*', '*****', '~', '~~', '~~~~~'].forEach(delimiters => {
-				it(`finds ../../../src/{delimiters} as part of a left delimiter run at the start of the content`, () => {
+				it(`finds ${delimiters} as part of a left delimiter run at the start of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before ../../../src/{delimiters}abc`
+					const text = `text before ${delimiters}abc`
 
 					const result = parser.findLeftDelimiterRun(text, 'text before '.length, text.length-'text before '.length)
 
@@ -36,9 +36,9 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`finds ../../../src/{delimiters} as part of a left delimiter run in the middle of the content`, () => {
+				it(`finds ${delimiters} as part of a left delimiter run in the middle of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before ../../../src/{delimiters}abc`
+					const text = `text before ${delimiters}abc`
 
 					const result = parser.findLeftDelimiterRun(text, 0, text.length)
 
@@ -46,25 +46,25 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`does not find ../../../src/{delimiters} as part of a left delimiter run at the end of the content`, () => {
+				it(`does not find ${delimiters} as part of a left delimiter run at the end of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before ../../../src/{delimiters}`
+					const text = `text before ${delimiters}`
 
 					const result = parser.findLeftDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
-				it(`does not find ../../../src/{delimiters} as part of a left delimiter run before whitespace`, () => {
+				it(`does not find ${delimiters} as part of a left delimiter run before whitespace`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before ../../../src/{delimiters} abc`
+					const text = `text before ${delimiters} abc`
 
 					const result = parser.findLeftDelimiterRun(text, 'text before '.length, text.length-'text before '.length)
 
 					expect(result).toBeNull()
 				})
-				it(`finds ../../../src/{delimiters} as part of a left delimiter run preceided by text`, () => {
+				it(`finds ${delimiters} as part of a left delimiter run preceided by text`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before../../../src/{delimiters}abc`
+					const text = `text before${delimiters}abc`
 
 					const result = parser.findLeftDelimiterRun(text, 0, text.length)
 
@@ -72,17 +72,17 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`does not find ../../../src/{delimiters} as part of a left delimiter run before punctuation`, () => {
+				it(`does not find ${delimiters} as part of a left delimiter run before punctuation`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before../../../src/{delimiters}.abc`
+					const text = `text before${delimiters}.abc`
 
 					const result = parser.findLeftDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
-				it(`finds ../../../src/{delimiters} as part of a left delimiter run before punctuation preceided by whitespace`, () => {
+				it(`finds ${delimiters} as part of a left delimiter run before punctuation preceided by whitespace`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before\t../../../src/{delimiters}.abc`
+					const text = `text before\t${delimiters}.abc`
 
 					const result = parser.findLeftDelimiterRun(text, 0, text.length)
 
@@ -170,17 +170,17 @@ describe('MfMEmphasis', () => {
 
 		describe('finding right-flanking delimiter runs', () => {
 			['_', '__', '___', '____', '*', '*****', '~', '~~', '~~~~~'].forEach(delimiters => {
-				it(`does not find ../../../src/{delimiters} as part of a right delimiter run at the start of the content`, () => {
+				it(`does not find ${delimiters} as part of a right delimiter run at the start of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before\n../../../src/{delimiters} text after`
+					const text = `text before\n${delimiters} text after`
 
 					const result = parser.findRightDelimiterRun(text, 'text before\n'.length, text.length-'text before\n'.length)
 
 					expect(result).toBeNull()
 				})
-				it(`finds ../../../src/{delimiters} as part of a right delimiter run in the middle of the content`, () => {
+				it(`finds ${delimiters} as part of a right delimiter run in the middle of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before../../../src/{delimiters} abc`
+					const text = `text before${delimiters} abc`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
@@ -188,9 +188,9 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`finds ../../../src/{delimiters} as part of a right delimiter run at the end of the content`, () => {
+				it(`finds ${delimiters} as part of a right delimiter run at the end of the content`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before../../../src/{delimiters}`
+					const text = `text before${delimiters}`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
@@ -198,17 +198,17 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`does not find ../../../src/{delimiters} as part of a right delimiter run after whitespace`, () => {
+				it(`does not find ${delimiters} as part of a right delimiter run after whitespace`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before ../../../src/{delimiters} abc`
+					const text = `text before ${delimiters} abc`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
-				it(`finds ../../../src/{delimiters} as part of a right delimiter run followed by text`, () => {
+				it(`finds ${delimiters} as part of a right delimiter run followed by text`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before../../../src/{delimiters}abc`
+					const text = `text before${delimiters}abc`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
@@ -216,17 +216,17 @@ describe('MfMEmphasis', () => {
 					expect(result).toHaveProperty('length', delimiters.length)
 					expect(result).toHaveProperty('character', delimiters.charAt(0))
 				})
-				it(`does not find ../../../src/{delimiters} as part of a right delimiter run after punctuation`, () => {
+				it(`does not find ${delimiters} as part of a right delimiter run after punctuation`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before.../../../src/{delimiters}abc`
+					const text = `text before.${delimiters}abc`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
 					expect(result).toBeNull()
 				})
-				it(`finds ../../../src/{delimiters} as part of a right delimiter run after punctuation followed by whitespace`, () => {
+				it(`finds ${delimiters} as part of a right delimiter run after punctuation followed by whitespace`, () => {
 					const parser = createEmphasisParser()
-					const text = `text before.../../../src/{delimiters} abc`
+					const text = `text before.${delimiters} abc`
 
 					const result = parser.findRightDelimiterRun(text, 0, text.length)
 
@@ -312,7 +312,7 @@ describe('MfMEmphasis', () => {
 			describe('parse emphasis', () => {
 				it('parses simple emphasis', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}emphazised../../../src/{token}`
+					const text = `${token}emphazised${token}`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -324,14 +324,14 @@ describe('MfMEmphasis', () => {
 				})
 				it('does not parse emphasis when the text does not contain a left-flanking delimiter run', () => {
 					const parser = createEmphasisParser()
-					const text = `not emphazised../../../src/{token} also not emphazised`
+					const text = `not emphazised${token} also not emphazised`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).toBeNull()
 				})
 				it('parses emphasis until the closing delimiter', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}emphazised../../../src/{token} with more text...`
+					const text = `${token}emphazised${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -342,7 +342,7 @@ describe('MfMEmphasis', () => {
 					expect(result?.content[0]).toHaveProperty('text', 'emphazised')
 	
 					expect(result?.lines).toHaveLength(1)
-					expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{token}emphazised../../../src/{token}`)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}emphazised${token}`)
 					expect(result?.lines[0].content).toHaveLength(3)
 					expect(result?.lines[0].content[0]).toHaveProperty('asText', token)
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', 'emphazised')
@@ -350,7 +350,7 @@ describe('MfMEmphasis', () => {
 				})
 				it('parses emphasis until the closing delimiter, with other delimiters in-between', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}some../../../src/{otherToken} emphazised../../../src/{token} with more text...`
+					const text = `${token}some${otherToken} emphazised${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -358,20 +358,20 @@ describe('MfMEmphasis', () => {
 	
 					expect(result?.content).toHaveLength(1)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `some../../../src/{otherToken} emphazised`)
+					expect(result?.content[0]).toHaveProperty('text', `some${otherToken} emphazised`)
 	
 					expect(result?.lines).toHaveLength(1)
-					expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{token}some../../../src/{otherToken} emphazised../../../src/{token}`)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}some${otherToken} emphazised${token}`)
 					expect(result?.lines[0].content).toHaveLength(3)
 					expect(result?.lines[0].content[0]).toHaveProperty('asText', token)
-					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some../../../src/{otherToken} emphazised`)
+					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some${otherToken} emphazised`)
 					expect(result?.lines[0].content[2]).toHaveProperty('asText', token)
 				})
 			})
 			describe('parse strong emphasis', () => {
 				it('parses simple strong emphasis', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}emphazised../../../src/{token}../../../src/{token}`
+					const text = `${token}${token}emphazised${token}${token}`
 					const result = parser.parseLine(null, text, 0, text.length)
 
 					expect(result).not.toBeNull()
@@ -384,20 +384,20 @@ describe('MfMEmphasis', () => {
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
 					expect(result?.lines[0].content).toHaveLength(3)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', 'emphazised')
-					expect(result?.lines[0].content[2]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${token}${token}`)
 				})
 				it('does not parse strong emphasis when the text does not contain a left-flanking delimiter run', () => {
 					const parser = createEmphasisParser()
-					const text = `not emphazised../../../src/{token}../../../src/{token} also not emphazised`
+					const text = `not emphazised${token}${token} also not emphazised`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).toBeNull()
 				})
 				it('parses strong emphasis until the closing delimiter', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}emphazised../../../src/{token}../../../src/{token} with more text...`
+					const text = `${token}${token}emphazised${token}${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -408,15 +408,15 @@ describe('MfMEmphasis', () => {
 					expect(result?.content[0]).toHaveProperty('text', 'emphazised')
 	
 					expect(result?.lines).toHaveLength(1)
-					expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}emphazised../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}${token}emphazised${token}${token}`)
 					expect(result?.lines[0].content).toHaveLength(3)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', 'emphazised')
-					expect(result?.lines[0].content[2]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${token}${token}`)
 				})
 				it('parses strong emphasis until the closing delimiter, with other delimiters (right-flanking) in-between', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}some../../../src/{otherToken}../../../src/{otherToken} emphazised../../../src/{token}../../../src/{token} with more text...`
+					const text = `${token}${token}some${otherToken}${otherToken} emphazised${token}${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -424,18 +424,18 @@ describe('MfMEmphasis', () => {
 	
 					expect(result?.content).toHaveLength(1)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `some../../../src/{otherToken}../../../src/{otherToken} emphazised`)
+					expect(result?.content[0]).toHaveProperty('text', `some${otherToken}${otherToken} emphazised`)
 	
 					expect(result?.lines).toHaveLength(1)
-					expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}some../../../src/{otherToken}../../../src/{otherToken} emphazised../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}${token}some${otherToken}${otherToken} emphazised${token}${token}`)
 					expect(result?.lines[0].content).toHaveLength(3)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
-					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some../../../src/{otherToken}../../../src/{otherToken} emphazised`)
-					expect(result?.lines[0].content[2]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
+					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some${otherToken}${otherToken} emphazised`)
+					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${token}${token}`)
 				})
 				it('parses strong emphasis until the closing delimiter, with other delimiters (left-flanking) in-between', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}some ../../../src/{otherToken}../../../src/{otherToken}emphazised../../../src/{token}../../../src/{token} with more text...`
+					const text = `${token}${token}some ${otherToken}${otherToken}emphazised${token}${token} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -446,22 +446,22 @@ describe('MfMEmphasis', () => {
 					expect(result?.content[0]).toHaveProperty('text', `some `)
 					expect(result?.content[1]).toHaveProperty('type', '--text-span--')
 					expect(result?.content[1].content).toHaveLength(2)
-					expect(result?.content[1].content[0]).toHaveProperty('text', `../../../src/{otherToken}../../../src/{otherToken}`)
+					expect(result?.content[1].content[0]).toHaveProperty('text', `${otherToken}${otherToken}`)
 					expect(result?.content[1].content[1]).toHaveProperty('text', `emphazised`)
 	
 					expect(result?.lines).toHaveLength(1)
-					expect(result?.lines[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}some ../../../src/{otherToken}../../../src/{otherToken}emphazised../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0]).toHaveProperty('asText', `${token}${token}some ${otherToken}${otherToken}emphazised${token}${token}`)
 					expect(result?.lines[0].content).toHaveLength(4)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some `)
-					expect(result?.lines[0].content[2]).toHaveProperty('asText', `../../../src/{otherToken}../../../src/{otherToken}emphazised`)
-					expect(result?.lines[0].content[3]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[2]).toHaveProperty('asText', `${otherToken}${otherToken}emphazised`)
+					expect(result?.lines[0].content[3]).toHaveProperty('asText', `${token}${token}`)
 				})
 			})
 			describe('parse text-span', () => {
 				it('parses a text-span when the text does not contain a right-flanking delimiter run', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}not emphazised`
+					const text = `${token}not emphazised`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -481,7 +481,7 @@ describe('MfMEmphasis', () => {
 				})
 				it('parses a text-span when there is no matching closing delimiter', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}some not emphazised../../../src/{otherToken} with more text...`
+					const text = `${token}some not emphazised${otherToken} with more text...`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -491,17 +491,17 @@ describe('MfMEmphasis', () => {
 					expect(result?.content[0]).toHaveProperty('type', 'text')
 					expect(result?.content[0]).toHaveProperty('text', token)
 					expect(result?.content[1]).toHaveProperty('type', 'text')
-					expect(result?.content[1]).toHaveProperty('text', `some not emphazised../../../src/{otherToken} with more text...`)
+					expect(result?.content[1]).toHaveProperty('text', `some not emphazised${otherToken} with more text...`)
 	
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
 					expect(result?.lines[0].content).toHaveLength(2)
 					expect(result?.lines[0].content[0]).toHaveProperty('asText', token)
-					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some not emphazised../../../src/{otherToken} with more text...`)
+					expect(result?.lines[0].content[1]).toHaveProperty('asText', `some not emphazised${otherToken} with more text...`)
 				})
 				it('parses a text-span when the text does not contain a right-flanking delimiter run for strong emphasis', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}not emphazised`
+					const text = `${token}${token}not emphazised`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -509,19 +509,19 @@ describe('MfMEmphasis', () => {
 	
 					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `../../../src/{token}../../../src/{token}`)
+					expect(result?.content[0]).toHaveProperty('text', `${token}${token}`)
 					expect(result?.content[1]).toHaveProperty('type', 'text')
 					expect(result?.content[1]).toHaveProperty('text', 'not emphazised')
 	
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
 					expect(result?.lines[0].content).toHaveLength(2)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
 					expect(result?.lines[0].content[1]).toHaveProperty('asText', 'not emphazised')
 				})
 				it('parses text-span when the number of closing delimiters for strong emphasis is less than 2', () => {
 					const parser = createEmphasisParser()
-					const text = `../../../src/{token}../../../src/{token}not emphazised../../../src/{token}`
+					const text = `${token}${token}not emphazised${token}`
 					const result = parser.parseLine(null, text, 0, text.length)
 	
 					expect(result).not.toBeNull()
@@ -529,15 +529,15 @@ describe('MfMEmphasis', () => {
 	
 					expect(result?.content).toHaveLength(2)
 					expect(result?.content[0]).toHaveProperty('type', 'text')
-					expect(result?.content[0]).toHaveProperty('text', `../../../src/{token}../../../src/{token}`)
+					expect(result?.content[0]).toHaveProperty('text', `${token}${token}`)
 					expect(result?.content[1]).toHaveProperty('type', 'text')
-					expect(result?.content[1]).toHaveProperty('text', `not emphazised../../../src/{token}`)
+					expect(result?.content[1]).toHaveProperty('text', `not emphazised${token}`)
 
 					expect(result?.lines).toHaveLength(1)
 					expect(result?.lines[0]).toHaveProperty('asText', text)
 					expect(result?.lines[0].content).toHaveLength(2)
-					expect(result?.lines[0].content[0]).toHaveProperty('asText', `../../../src/{token}../../../src/{token}`)
-					expect(result?.lines[0].content[1]).toHaveProperty('asText', `not emphazised../../../src/{token}`)
+					expect(result?.lines[0].content[0]).toHaveProperty('asText', `${token}${token}`)
+					expect(result?.lines[0].content[1]).toHaveProperty('asText', `not emphazised${token}`)
 				})
 			})
 		})

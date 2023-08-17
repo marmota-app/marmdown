@@ -104,9 +104,9 @@ describe('MfMLink', () => {
 		});
 
 		[['"', '"'], ["'", "'"], ['(', ')']].forEach(([open, close]) => {
-			it(`parses ../../../../src/{open}link title../../../../src/{close} after destination`, () => {
+			it(`parses ${open}link title${close} after destination`, () => {
 				const { linkParser } = createLinkParser()
-				const text = `[](<http://example.com> ../../../../src/{open}link title../../../../src/{close})`
+				const text = `[](<http://example.com> ${open}link title${close})`
 	
 				const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
 	
@@ -136,9 +136,9 @@ describe('MfMLink', () => {
 				expect(result.lines[0]).toHaveProperty('asText', text)
 			})
 	
-			it(`parses ../../../../src/{open}link title../../../../src/{close} without destination`, () => {
+			it(`parses ${open}link title${close} without destination`, () => {
 				const { linkParser } = createLinkParser()
-				const text = `[](  ../../../../src/{open}link title../../../../src/{close})`
+				const text = `[](  ${open}link title${close})`
 	
 				const result = linkParser.parseLine(null, text, 0, text.length) as MfMLink
 	
@@ -348,7 +348,7 @@ describe('MfMLink', () => {
 		});
 
 		['!', '(', ')', '[', ']', '"', "'", '\\', '<', '>'].forEach(token => {
-			it(`does not update the link when "../../../../src/{token}" is inserted`, () => {
+			it(`does not update the link when "${token}" is inserted`, () => {
 				const { linkParser, idGenerator } = createLinkParser()
 				const updateParser = new UpdateParser(idGenerator)
 				const text = '[link text](destination "title")'
@@ -358,10 +358,10 @@ describe('MfMLink', () => {
 	
 				expect(updated).toBeNull()
 			})
-			it(`does not update the link when "../../../../src/{token}" is removed`, () => {
+			it(`does not update the link when "${token}" is removed`, () => {
 				const { linkParser, idGenerator } = createLinkParser()
 				const updateParser = new UpdateParser(idGenerator)
-				const text = `[\\../../../../src/{token}link text](destination "title")`
+				const text = `[\\${token}link text](destination "title")`
 	
 				const original = linkParser.parseLine(null, text, 0, text.length) as MfMLink
 				const updated = updateParser.parse(original, { text: 'other text', rangeOffset: 2, rangeLength: 1}) as MfMLink
