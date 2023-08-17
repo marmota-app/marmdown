@@ -59,6 +59,20 @@ describe('Marmdown', () => {
 		expect(marmdown.document).toEqual(expectedDocument)
 	})
 
+	it('notifies document listener when whole document was changed', () => {
+		const expectedDocument = new TestContainer('dummy', 'expected', new TestContainerParser())
+		const dialectMock = mock(TestDialect)
+		when(dialectMock.createEmptyDocument()).return(new TestContainer('dummy', 'dummy', new TestContainerParser()))
+		when(dialectMock.parseCompleteText('the text content')).return(expectedDocument)
+
+		const marmdown = new Marmdown(instance(dialectMock))
+		let changed = false
+		marmdown.onDocumentChanged = () => { changed = true }
+		marmdown.textContent = 'the text content'
+
+		expect(changed).toEqual(true)
+	})
+
 	it('recreates the document text from the stored document structure (does NOT return the original text)', () => {
 		const expectedText = 'some updated text'
 		const documentMock = mock(TestContainer)

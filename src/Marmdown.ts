@@ -31,10 +31,11 @@ import { ContentUpdate as ContentUpdate } from "./ContentUpdate"
  * @param dialect The markdown dialect. 
 */
 export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown>> {
-	private _document: CONTAINER
+	#document: CONTAINER
+	onDocumentChanged?: () => unknown
 
 	constructor(private readonly dialect: Dialect<CONTAINER>) {
-		this._document = dialect.createEmptyDocument()
+		this.#document = dialect.createEmptyDocument()
 	}
 
 	/**
@@ -51,11 +52,11 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 	 * @param getCompleteText A function that can supply the complete text, if required
 	 */
 	update(update: ContentUpdate, getCompleteText: () => string) {
-		const newDocument = this.dialect.parseUpdate(this._document, update)
+		const newDocument = this.dialect.parseUpdate(this.#document, update)
 		if(newDocument) {
-			this._document = newDocument
+			this.#document = newDocument
 		} else {
-			this._document = this.#parseFully(getCompleteText())
+			this.#changeDocument(this.#parseFully(getCompleteText()))
 		}
 	}
 
@@ -69,21 +70,26 @@ export class Marmdown<CONTAINER extends ContainerBlock<unknown, unknown, unknown
 	 * tree represented by `document`.
 	 */
 	set textContent(text: string) {
-		this._document = this.#parseFully(text)
+		this.#changeDocument(this.#parseFully(text))
 	}
 	get textContent() {
-		return this._document?.lines.map(l => l.asText).join('\n') ?? ''
+		return this.#document?.lines.map(l => l.asText).join('\n') ?? ''
 	}
 
 	/**
 	 * The element tree representing the document. 
 	 */
-	get document(): CONTAINER | undefined {
-		return this._document
+	get document(): CONTAINER {
+		return this.#document
 	}
 
 	#parseFully(text: string) {
 		const container = this.dialect.parseCompleteText(text)
 		return container
+	}
+
+	#changeDocument(document: CONTAINER) {
+		this.#document = document
+		this.onDocumentChanged?.()
 	}
 }
