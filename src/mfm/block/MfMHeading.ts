@@ -108,7 +108,7 @@ export class MfMHeadingParser extends MfMParser<
 	override parseLineUpdate(original: MfMHeading, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
 		const result = this.parseLine(null, text, start, length)
 		if(result && result.level === original.level) {
-			return result.lines[0]
+			return result.content[0].lines[0]
 		}
 		return null
 	}

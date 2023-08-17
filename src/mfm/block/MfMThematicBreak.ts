@@ -16,22 +16,25 @@ limitations under the License.
 
 import { ParsedLine, StringLineContent } from "../../element/Element"
 import { ThematicBreak } from "../../element/MarkdownElements"
-import { MfMGenericBlock } from "../MfMGenericElement"
+import { MfMGenericBlock, addOptionsToContainerBlock } from "../MfMGenericElement"
 import { MfMParser } from "../MfMParser"
 import { MfMOptionsParser } from "../options/MfMOptions"
+import { MfMSection, MfMSectionParser } from "./MfMSection"
 
 export class MfMThematicBreak extends MfMGenericBlock<MfMThematicBreak, never, 'thematic-break', MfMThematicBreakParser> implements ThematicBreak<MfMThematicBreak> {
 	constructor(id: string, pw: MfMThematicBreakParser) { super(id, 'thematic-break', pw) }
+	section?: MfMSection
 }
 
 export class MfMThematicBreakParser extends MfMParser<
-	MfMThematicBreak, MfMThematicBreak,
-	MfMOptionsParser
+	MfMThematicBreak, MfMSection,
+	MfMOptionsParser | MfMSectionParser
 > {
 	public readonly elementName = 'MfMThematicBreak'
 
-	override parseLine(previous: MfMThematicBreak | null, text: string, start: number, length: number): MfMThematicBreak | null {
+	override parseLine(previous: MfMThematicBreak | null, text: string, start: number, length: number): MfMSection | null {
 		if(previous != null) {
+			if(previous.section == null) { throw new Error('found thematic break '+JSON.stringify(previous))+' without seciton, which is not allowed!' }
 			if(!previous.options.isFullyParsed) {
 				previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), previous))
 				const optionsLength = this.parsers.MfMOptions.addOptionsTo(previous, text, start, length).parsedLength
@@ -43,34 +46,52 @@ export class MfMThematicBreakParser extends MfMParser<
 							new StringLineContent(text.substring(start+optionsLength, start+optionsLength+whitespaceLength),
 							start+optionsLength, whitespaceLength, previous))
 					}
-					return previous
+					return previous.section
 				}
 			}
 			return null
 		}
 		
-		let i=0
-
-		const [ foundThematicBreak, foundLength, ] = this.findThematicBreak(text, start+i, length-i)
+		const [ foundThematicBreak, foundLength, ] = this.findThematicBreak(text, start, length)
 		if(foundThematicBreak) {
 			const thematicBreak = new MfMThematicBreak(this.parsers.idGenerator.nextId(), this)
 			thematicBreak.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), thematicBreak))
-			thematicBreak.lines[thematicBreak.lines.length-1].content.push(new StringLineContent(text.substring(start+i, start+i+foundLength), start+i, foundLength, thematicBreak))
-			i += foundLength
+			thematicBreak.lines[thematicBreak.lines.length-1].content.push(new StringLineContent(text.substring(start, start+foundLength), start, foundLength, thematicBreak))
+			let i = foundLength
 
 			i += this.parsers.MfMOptions.addOptionsTo(thematicBreak, text, start+i, length-i).parsedLength
+
+			let level = 1
+			if(thematicBreak.options.get('level')) {
+				const parsedLevel = parseInt(thematicBreak.options.get('level'))
+				if(!isNaN(parsedLevel)) { level = parsedLevel }
+			}
+			const section = this.parsers.MfMSection.create(level)
+			thematicBreak.section = section
 
 			const [ foundWhitespaceOnly, whitespaceLength, ] = this.findWhitespace(text, start+i, length-i)
 			if(foundWhitespaceOnly) {
 				if(whitespaceLength > 0) {
 					thematicBreak.lines[thematicBreak.lines.length-1].content.push(new StringLineContent(text.substring(start+i, start+i+whitespaceLength), start+i, whitespaceLength, thematicBreak))
 				}
-				return thematicBreak
+				section.addContent(thematicBreak)
+				return section
 			}
 		}
 
 		return null
 	}
+
+	override parseLineUpdate(original: MfMThematicBreak, text: string, start: number, length: number): ParsedLine<unknown, unknown> | null {
+		if(original.section == null) { throw new Error('found thematic break '+JSON.stringify(original))+' without seciton, which is not allowed!' }
+
+		const result = this.parseLine(null, text, start, length)
+		if(result && result.level === original.section.level) {
+			return result.content[0].lines[0]
+		}
+		return null
+	}
+
 	private findWhitespace(text: string, start: number, length: number): [ boolean, number, ] {
 		const searchRegex = new RegExp(`[ \t]+`, 'y')
 		searchRegex.lastIndex = start

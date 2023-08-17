@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { MfMSectionParser } from "../../../src/mfm/block/MfMSection"
 import { NumberedIdGenerator } from "../../../src/IdGenerator"
 import { UpdateParser } from "../../../src/UpdateParser"
 import { MfMThematicBreak, MfMThematicBreakParser } from "../../../src/mfm/block/MfMThematicBreak"
@@ -25,9 +26,11 @@ describe('MfMThematicBreak parser', () => {
 	function createThematicBreakParser() {
 		const idGenerator = new NumberedIdGenerator()
 		const optionsParser = createOptionsParser(idGenerator)
-		const parsers: Parsers<MfMOptionsParser> = {
+		const sectionParser = new MfMSectionParser({ idGenerator, allBlocks: [] })
+		const parsers: Parsers<MfMOptionsParser | MfMSectionParser> = {
 			idGenerator,
 			'MfMOptions': optionsParser,
+			'MfMSection': sectionParser,
 		}
 		const parser = new MfMThematicBreakParser(parsers)
 		return { parser }
@@ -38,7 +41,7 @@ describe('MfMThematicBreak parser', () => {
 				const { parser } = createThematicBreakParser()
 
 				const text = `${token}${token}${token}`
-				const result = parser.parseLine(null, text, 0, text.length)
+				const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 				expect(result).not.toBeNull()
 				expect(result).toHaveProperty('type', 'thematic-break')
@@ -56,7 +59,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = `___`
-			const previous = parser.parseLine(null, text, 0, text.length)
+			const previous = parser.parseLine(null, text, 0, text.length)?.content[0] as MfMThematicBreak
 			const result = parser.parseLine(previous, text, 0, text.length)
 
 			expect(result).toBeNull()
@@ -65,7 +68,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = `${spaces}___`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -82,7 +85,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = `___  \t   \t`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -99,7 +102,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = `_   _\t \t_`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -108,7 +111,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = token
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -120,7 +123,7 @@ describe('MfMThematicBreak parser', () => {
 			const { parser } = createThematicBreakParser()
 
 			const text = `***{key1=value1}`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0] as MfMThematicBreak
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -133,8 +136,8 @@ describe('MfMThematicBreak parser', () => {
 			const line1 = `***{key1=value1`
 			const line2 = `key2=value2}`
 			const text = `${line1}\n${line2}`
-			const first = parser.parseLine(null, text, 0, line1.length)
-			const result = parser.parseLine(first, text, line1.length+1, line2.length)
+			const first = parser.parseLine(null, text, 0, line1.length)?.content[0] as MfMThematicBreak
+			const result = parser.parseLine(first, text, line1.length+1, line2.length)?.content[0] as MfMThematicBreak
 
 			expect(result).not.toBeNull()
 			expect(result).toHaveProperty('type', 'thematic-break')
@@ -156,10 +159,23 @@ describe('MfMThematicBreak parser', () => {
 			const line1 = `***{key1=value1`
 			const line2 = `key2=value2} illegal`
 			const text = `${line1}\n${line2}`
-			const first = parser.parseLine(null, text, 0, line1.length)
+			const first = parser.parseLine(null, text, 0, line1.length)?.content[0] as MfMThematicBreak
 			const result = parser.parseLine(first, text, line1.length+1, line2.length)
 
 			expect(result).toBeNull()
+		})
+		it('sets the section level based on the "level"-option', () => {
+			const { parser } = createThematicBreakParser()
+
+			const line1 = `***{level=2`
+			const line2 = `key2=value2}`
+			const text = `${line1}\n${line2}`
+			const first = parser.parseLine(null, text, 0, line1.length)?.content[0] as MfMThematicBreak
+			const result = parser.parseLine(first, text, line1.length+1, line2.length)
+
+			expect(result).not.toBeNull()
+			expect(result).toHaveProperty('type', 'section')
+			expect(result).toHaveProperty('level', 2)
 		})
 	})
 
@@ -181,7 +197,7 @@ describe('MfMThematicBreak parser', () => {
 			const content = ' * * *'
 			const whitespace = '   \t  '
 			const text = `${content}${whitespace}`
-			const result = parser.parseLine(null, text, 0, text.length)
+			const result = parser.parseLine(null, text, 0, text.length)?.content[0]
 
 			expect(result?.lines).toHaveLength(1)
 			expect(result?.lines[0].asText).toEqual(text)
@@ -206,7 +222,7 @@ describe('MfMThematicBreak parser', () => {
 			const line1 = `***{key1=value1;\t`
 			const line2 = `key2=value2} \t  `
 			const text = `${line1}\n${line2}`
-			const first = parser.parseLine(null, text, 0, line1.length)
+			const first = parser.parseLine(null, text, 0, line1.length)?.content[0] as MfMThematicBreak
 			const result = parser.parseLine(first, text, line1.length+1, line2.length)
 
 			expect(result).not.toBeNull()
@@ -224,7 +240,7 @@ describe('MfMThematicBreak parser', () => {
 
 				const text = _lines.join('\n')
 				const result = _lines.reduce((r: [ MfMThematicBreak | null, number], c: string): [ MfMThematicBreak | null, number] => {
-					return [ parser.parseLine(r[0], text, r[1], c.length), r[1]+c.length+1 ]
+					return [ parser.parseLine(r[0], text, r[1], c.length)?.content[0] as MfMThematicBreak, r[1]+c.length+1 ]
 				}, [ null, 0, ])[0]
 				expect(result).not.toBeNull()
 
