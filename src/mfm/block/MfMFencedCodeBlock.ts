@@ -116,7 +116,7 @@ export class MfMFencedCodeBlockParser extends Parser<MfMFencedCodeBlock, MfMFenc
 	}
 
 	private parseNextBlockLine(previous: MfMFencedCodeBlock, text: string, start: number, length: number): MfMFencedCodeBlock | null {
-		previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), previous))
+		previous.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), previous))
 
 		const optionsLength = this.parsers.MfMOptions.addOptionsTo(previous, text, start, length).parsedLength
 		if(optionsLength > 0 && optionsLength < length) {

@@ -42,7 +42,7 @@ export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMCo
 			paragraph.continueWithNextLine = false
 			return null
 		}
-		paragraph.lines.push(new ParsedLine(this.parsers.idGenerator.nextId(), paragraph))
+		paragraph.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), paragraph))
 		let i = this.parsers.MfMOptions.addOptionsTo(paragraph, text, start, length).parsedLength
 
 		if(i < length) {

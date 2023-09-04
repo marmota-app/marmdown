@@ -55,5 +55,4 @@ describe('MfM: Parsing updates - Options', () => {
 			<h1 data-options="default=the value;key2=value2">The heading content.
 			With an updated second line.</h1>`)
 	})
-
 })

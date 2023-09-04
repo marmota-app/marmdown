@@ -372,6 +372,34 @@ describe('MfMOptions', () => {
 
 			expect(updated).toBeNull()
 		})
+
+		function expectContains(options: MfMOptions, values: { [key: string]: string }) {
+			Object.keys(values).forEach(k => {
+				expect(options.get(k)).toEqual(values[k])
+			})
+		}
+		it('parses multiple updates, adding two options', () => {
+			const idGenerator = new NumberedIdGenerator()
+			const updateParser = new UpdateParser(idGenerator)
+			const parser = createOptionsParser(idGenerator)
+
+			const text = '{ k1=v1; k2=v2 }'
+			const result = parser.parseLine(null, text, 0, text.length) as MfMOptions
+
+			let updated = updateParser.parse(result, { text: 'k3=v3', rangeOffset: '{ '.length, rangeLength: 0 }) as MfMOptions
+			expect(updated).not.toBeNull()
+
+			updated = updateParser.parse(updated, { text: ';', rangeOffset: '{ k3=v3'.length, rangeLength: 0 }) as MfMOptions
+			expect(updated).not.toBeNull
+			expectContains(updated, { k1: 'v1', k2: 'v2', k3: 'v3', })
+
+			updated = updateParser.parse(updated, { text: 'k4=v4', rangeOffset: '{ k3=v3;'.length, rangeLength: 0 }) as MfMOptions
+			expect(updated).not.toBeNull
+
+			updated = updateParser.parse(updated, { text: ';', rangeOffset: '{ k3=v3;k4=v4'.length, rangeLength: 0 }) as MfMOptions
+			expect(updated).not.toBeNull
+			expectContains(updated, { k1: 'v1', k2: 'v2', k3: 'v3', k4: 'v4', })
+		})
 	})
 
 	describe('parsing updates to multi-line content', () => {
@@ -553,7 +581,7 @@ describe('MfMOptions', () => {
 			expect(updated?.lines[1]).toHaveProperty('length', 'key3=value3; }'.length)
 			expect(updated?.lines[1]).toHaveProperty('asText', 'key3=value3; }')
 		})
-		it('parses removing the equals sign of an option in the second line', () => {
+		it('does not parse removing the equals sign of an option in the second line', () => {
 			const parser = createOptionsParser()
 
 			const firstLine = '{ default value; key2=value2'

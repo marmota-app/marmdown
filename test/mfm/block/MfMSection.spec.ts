@@ -36,7 +36,7 @@ describe('MfMSection parser', () => {
 			const text = `${new Array(level+1).fill('#')} Heading Text`
 			const innerSection = new MfMSection('inner', sectionParser, level+1)
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('__dummy__', emptyElement)
+			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('line-__dummy__', emptyElement)
 			parsedLine.content.push(new StringLineContent('foo', 10, 3, emptyElement))
 			emptyElement.lines.push(parsedLine)
 			innerSection.addContent(emptyElement)
@@ -99,7 +99,7 @@ describe('MfMSection parser', () => {
 			const section = sectionParser.create()
 
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('__dummy__', emptyElement)
+			const parsedLine = new ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, EmptyElement>('line-__dummy__', emptyElement)
 			parsedLine.content.push(new StringLineContent('foo', 10, 3, emptyElement))
 			emptyElement.lines.push(parsedLine)
 			section.addContent(emptyElement)

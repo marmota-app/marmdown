@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Block, Element, Inline, LineContent, ParsedLine, StringLineContent } from "../element/Element"
+import { Block, Element, Inline, LineContent, LineId, ParsedLine, StringLineContent } from "../element/Element"
 import { GenericBlock, GenericContainerInline, GenericLeafInline } from "../element/GenericElement"
 import { Parser } from "../parser/Parser"
 import { Parsers } from "../parser/Parsers"
@@ -84,6 +84,12 @@ export abstract class MfMGenericLeafInline<
  * derived directly from their content. So, they do not manipulate the line
  * content directly, they only add content. The line content is then always
  * created dynamically from the content.
+ * 
+ * But this makes parsing updates to the content of those elements harder.
+ * FIXME add description of update parsing!
+ * 
+ * Alternatively, we could just refuse updates to container blocks completely,
+ * but that would reject many - if not most - of the updates.
  */
 export abstract class MfMGenericContainerBlock<
 	THIS extends Block<THIS, CONTENT, TYPE>,
@@ -237,10 +243,12 @@ export class DynamicLine<THIS extends Element<unknown, unknown, unknown, unknown
 	LineContent<Element<unknown, unknown, unknown, unknown>>,
 	THIS
 > {
+	override readonly lineType = 'dynamic'
+	
 	#content: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
 
 	constructor(
-		id: string,
+		id: LineId,
 		originalLines: LineContent<Element<unknown, unknown, unknown, unknown>>[], 
 		belongsTo: THIS,
 		prefix: LineContent<THIS> | null, suffix: LineContent<THIS> | null,

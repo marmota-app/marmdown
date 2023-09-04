@@ -91,7 +91,9 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 					const innerContent = content.content[i]
 					const result = this.parseContent(innerContent, update)
 					if(result.line) {
-						content.content[i] = result.line
+						if(content.lineType === 'direct') {
+							content.content[i] = result.line
+						}
 
 						if((content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach) {
 							(content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach(
@@ -191,6 +193,7 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 		updated.content
 			.filter(c => c.belongsTo === updated.belongsTo)
 			.forEach(c => c.belongsTo = newOwner)
+		updated.belongsTo = newOwner
 	}
 
 	private updateStart(lineContent: LineContent<unknown>, start: number) {

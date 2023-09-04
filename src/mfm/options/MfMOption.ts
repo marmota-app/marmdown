@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { ContentUpdate } from "src/ContentUpdate"
 import { LeafInline, ParsedLine, StringLineContent } from "../../element/Element"
 import { GenericLeafInline } from "../../element/GenericElement"
 import { findTrimmed } from "../../parser/find"
@@ -92,6 +93,19 @@ abstract class MfMGenericOptionParser<P extends MfMGenericOptionParser<P>> exten
 
 		if(option.key === 'default' && !this.allowDefault) { return null }
 		return option
+	}
+
+	override canUpdate(original: MfMOption<P>, update: ContentUpdate, replacedText: string): boolean {
+		const illegalCharacters = [';', '=', '{', '}']
+		for(let i=0; i<illegalCharacters.length; i++) {
+			if(update.text.indexOf(illegalCharacters[i]) >= 0) {
+				return false
+			}
+			if(replacedText.indexOf(illegalCharacters[i]) >= 0) {
+				return false
+			}
+		}
+		return super.canUpdate(original, update, replacedText)
 	}
 }
 

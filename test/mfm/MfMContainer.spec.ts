@@ -100,7 +100,7 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			emptyElement.lines.push(new ParsedLine('__dummy__', emptyElement))
+			emptyElement.lines.push(new ParsedLine('line-__dummy__', emptyElement))
 			section.addContent(emptyElement)
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
@@ -123,7 +123,7 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			emptyElement.lines.push(new ParsedLine('__dummy__', emptyElement))
+			emptyElement.lines.push(new ParsedLine('line-__dummy__', emptyElement))
 			section.addContent(emptyElement)
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
@@ -147,7 +147,7 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			emptyElement.lines.push(new ParsedLine('__dummy__', emptyElement))
+			emptyElement.lines.push(new ParsedLine('line-__dummy__', emptyElement))
 			section.addContent(emptyElement)
 	
 			when(sectionParserMock.parseLine(null, text, 0, 'some container line'.length)).return(section).anyTimes()
@@ -170,7 +170,7 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			emptyElement.lines.push(new ParsedLine('__dummy__', emptyElement))
+			emptyElement.lines.push(new ParsedLine('line-__dummy__', emptyElement))
 			section.addContent(emptyElement)
 			section.sectionCompleted = true
 	
@@ -192,7 +192,7 @@ describe('MfMContainer parser', () => {
 			const sectionParserMock = createSectionParserMock()
 			const section = new MfMSection('dummy', instance(sectionParserMock))
 			const emptyElement = new EmptyElement('__dummy__', createEmptyElementParser())
-			emptyElement.lines.push(new ParsedLine('__dummy__', emptyElement))
+			emptyElement.lines.push(new ParsedLine('line-__dummy__', emptyElement))
 			section.addContent(emptyElement)
 			when(sectionParserMock.parseLine(null, 'some container line', 0, 'some container line'.length)).return(section).once()
 

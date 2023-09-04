@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { LineId } from "./element/Element"
+
 /**
  * An ID generator to create unique IDs for {@link Element}s of a document. 
  * 
@@ -27,7 +29,7 @@ limitations under the License.
 export interface IdGenerator {
 	/** The next unique ID. */
 	nextId(): string,
-	nextLineId(): string,
+	nextLineId(): LineId,
 }
 
 /**
@@ -48,7 +50,7 @@ export class NumberedIdGenerator implements IdGenerator {
 		return id
 	}
 
-	nextLineId(): string {
-		return 'line-'+this.nextId()
+	nextLineId(): LineId {
+		return `line-${this.nextId()}`
 	}
 }

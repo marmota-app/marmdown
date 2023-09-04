@@ -139,6 +139,8 @@ export interface Element<
  * @category $element
  */
 export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> {
+	readonly lineType: 'direct' | 'dynamic',
+
 	belongsTo: BELONGS_TO,
 
 	/**
@@ -165,6 +167,8 @@ export interface LineContent<BELONGS_TO extends Element<unknown, unknown, unknow
 	readonly asSafeText: string,
 }
 
+export type LineId = `line-${string}`
+
 /**
  * A single parsed line that is part of an {@link Element}. 
  */
@@ -172,13 +176,14 @@ export class ParsedLine<
 	LINE_CONTENT extends LineContent<Element<unknown, unknown, unknown, unknown>> | unknown,
 	BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown,
 > implements LineContent<BELONGS_TO> {
+	readonly lineType: 'direct' | 'dynamic' = 'direct'
 	#content: LINE_CONTENT[] = []
 	/** For an updated line, unique id of the original line content, before the update. */
 	public originalId: string | undefined;
 
 	public get content(): LINE_CONTENT[] { return this.#content }
 
-	constructor(public readonly id: string, public readonly belongsTo: BELONGS_TO) {
+	constructor(public readonly id: LineId, public belongsTo: BELONGS_TO) {
 		jsonTransient(this, 'belongsTo')
 	}
 
@@ -207,6 +212,7 @@ export class ParsedLine<
  * @category $element
  */
 export class StringLineContent<BELONGS_TO extends Element<unknown, unknown, unknown, unknown> | unknown> implements LineContent<BELONGS_TO> {
+	readonly lineType='direct'
 	constructor(private text: string, public readonly start: number, public readonly length: number, public readonly belongsTo: BELONGS_TO) {}
 
 	public get asText() {

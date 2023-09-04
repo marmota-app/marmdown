@@ -21,6 +21,7 @@ import { MfMParsers } from "../MfMParsers";
 import { isEmpty } from "../../parser/find";
 import { Parser } from "../../parser/Parser";
 import { MfMFirstOptionParser, MfMOption, MfMOptionParser } from "./MfMOption";
+import { ContentUpdate } from "src/ContentUpdate";
 
 class EmptyOptionsParser extends Parser<MfMOptions> {
 	public readonly elementName = 'MfMEmptyOption'
@@ -29,7 +30,7 @@ class EmptyOptionsParser extends Parser<MfMOptions> {
 		throw new Error('Cannot parse empty options: This is just a dummy parser to make sure we can create an empty options object.')
 	}
 }
-export const EMPTY_OPTIONS_PARSER = new EmptyOptionsParser({ idGenerator: { nextId: () => '__empty__', nextLineId: () => '__empty_line__',}})
+export const EMPTY_OPTIONS_PARSER = new EmptyOptionsParser({ idGenerator: { nextId: () => '__empty__', nextLineId: () => `line-__empty_line__`,}})
 
 export interface Options extends LeafBlock<MfMOptions, MfMOption<MfMFirstOptionParser | MfMOptionParser>, 'options'> {
 	keys: string[]

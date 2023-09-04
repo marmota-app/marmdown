@@ -16,12 +16,12 @@ limitations under the License.
 
 import { jsonTransient } from "../jsonTransient";
 import { Parser } from "../parser/Parser";
-import { Block, Element, Inline, LineContent, ParsedLine } from "./Element";
+import { Block, Element, Inline, LineContent, LineId, ParsedLine } from "./Element";
 
 abstract class LineBasedElement<THIS extends Element<unknown, unknown, unknown, unknown> | unknown> {
 	abstract readonly lines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[]
 
-	addLine(lineId: string) {
+	addLine(lineId: LineId) {
 		const line = new ParsedLine(lineId, this)
 		this.lines.push(line as unknown as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>)
 		return line

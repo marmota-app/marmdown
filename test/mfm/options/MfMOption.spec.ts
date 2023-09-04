@@ -260,27 +260,13 @@ describe('MfMOption', () => {
 			expect(updated).toHaveProperty('value', 'the value')
 			expect(updated?.lines[0]).toHaveProperty('start', '--ignore me--'.length)
 			expect(updated?.lines[0]).toHaveProperty('length', 'the_key=   the value   \t  '.length)
-		})
+		});
 
-		it('parses update that changes a default option to an option', () => {
-			const option = optionParser.parseLine(null, '--ignore me--the value', '--ignore me--'.length, 'the value'.length) as MfMOption<MfMFirstOptionParser>
-			const updated = updateParser.parse(option, { text: '\t=\t', rangeOffset: '--ignore me--the'.length, rangeLength: 1, })
-
-			expect(updated).not.toBeNull()
-			expect(updated).toHaveProperty('key', 'the')
-			expect(updated).toHaveProperty('value', 'value')
-			expect(updated?.lines[0]).toHaveProperty('start', '--ignore me--'.length)
-			expect(updated?.lines[0]).toHaveProperty('length', 'the\t=\tvalue'.length)
-		})
-		it('parses update that changes an option to a default option', () => {
+		[';', '=', '{', '}'].forEach(character => it(`does not parse update that contains ${character}`, () => {
 			const option = optionParser.parseLine(null, '--ignore me--the = value', '--ignore me--'.length, 'the = value'.length) as MfMOption<MfMFirstOptionParser>
-			const updated = updateParser.parse(option, { text: '', rangeOffset: '--ignore me--the'.length, rangeLength: 2, })
+			const updated = updateParser.parse(option, { text: character, rangeOffset: '--ignore me--the'.length, rangeLength: 0, })
 
-			expect(updated).not.toBeNull()
-			expect(updated).toHaveProperty('key', 'default')
-			expect(updated).toHaveProperty('value', 'the value')
-			expect(updated?.lines[0]).toHaveProperty('start', '--ignore me--'.length)
-			expect(updated?.lines[0]).toHaveProperty('length', 'the value'.length)
-		})
+			expect(updated).toBeNull()
+		}))
 	})
 })
