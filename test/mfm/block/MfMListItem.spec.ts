@@ -15,5 +15,16 @@ limitations under the License.
 */
 
 describe('MfMListItem', () => {
-	it('todo', () => {})
+	describe('parsing the content', () => {
+		it('todo', () => {})
+	})
+	describe('parsing options', () => {})
+	describe('parsing updates', () => {
+		//TODO test task lists thoroughly, e.g.:
+		// * "- whatever" -> "- [] whatever"
+		// * "- [ whatever" -> "- [x] whatever"
+		// * "- [x] whatever" -> "- [x whatever"
+		// * "- [  ] whatever" -> "- [ ] whatever"
+		// * "- [ ] whatever" -> "- [  ] whatever"
+	})
 })

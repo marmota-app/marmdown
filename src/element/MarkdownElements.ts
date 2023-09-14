@@ -62,6 +62,15 @@ export interface Aside<
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'aside'> {}
 
+export interface List<
+	THIS extends List<THIS, CONTENT>,
+	CONTENT extends Block<unknown, unknown, unknown>,
+> extends ContainerBlock<THIS, CONTENT, 'list'> {}
+export interface ListItem<
+	THIS extends ListItem<THIS, CONTENT>,
+	CONTENT extends Block<unknown, unknown, unknown>,
+> extends ContainerBlock<THIS, CONTENT, 'list-item'> {}
+
 export interface Emphasis<
 	THIS extends Emphasis<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
 > extends ContainerInline<THIS, CONTENT, 'emphasis'> {}
