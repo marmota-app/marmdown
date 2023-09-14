@@ -43,7 +43,6 @@ export class MfMCodeSpanParser extends InlineParser<MfMCodeSpan | MfMText, MfMTe
 				codeSpan.lines[0].content.push(new StringLineContent(openingDelimiter, start, openingDelimiter.length, codeSpan))
 				if(stripSpaces) { codeSpan.lines[0].content.push(new StringLineContent(' ', start+openingDelimiter.length, 1, codeSpan))}
 				
-				//TODO refactor: Create "addOptionsToInline" in MfMOptionsParser that only adds fully parsed options (maybe?)
 				let optionsLength = 0
 				const options = this.parsers.MfMOptions.parseLine(null, text, start+openingDelimiter.length, closingIndex - start - openingDelimiter.length)
 				if(options && options.isFullyParsed) {

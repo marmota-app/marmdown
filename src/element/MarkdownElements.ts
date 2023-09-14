@@ -107,6 +107,7 @@ export interface Text<THIS extends Text<THIS>> extends LeafInline<THIS, 'text'> 
 	readonly text: string,
 }
 export interface HardLineBreak<THIS extends HardLineBreak<THIS>> extends LeafInline<THIS, 'line-break'> {}
+export interface ListTask<THIS extends ListTask<THIS>> extends LeafInline<THIS, 'list-task'> {}
 
 export interface Empty<
 	THIS extends Empty<THIS, CONTENT>,
