@@ -117,6 +117,10 @@ export abstract class MfMGenericContainerBlock<
 		this.#options = o
 	}
 
+	protected get attachments() {
+		return this.#attachments
+	}
+	
 	override get lines() {
 		const dynamicLines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
 

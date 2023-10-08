@@ -33,11 +33,11 @@ export class EmptyElementParser extends Parser<EmptyElement> {
 
 	parseLine(previous: EmptyElement | null, text: string, start: number, length: number): EmptyElement | null {
 		if(isEmpty(text, start, length)) {
-				const element = previous ?? new EmptyElement(this.parsers.idGenerator.nextId(), this)
-				element.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), element))
-				element.lines[element.lines.length-1].content.push(new StringLineContent(text.substring(start, start+length), start, length, element))
+			const element = previous ?? new EmptyElement(this.parsers.idGenerator.nextId(), this)
+			element.lines.push(new ParsedLine(this.parsers.idGenerator.nextLineId(), element))
+			element.lines[element.lines.length-1].content.push(new StringLineContent(text.substring(start, start+length), start, length, element))
 
-				return element
+			return element
 		}
 
 		if(previous) { previous.continueWithNextLine = false }

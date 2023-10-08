@@ -24,11 +24,15 @@ export class MfMList extends MfMGenericContainerBlock<
 	MfMList, MfMListItem, 'list', MfMListParser
 > implements List<MfMList, MfMListItem> {
 	protected self: MfMList = this
-	constructor(id: string, pw: MfMListParser) { super(id, 'list', pw) }
+	constructor(public readonly listType: 'bullet' | 'ordered', id: string, pw: MfMListParser) { super(id, 'list', pw) }
 }
 
-export abstract class MfMListParser extends MfMParser<MfMList> {
-	public readonly elementName = 'MfMListItem'
+export class MfMListParser extends MfMParser<MfMList> {
+	public readonly elementName = 'MfMList'
+
+	create(listType: 'bullet' | 'ordered'): MfMList {
+		return new MfMList(listType, this.parsers.idGenerator.nextId(), this)
+	}
 
 	parseLine(previous: MfMList | null, text: string, start: number, length: number): MfMList | null {
 		return null
