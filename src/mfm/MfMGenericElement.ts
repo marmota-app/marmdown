@@ -146,7 +146,11 @@ export abstract class MfMGenericContainerBlock<
 
 			if(!this.#attachments[lastOptionsLine.id]?.['lineFullyParsed']) {
 				const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+				const toPrepend = this.#attachments[firstContentLine.id]?.['prepend']
+				if(toPrepend) { middleLineContent.push(toPrepend) }
 				middleLineContent.push(firstContentLine)
+				//TODO "append" of first content line still missing, but should that be added
+				//     below, when the DynamicLine "middleLine" is constructed?
 				contentStart = 1
 			}
 
@@ -197,6 +201,14 @@ export abstract class MfMGenericContainerBlock<
 	}
 }
 
+export interface AddOptionsParams {
+	onLineAdded: (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => unknown,
+	removeNextWhitespace: boolean,
+}
+const defaultAddOptionsParams: AddOptionsParams = {
+	onLineAdded: () => {},
+	removeNextWhitespace: true,
+}
 /**
  * Adds options to a generic container block and handles prepending text accordingly. 
  * 
@@ -211,19 +223,21 @@ export abstract class MfMGenericContainerBlock<
 export function addOptionsToContainerBlock(
 	block: MfMGenericContainerBlock<any, unknown, unknown, Parser<any, Element<unknown, unknown, unknown, unknown>>>,
 	text: string, start: number, length: number, parsers: Parsers<MfMOptionsParser>,
-	onLineAdded?: (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => unknown
+	additionalParams: Partial<AddOptionsParams> = {},
 ): { lineFullyParsed: boolean, parsedLength: number } {
+	const params = { ...defaultAddOptionsParams, ...additionalParams }
+
 	let optionsParsed = false
 	const addOptionsLine = (line: ParsedLine<StringLineContent<MfMOptions>, MfMOptions>, parsedLength: number) => {
 		block.options = line.belongsTo
 		const nextChar = text.charAt(start+parsedLength)
-		if(nextChar === ' ' || nextChar === '\t') {
+		if(params.removeNextWhitespace && (nextChar === ' ' || nextChar === '\t')) {
 			block.attach(line.id, { append: new StringLineContent(nextChar, start+parsedLength, 1, block) })
 			parsedLength++
 		}
 		if(parsedLength === length) { block.attach(line.id, { lineFullyParsed: true, }) }
 		optionsParsed = true
-		onLineAdded?.(line, parsedLength)
+		params.onLineAdded(line, parsedLength)
 
 		return parsedLength
 	}

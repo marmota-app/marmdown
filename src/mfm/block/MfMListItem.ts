@@ -20,9 +20,9 @@ import { ListItem } from "../../element/MarkdownElements"
 import { EmptyElementParser } from "../../parser/EmptyElementParser"
 import { Parser } from "../../parser/Parser"
 import { isEmpty } from "../../parser/find"
-import { MfMGenericContainerBlock } from "../MfMGenericElement"
+import { MfMGenericContainerBlock, addOptionsToContainerBlock } from "../MfMGenericElement"
 import { MfMParser } from "../MfMParser"
-import { MfMListTaskParser } from "../inline/MfMListTask"
+import { MfMHardLineBreakParser } from "../inline/MfMHardLineBreak"
 import { MfMOptionsParser } from "../options/MfMOptions"
 import { MfMList, MfMListParser } from "./MfMList"
 
@@ -31,7 +31,7 @@ export class MfMListItem extends MfMGenericContainerBlock<
 	MfMListItem, MfMBlockElementContent, 'list-item', MfMListItemParser
 > implements ListItem<MfMListItem, MfMBlockElementContent> {
 	protected self: MfMListItem = this
-	constructor(id: string, pw: MfMListItemParser, public readonly list: MfMList) { super(id, 'list-item', pw) }
+	constructor(id: string, pw: MfMListItemParser, public readonly list: MfMList, public readonly marker: string) { super(id, 'list-item', pw) }
 	public indent: number = 0
 
 	public get itemType(): 'plain' | 'task' {
@@ -60,45 +60,62 @@ export class MfMListItem extends MfMGenericContainerBlock<
 	}
 }
 
-export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOptionsParser | MfMListParser | EmptyElementParser | MfMListTaskParser> {
+export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOptionsParser | MfMListParser | EmptyElementParser > {
 	public readonly elementName = 'MfMListItem'
 
 	parseLine(previous: MfMListItem | null, text: string, start: number, length: number): MfMList | null {
 		if(previous != null) {
-			let spaces = 0
-			if(isEmpty(text, start, length)) {
-				const emptyElement = this.parsers.EmptyElement.parseLine(null, text, start, length)
-				if(emptyElement) {
-					previous.addContent(emptyElement)
+			if(previous.options.id!=='__empty__' && !previous.options.isFullyParsed) {
+				let i=0
+				const optionsResult = addOptionsToContainerBlock(
+					previous, text, start+i, length-i, this.parsers, {
+						onLineAdded: (line, parsedLength) => {
+							i += parsedLength
+						},
+						removeNextWhitespace: false,
+					}
+				)
+				if(optionsResult.lineFullyParsed) {
 					return previous.list
 				}
-			}
-			while(text.charAt(start + spaces) === ' ') {
-				spaces++
-			}
-			if(spaces >= previous.indent) {
-				let i = previous.indent
 
-				const lineStart = text.substring(start, start+i)
-
-				const previousContent = previous.content[previous.content.length-1]
-				const previousParser = previousContent.parsedWith as Parser<typeof previousContent>
-				const continued = previousParser.parseLine(previousContent, text, start+i, length-i)
-				if(continued) {
-					if(lineStart) { previous.attach(previous.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, previous) }) }
-					return previous.list
-				} else {
-					for(const contentParser of this.allBlocks) {
-						const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
-						if(content) {
-							previous.addContent(content);
-							if(lineStart) { previous.attach(previous.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, previous) }) }
-							return previous.list
+				return this.parseContentAfterOptions(text, start, i, length, null, previous, previous.list)
+			} else {
+				let spaces = 0
+				if(isEmpty(text, start, length)) {
+					const emptyElement = this.parsers.EmptyElement.parseLine(null, text, start, length)
+					if(emptyElement) {
+						previous.addContent(emptyElement)
+						return previous.list
+					}
+				}
+				while(text.charAt(start + spaces) === ' ') {
+					spaces++
+				}
+				if(spaces >= previous.indent) {
+					let i = previous.indent
+	
+					const lineStart = text.substring(start, start+i)
+	
+					const previousContent = previous.content[previous.content.length-1]
+					const previousParser = previousContent.parsedWith as Parser<typeof previousContent>
+					const continued = previousParser.parseLine(previousContent, text, start+i, length-i)
+					if(continued) {
+						if(lineStart) { previous.attach(previous.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, previous) }) }
+						return previous.list
+					} else {
+						for(const contentParser of this.allBlocks) {
+							const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
+							if(content) {
+								previous.addContent(content);
+								if(lineStart) { previous.attach(previous.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, previous) }) }
+								return previous.list
+							}
 						}
 					}
 				}
+				return null
 			}
-			return null
 		}
 
 		const { marker, listType } = this.findListType(text, start, length)
@@ -106,51 +123,94 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 		if(listType === 'ordered' || listType === 'bullet') {
 			const list = this.parsers.MfMList.create(listType)
 
-			const listItem = new MfMListItem(this.parsers.idGenerator.nextId(), this, list)
+			const listItem = new MfMListItem(this.parsers.idGenerator.nextId(), this, list, marker)
 			list.addContent(listItem)
 
-			let spaces = 0
-			while(text.charAt(start + marker.length + spaces) === ' ') { //TODO isWhitespace?
-				spaces++
-			}
-			if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
-			if(spaces < 1) { return null }
-			let i = marker.length+spaces
-			listItem.indent = i
-	
-			// A task list item is a list item that also has [ ] or [x] after the bullet or number. There can
-			// be any number of spaces before and after the task list marker. When you need options on a task
-			// list item, they must come after the task list marker.
-			if(text.charAt(start+i) === '[' && text.charAt(start+i+2) === ']') {
-				i += 3
-				let spaces = 0
-				while(text.charAt(start + i + spaces) === ' ') { //TODO isWhitespace?
-					spaces++
-				}
-				if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
-				if(spaces < 1) { return null }
-
-				i += spaces
-				//TODO remove MfMListTask! It does not work like that, with options and everything.
-			}
-
-			const lineStart = text.substring(start, start+i)
-
-			for(const contentParser of this.allBlocks) {
-				const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
-				if(content) {
-					listItem.addContent(content);
-					if(lineStart) { listItem.attach(listItem.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, listItem) }) }
-					break
+			let i = marker.length
+			let prepend: { start: number, length: number} | null = { start: start, length: marker.length }
+			let optionsResult: { lineFullyParsed: boolean, parsedLength: number } | undefined
+			if(text.charAt(start+i) === '{') {
+				optionsResult = addOptionsToContainerBlock(
+					listItem, text, start+i, length-i, this.parsers, {
+						onLineAdded: (line, parsedLength) => {
+							i += parsedLength
+							if(prepend) {
+								const prependText = text.substring(prepend.start, prepend.start+prepend.length)
+								listItem.attach(line.id, { prepend: new StringLineContent(prependText, prepend.start, prepend.length, listItem) })
+								prepend = null
+							}
+						},
+						removeNextWhitespace: false,
+					}
+				)
+				if(optionsResult.lineFullyParsed) {
+					return list
 				}
 			}
-	
-			return list
+
+			return this.parseContentAfterOptions(
+				text, start, i, length, prepend, listItem, list
+			)
 		}
 
 		return null
 	}
 
+	private parseContentAfterOptions(
+		text: string, start: number, i: number, length: number,
+		prepend: { start: number, length: number} | null,
+		listItem: MfMListItem, list: MfMList,
+	) {
+		let spaces = 0
+		while(text.charAt(start + i + spaces) === ' ') { //TODO isWhitespace?
+			spaces++
+		}
+		if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
+		if(spaces < 1) { return null }
+		prepend = {
+			start: prepend?.start ?? (start+i),
+			length: (prepend?.length ?? 0) + spaces,
+		}
+		i += spaces
+		listItem.indent = listItem.marker.length + spaces
+
+		// A task list item is a list item that also has [ ] or [x] after the bullet or number. There can
+		// be any number of spaces before and after the task list marker. When you need options on a task
+		// list item, they must come after the task list marker.
+		if(text.charAt(start+i) === '[' && text.charAt(start+i+2) === ']') {
+			const taskMarkerLength = 3
+			i += taskMarkerLength
+			spaces = 0
+
+			while(text.charAt(start + i + spaces) === ' ') { //TODO isWhitespace?
+				spaces++
+			}
+			if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
+			if(spaces < 1) { return null }
+
+			listItem.indent = listItem.indent + taskMarkerLength + spaces
+			
+			prepend = {
+				start: prepend?.start ?? (start+i-taskMarkerLength), //FIXME ugly, but works for now. "i-taskMarkerLength" is the start of the task indicator.
+				length: (prepend?.length ?? 0)+(3+spaces),
+			}
+			i += spaces
+		}
+
+		for(const contentParser of this.allBlocks) {
+			const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
+			if(content) {
+				listItem.addContent(content);
+				if(prepend) {
+					const prependText = text.substring(prepend.start, prepend.start+prepend.length)
+					listItem.attach(listItem.lastLine.id, { prepend: new StringLineContent(prependText, prepend.start, prepend.length, listItem) })
+				}
+				break
+			}
+		}
+
+		return list
+	}
 	private findListType(text: string, start: number, length: number): { marker: string, listType: 'ordered' | 'bullet' | 'n.a.' } {
 		const currentChar = text.charAt(start)
 		switch(currentChar) {

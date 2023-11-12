@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { not } from "omnimock"
 import { MfMList } from "../../../src/mfm/block/MfMList"
 import { createListItemParser } from "./createListParser"
+
+const assume = expect
 
 describe('MfMListItem', () => {
 	describe('parsing the content', () => {
@@ -230,6 +231,38 @@ describe('MfMListItem', () => {
 				expect(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
 			});
 
+			it('parses a mulit-line task list item', () => {
+				const { parser } = createListItemParser()
+				const contents = [
+					`* [i] list item`,
+					`      more content`,
+				]
+				const text = contents.join('\n')
+				
+				type Result = { i: number, parsed: MfMList | null}
+				const result = contents.reduce((prev: Result, current: string): Result => {
+					const previous = prev.parsed?.content[prev.parsed.content.length-1] ?? null
+					const parsed = parser.parseLine(previous, text, prev.i, current.length)
+					return { parsed, i: prev.i+current.length+1 }
+				}, { i: 0, parsed: null }).parsed	
+				expect(result).not.toBeNull()
+				expect(result).toHaveProperty('type', 'list')
+				expect(result).toHaveProperty('listType', 'bullet')
+				expect(result?.lines[0]).toHaveProperty('asText', `* [i] list item`)
+				expect(result?.lines[1]).toHaveProperty('asText', `      more content`)
+
+				expect(result?.content).toHaveLength(1)
+				expect(result?.content[0]).toHaveProperty('type', 'list-item')
+				expect(result?.content[0]).toHaveProperty('itemType', 'task')
+				expect(result?.content[0]).toHaveProperty('taskState', 'i')
+				expect(result?.content[0].lines[0]).toHaveProperty('asText', `* [i] list item`)
+	
+				expect(result?.content[0].content).toHaveLength(1)
+				expect(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+				expect(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')	
+				expect(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
+			});
+
 			[[''], [' ', ''], ['   ', '\t', '  \t  ']].forEach(sep => it(`parses list item with two paragraphs, separated by ${JSON.stringify(sep)}`, () => {
 				const { parser } = createListItemParser()
 				const contents = [
@@ -328,16 +361,228 @@ describe('MfMListItem', () => {
 		})
 	})
 	describe('parsing options', () => {
-		it.skip('parses single-line options on a normal bullet list item', () => {})
-		it.skip('parses single-line options on a normal numbered list item', () => {})
-		it.skip('parses single-line options on a task bullet list item', () => {})
-		it.skip('parses multi-line options on a normal bullet list item', () => {})
-		it.skip('parses multi-line options on a normal numbered list item', () => {})
-		it.skip('parses multi-line options on a task bullet list item', () => {})
+		it('parses single-line options on a normal bullet list item', () => {
+			const { parser } = createListItemParser()
+			const listItemText = `*{ default value; key2=value2 } list item`
+			const text = `text before\n${listItemText}`
+			
+			const result = parser.parseLine(null, text, 'text before\n'.length, listItemText.length)
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'bullet')
+			assume(result?.lines[0]).toHaveProperty('asText', `*{ default value; key2=value2 } list item`)
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'plain')
+			assume(result?.content[0].lines[0]).toHaveProperty('asText', `*{ default value; key2=value2 } list item`)
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+		})
+		it('parses single-line options on a normal numbered list item', () => {
+			const { parser } = createListItemParser()
+			const listItemText = `1.{ default value; key2=value2 } list item`
+			const text = `text before\n${listItemText}`
+			
+			const result = parser.parseLine(null, text, 'text before\n'.length, listItemText.length)
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'ordered')
+			assume(result?.lines[0]).toHaveProperty('asText', `1.{ default value; key2=value2 } list item`)
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'plain')
+			assume(result?.content[0].lines[0]).toHaveProperty('asText', `1.{ default value; key2=value2 } list item`)
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+		})
+		it('parses single-line options on a task bullet list item', () => {
+			const { parser } = createListItemParser()
+			const listItemText = `*{ default value; key2=value2 } [ ] list item`
+			const text = `text before\n${listItemText}`
+			
+			const result = parser.parseLine(null, text, 'text before\n'.length, listItemText.length)
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'bullet')
+			assume(result?.lines[0]).toHaveProperty('asText', `*{ default value; key2=value2 } [ ] list item`)
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'task')
+			assume(result?.content[0].lines[0]).toHaveProperty('asText', `*{ default value; key2=value2 } [ ] list item`)
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+		})
+		it('parses single-line options with indent on a multi-line bullet list item', () => {
+			const { parser } = createListItemParser()
+			const contents = [
+				`*{ default value; key2=value2 }  list item`,
+				`   more content`,
+			]
+			const text = contents.join('\n')
+			
+			type Result = { i: number, parsed: MfMList | null}
+			const result = contents.reduce((prev: Result, current: string): Result => {
+				const previous = prev.parsed?.content[prev.parsed.content.length-1] ?? null
+				const parsed = parser.parseLine(previous, text, prev.i, current.length)
+				return { parsed, i: prev.i+current.length+1 }
+			}, { i: 0, parsed: null }).parsed
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'bullet')
+			assume(result?.lines[0]).toHaveProperty('asText', `*{ default value; key2=value2 }  list item`)
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0]).toHaveProperty('indent', 3)
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'plain')
+			contents.forEach((c, i) => assume(result?.content[0].lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+			assume(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
+		})
+		it('parses multi-line options on a normal bullet list item', () => {
+			const { parser } = createListItemParser()
+			const contents = [
+				`*{ default value; key2=value2;`,
+				`    key3=value3 }   list item`,
+				`    more content`,
+			]
+			const text = contents.join('\n')
+			
+			type Result = { i: number, parsed: MfMList | null}
+			const result = contents.reduce((prev: Result, current: string): Result => {
+				const previous = prev.parsed?.content[prev.parsed.content.length-1] ?? null
+				const parsed = parser.parseLine(previous, text, prev.i, current.length)
+				return { parsed, i: prev.i+current.length+1 }
+			}, { i: 0, parsed: null }).parsed
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'bullet')
+			assume(result?.lines).toHaveLength(3)
+			contents.forEach((c, i) => assume(result?.lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0]).toHaveProperty('indent', 4)
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+			expect(result?.content[0].options.get('key3')).toEqual('value3')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'plain')
+			contents.forEach((c, i) => assume(result?.content[0].lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+			assume(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
+		})
+		it('parses multi-line options on a normal numbered list item', () => {
+			const { parser } = createListItemParser()
+			const contents = [
+				`3.{ default value; key2=value2;`,
+				`    key3=value3 }   list item`,
+				`     more content`,
+			]
+			const text = contents.join('\n')
+			
+			type Result = { i: number, parsed: MfMList | null}
+			const result = contents.reduce((prev: Result, current: string): Result => {
+				const previous = prev.parsed?.content[prev.parsed.content.length-1] ?? null
+				const parsed = parser.parseLine(previous, text, prev.i, current.length)
+				return { parsed, i: prev.i+current.length+1 }
+			}, { i: 0, parsed: null }).parsed
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'ordered')
+			assume(result?.lines).toHaveLength(3)
+			contents.forEach((c, i) => assume(result?.lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0]).toHaveProperty('indent', 5)
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+			expect(result?.content[0].options.get('key3')).toEqual('value3')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'plain')
+			contents.forEach((c, i) => assume(result?.content[0].lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+			assume(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
+		})
+		it('parses multi-line options on a task bullet list item', () => {
+			const { parser } = createListItemParser()
+			const contents = [
+				`*{ default value; key2=value2;`,
+				`    key3=value3 } [x]  list item`,
+				`       more content`,
+			]
+			const text = contents.join('\n')
+			
+			type Result = { i: number, parsed: MfMList | null}
+			const result = contents.reduce((prev: Result, current: string): Result => {
+				const previous = prev.parsed?.content[prev.parsed.content.length-1] ?? null
+				const parsed = parser.parseLine(previous, text, prev.i, current.length)
+				return { parsed, i: prev.i+current.length+1 }
+			}, { i: 0, parsed: null }).parsed
+
+			expect(result).not.toBeNull()
+			assume(result).toHaveProperty('type', 'list')
+			assume(result).toHaveProperty('listType', 'bullet')
+			assume(result?.lines).toHaveLength(3)
+			contents.forEach((c, i) => assume(result?.lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content).toHaveLength(1)
+			assume(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0]).toHaveProperty('indent', 7)
+			expect(result?.content[0].options.get('default')).toEqual('default value')
+			expect(result?.content[0].options.get('key2')).toEqual('value2')
+			expect(result?.content[0].options.get('key3')).toEqual('value3')
+
+			assume(result?.content[0]).toHaveProperty('itemType', 'task')
+			assume(result?.content[0]).toHaveProperty('taskState', 'x')
+			contents.forEach((c, i) => assume(result?.content[0].lines[i]).toHaveProperty('asText', c))
+
+			assume(result?.content[0].content).toHaveLength(1)
+			assume(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			assume(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+			assume(result?.content[0].content[0].lines[1]).toHaveProperty('asText', 'more content')
+		})
 	})
 	describe('parsing updates', () => {
 		//TODO test options thoroughly
-		
+
 		//TODO test task lists thoroughly, e.g.:
 		// * "- [ ] whatever" -> "- [x] whatever"
 		// * "- [x] whatever" -> "- [ ] whatever"

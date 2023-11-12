@@ -20,7 +20,6 @@ import { MfMIndentedCodeBlockParser } from "../../../src/mfm/block/MfMIndentedCo
 import { MfMListParser } from "../../../src/mfm/block/MfMList";
 import { MfMListItemParser } from "../../../src/mfm/block/MfMListItem";
 import { MfMParagraphParser } from "../../../src/mfm/block/MfMParagraph";
-import { MfMListTaskParser } from "../../../src/mfm/inline/MfMListTask";
 import { MfMTextParser } from "../../../src/mfm/inline/MfMText";
 import { MfMOptionsParser } from "../../../src/mfm/options/MfMOptions";
 import { EmptyElementParser } from "../../../src/parser/EmptyElementParser";
@@ -28,7 +27,7 @@ import { Parsers } from "../../../src/parser/Parsers";
 import { createOptionsParser } from "../options/createOptionsParser";
 import { createParagraphParser } from "./createParagraphParser";
 
-type RequiredParsers = MfMListItemParser | MfMListParser | MfMListTaskParser | MfMOptionsParser | MfMParagraphParser | MfMGeneralPurposeBlockParser | MfMIndentedCodeBlockParser | EmptyElementParser | MfMTextParser
+type RequiredParsers = MfMListItemParser | MfMListParser |  MfMOptionsParser | MfMParagraphParser | MfMGeneralPurposeBlockParser | MfMIndentedCodeBlockParser | EmptyElementParser | MfMTextParser
 
 class TestParsers implements Parsers<RequiredParsers> {
 	private knownParsers: { [key in (RequiredParsers)['elementName']]?: RequiredParsers } = {}
@@ -43,7 +42,6 @@ class TestParsers implements Parsers<RequiredParsers> {
 	get MfMIndentedCodeBlock() { return this.getParser('MfMIndentedCodeBlock', () => new MfMIndentedCodeBlockParser(this) )}
 	get EmptyElement() { return this.getParser('EmptyElement', () => new EmptyElementParser(this)) }
 	get MfMText() { return this.getParser('MfMText', () => new MfMTextParser(this)) }
-	get MfMListTask() { return this.getParser('MfMListTask', () => new MfMListTaskParser(this)) }
 
 	get allBlocks(): (MfMParagraphParser | MfMGeneralPurposeBlockParser | MfMIndentedCodeBlockParser | MfMListItemParser)[] {
 		return [ this.MfMIndentedCodeBlock, this.MfMGeneralPurposeBlock, this.MfMListItem, this.MfMParagraph, ]

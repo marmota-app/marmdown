@@ -40,11 +40,11 @@ export abstract class MfMBlockContentParser<
 			const block = previous ?? this.create()
 
 			const optionsResult = addOptionsToContainerBlock(
-				block, text, start+i, length-i, this.parsers, (line, parsedLength) => {
+				block, text, start+i, length-i, this.parsers, { onLineAdded: (line, parsedLength) => {
 					i += parsedLength
 					if(lineStart) { block.attach(line.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, block) }) }
 					lineStart = null
-				}
+				} }
 			)
 			if(optionsResult.lineFullyParsed) {
 				return block
