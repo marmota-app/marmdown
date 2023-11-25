@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { MfMBlockElements } from "../../MfMDialect"
-import { StringLineContent } from "../../element/Element"
+import { Element, LineContent, ParsedLine, StringLineContent } from "../../element/Element"
 import { ListItem } from "../../element/MarkdownElements"
 import { EmptyElementParser } from "../../parser/EmptyElementParser"
 import { Parser } from "../../parser/Parser"
@@ -52,7 +52,7 @@ export class MfMListItem extends MfMGenericContainerBlock<
 		if(prepended) {
 			const text = prepended.asText
 			const bracketIndex = text.indexOf('[')
-			if(bracketIndex >= 0) {
+			if(bracketIndex >= 0 && text.charAt(bracketIndex+1)!==']') {
 				return text.charAt(bracketIndex+1)
 			}
 		}
@@ -146,6 +146,8 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 				if(optionsResult.lineFullyParsed) {
 					return list
 				}
+			} else {
+				listItem.options.isFullyParsed = true
 			}
 
 			return this.parseContentAfterOptions(
@@ -174,11 +176,16 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 		i += spaces
 		listItem.indent = listItem.marker.length + spaces
 
-		// A task list item is a list item that also has [ ] or [x] after the bullet or number. There can
+		// A task list item is a list item that also has [ ], [] or [x] after the bullet or number. There can
 		// be any number of spaces before and after the task list marker. When you need options on a task
 		// list item, they must come after the task list marker.
+		let taskMarkerLength = 0
 		if(text.charAt(start+i) === '[' && text.charAt(start+i+2) === ']') {
-			const taskMarkerLength = 3
+			taskMarkerLength = 3
+		} else if(text.charAt(start+i) === '[' && text.charAt(start+i+1) === ']') {
+			taskMarkerLength = 2
+		}
+		if(taskMarkerLength > 0) {
 			i += taskMarkerLength
 			spaces = 0
 
@@ -192,10 +199,11 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 			
 			prepend = {
 				start: prepend?.start ?? (start+i-taskMarkerLength), //FIXME ugly, but works for now. "i-taskMarkerLength" is the start of the task indicator.
-				length: (prepend?.length ?? 0)+(3+spaces),
+				length: (prepend?.length ?? 0)+(taskMarkerLength+spaces),
 			}
 			i += spaces
 		}
+
 
 		for(const contentParser of this.allBlocks) {
 			const content = contentParser.parseLine(null, text, start+i, length-i) as MfMBlockElements
@@ -228,6 +236,14 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 		}
 
 		return { marker: '', listType: 'n.a.' }
+	}
+	
+	override parseLineUpdate(original: MfMListItem, text: string, start: number, length: number, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>): ParsedLine<unknown, unknown> | null {
+		const result = this.parseLine(null, text, start, length)
+		if(result && result.listType === original.list.listType) {
+			return result.content[0].lines[0]
+		}
+		return null
 	}
 
 	private get allBlocks() { return this.parsers.allBlocks ?? [] }

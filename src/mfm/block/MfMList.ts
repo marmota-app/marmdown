@@ -18,13 +18,23 @@ import { MfMBlockElements } from "../../MfMDialect"
 import { List } from "../../element/MarkdownElements"
 import { MfMGenericContainerBlock } from "../MfMGenericElement"
 import { MfMParser } from "../MfMParser"
+import { EMPTY_OPTIONS_PARSER, MfMOptions } from "../options/MfMOptions"
 import { MfMListItem } from "./MfMListItem"
 
 export class MfMList extends MfMGenericContainerBlock<
 	MfMList, MfMListItem, 'list', MfMListParser
 > implements List<MfMList, MfMListItem> {
+	#options = new MfMOptions('__empty__', EMPTY_OPTIONS_PARSER, true)
+
 	protected self: MfMList = this
-	constructor(public readonly listType: 'bullet' | 'ordered', id: string, pw: MfMListParser) { super(id, 'list', pw) }
+	constructor(public readonly listType: 'bullet' | 'ordered', id: string, pw: MfMListParser) { super(id, 'list', pw, false) }
+	public override get options(): MfMOptions {
+		//The options of the list are the options of the first list item!
+		if(this.content.length > 0) {
+			return this.content[0].options
+		}
+		return this.#options
+	}
 }
 
 export class MfMListParser extends MfMParser<MfMList> {

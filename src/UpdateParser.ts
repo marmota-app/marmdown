@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Element, LineContent, ParsedLine } from "./element/Element";
-import { MfMGenericContainerBlock } from "./mfm/MfMGenericElement";
+import { DynamicLine, MfMGenericContainerBlock } from "./mfm/MfMGenericElement";
 import { ContentUpdate } from "./ContentUpdate";
 import { IdGenerator } from "./IdGenerator";
 
@@ -87,39 +87,52 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 				if(this.updateCouldChangeElementType(content, update)) {
 					throw new Error('update-would-change-document-structure')
 				}
-				for(var i=0; i<content.content.length; i++) {
-					const innerContent = content.content[i]
-					const result = this.parseContent(innerContent, update)
-					if(result.line) {
-						if(content.lineType === 'direct') {
-							content.content[i] = result.line
-						}
 
-						if((content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach) {
-							(content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach(
-								(result.line as ParsedLine<unknown, unknown>).originalId,
-								(result.line as ParsedLine<unknown, unknown>).id,
-							)
-						}
+				const childResult = this.tryParseChildrenResult(content, update)
+				if(childResult.line) { return childResult }
 
-						let start = result.line.start+result.line.length
-						for(var j=i+1; j<content.content.length; j++) {
-							this.updateStart(content.content[j], start)
-							start += content.content[j].length
-						}
-
-						if(result.directUpdate) {
-							content.belongsTo.childrenChanged?.()
-						}
-						return { line: content, directUpdate: false }
-					}
-				}
 				return this.parseInnerContent(content, update)
+			//} else if(content instanceof DynamicLine) {
+			//	//FIXME does not work yet
+			//	return this.tryParseChildrenResult(content, update)
 			} else {
 				return { line: null }
 			}
 		}
 
+		return { line: null }
+	}
+
+	tryParseChildrenResult(
+		content: ParsedLine<any, any> | DynamicLine<any>, update: ContentUpdate
+	): UpdateResult {
+		for(var i=0; i<content.content.length; i++) {
+			const innerContent = content.content[i]
+			const result = this.parseContent(innerContent, update)
+			if(result.line) {
+				if(content.lineType === 'direct') {
+					content.content[i] = result.line
+				}
+
+				if((content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach) {
+					(content.belongsTo as MfMGenericContainerBlock<any, any, any, any>).reattach(
+						(result.line as ParsedLine<unknown, unknown>).originalId,
+						(result.line as ParsedLine<unknown, unknown>).id,
+					)
+				}
+
+				let start = result.line.start+result.line.length
+				for(var j=i+1; j<content.content.length; j++) {
+					this.updateStart(content.content[j], start)
+					start += content.content[j].length
+				}
+
+				if(result.directUpdate) {
+					content.belongsTo.childrenChanged?.()
+				}
+				return { line: content, directUpdate: false }
+			}
+		}
 		return { line: null }
 	}
 
@@ -169,7 +182,9 @@ export class UpdateParser<ELEMENT extends Element<unknown, unknown, unknown, unk
 
 			let lineFound = false
 			for(let i=0; i<content.belongsTo.lines.length; i++) {
-				if(content.belongsTo.lines[i] === content) {
+				const isSameLine = content.belongsTo.lines[i] === content
+
+				if(isSameLine) {
 					this.updateContentOwner(updated as ParsedLine<LineContent<unknown>, unknown>, content.belongsTo)
 					content.belongsTo.lines[i] = updated
 					content.belongsTo.id = this.idGenerator.nextId()

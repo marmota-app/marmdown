@@ -651,7 +651,7 @@ describe('MfMContainer parser', () => {
 				text: ', smart',
 				rangeOffset: lines[0].length+lines[1].length+2+'The quick'.length,
 				rangeLength: 0,
-			})
+			}) as MfMContainer
 
 			expect(updated).toBeNull()
 		})

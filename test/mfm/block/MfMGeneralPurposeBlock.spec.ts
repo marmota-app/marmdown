@@ -427,6 +427,5 @@ describe('MfMGeneralPurposeBlock parser', () => {
 			expect(result.lines[1].asText).toEqual(secondLine)
 			expect(result.lines[2].asText).toEqual(thirdLine)
 		})
-
 	})
 })

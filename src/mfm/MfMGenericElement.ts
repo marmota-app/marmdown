@@ -104,6 +104,7 @@ export abstract class MfMGenericContainerBlock<
 
 	constructor(
 		id: string, readonly type: TYPE, readonly parsedWith: PARSER,
+		private addOptionsToLines = true,
 	) { super(id, type, parsedWith) }
 
 	public override get content(): CONTENT[] {
@@ -123,43 +124,45 @@ export abstract class MfMGenericContainerBlock<
 	
 	override get lines() {
 		const dynamicLines: ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, THIS>[] = []
-
-		this.options.lines.forEach((l, i) => {
-			if(i < this.options.lines.length-1) {
-				const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
-				dynamicLines.push(new DynamicLine<THIS>(
-					line.id, [ line ],
-					this.self, this.#attachments[l.id]?.['prepend'], this.#attachments[l.id]?.['append']))
-			}
-		})
-
 		let contentStart = 0
-		if(this.options.lines.length > 0) {
-			const lastOptionsLine = this.options.lines[this.options.lines.length-1]
-			//FIXME get rid of the casts!
-			//FIXME is there always some content? Probably some --empty-- after the options? What if not?
-			const middleLineContent: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
 
-			middleLineContent.push(lastOptionsLine)
-			const toAppend = this.#attachments[lastOptionsLine.id]?.['append']
-			if(toAppend) { middleLineContent.push(toAppend) }
-
-			if(!this.#attachments[lastOptionsLine.id]?.['lineFullyParsed']) {
-				const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
-				const toPrepend = this.#attachments[firstContentLine.id]?.['prepend']
-				if(toPrepend) { middleLineContent.push(toPrepend) }
-				middleLineContent.push(firstContentLine)
-				//TODO "append" of first content line still missing, but should that be added
-				//     below, when the DynamicLine "middleLine" is constructed?
-				contentStart = 1
+		if(this.addOptionsToLines) {
+			this.options.lines.forEach((l, i) => {
+				if(i < this.options.lines.length-1) {
+					const line = l as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+					dynamicLines.push(new DynamicLine<THIS>(
+						line.id, [ line ],
+						this.self, this.#attachments[l.id]?.['prepend'], this.#attachments[l.id]?.['append']))
+				}
+			})
+	
+			if(this.options.lines.length > 0) {
+				const lastOptionsLine = this.options.lines[this.options.lines.length-1]
+				//FIXME get rid of the casts!
+				//FIXME is there always some content? Probably some --empty-- after the options? What if not?
+				const middleLineContent: LineContent<Element<unknown, unknown, unknown, unknown>>[] = []
+	
+				middleLineContent.push(lastOptionsLine)
+				const toAppend = this.#attachments[lastOptionsLine.id]?.['append']
+				if(toAppend) { middleLineContent.push(toAppend) }
+	
+				if(!this.#attachments[lastOptionsLine.id]?.['lineFullyParsed']) {
+					const firstContentLine = (this.content[0] as Element<unknown, unknown, unknown, unknown>).lines[0] as ParsedLine<LineContent<Element<unknown, unknown, unknown, unknown>>, Element<unknown, unknown, unknown, unknown>>
+					const toPrepend = this.#attachments[firstContentLine.id]?.['prepend']
+					if(toPrepend) { middleLineContent.push(toPrepend) }
+					middleLineContent.push(firstContentLine)
+					//TODO "append" of first content line still missing, but should that be added
+					//     below, when the DynamicLine "middleLine" is constructed?
+					contentStart = 1
+				}
+	
+				const middleLine = new DynamicLine<THIS>(
+					lastOptionsLine.id,
+					middleLineContent,
+					this.self, this.#attachments[lastOptionsLine?.id ?? '']?.['prepend'], null
+				)
+				dynamicLines.push(middleLine)
 			}
-
-			const middleLine = new DynamicLine<THIS>(
-				lastOptionsLine.id,
-				middleLineContent,
-				this.self, this.#attachments[lastOptionsLine?.id ?? '']?.['prepend'], null
-			)
-			dynamicLines.push(middleLine)
 		}
 
 		this.#content.forEach((c, ci) => {
