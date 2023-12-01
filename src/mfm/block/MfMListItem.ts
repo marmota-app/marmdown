@@ -20,6 +20,7 @@ import { ListItem } from "../../element/MarkdownElements"
 import { EmptyElementParser } from "../../parser/EmptyElementParser"
 import { Parser } from "../../parser/Parser"
 import { isEmpty } from "../../parser/find"
+import { isWhitespace } from "../../parser/isWhitespace"
 import { MfMGenericContainerBlock, addOptionsToContainerBlock } from "../MfMGenericElement"
 import { MfMParser } from "../MfMParser"
 import { MfMHardLineBreakParser } from "../inline/MfMHardLineBreak"
@@ -81,14 +82,24 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 
 				return this.parseContentAfterOptions(text, start, i, length, null, previous, previous.list)
 			} else {
-				let spaces = 0
 				if(isEmpty(text, start, length)) {
+					if(previous.content.length === 1 && previous.content[0].type === '--empty--') {
+						//A list item can start with **at most** one blank line (GfM Spec!)
+						return null
+					}
+
+					const previousContent = previous.content[previous.content.length-1]
+					const previousParser = previousContent.parsedWith as Parser<typeof previousContent>
+					const continued = previousContent.isFullyParsed? null : previousParser.parseLine(previousContent, text, start, length)
+					if(continued) { return previous.list }
+
 					const emptyElement = this.parsers.EmptyElement.parseLine(null, text, start, length)
 					if(emptyElement) {
 						previous.addContent(emptyElement)
 						return previous.list
 					}
 				}
+				let spaces = 0
 				while(text.charAt(start + spaces) === ' ') {
 					spaces++
 				}
@@ -99,7 +110,7 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 	
 					const previousContent = previous.content[previous.content.length-1]
 					const previousParser = previousContent.parsedWith as Parser<typeof previousContent>
-					const continued = previousParser.parseLine(previousContent, text, start+i, length-i)
+					const continued = previousContent.isFullyParsed? null : previousParser.parseLine(previousContent, text, start+i, length-i)
 					if(continued) {
 						if(lineStart) { previous.attach(previous.lastLine.id, { prepend: new StringLineContent(lineStart, start, lineStart.length, previous) }) }
 						return previous.list
@@ -118,16 +129,30 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 			}
 		}
 
-		const { marker, listType } = this.findListType(text, start, length)
+		return this.parseNewItem(text, start, length)
+	}
+
+	public parseNewItem(text: string, start: number, length: number, previousList?: MfMList) {
+		const { marker, listType, spaces } = this.findListType(text, start, length)
 
 		if(listType === 'ordered' || listType === 'bullet') {
-			const list = this.parsers.MfMList.create(listType)
+			if(previousList) {
+				if(previousList.listType !== listType) { return null }
+				if(listType === 'ordered') {
+					const previousMarkerType = previousList.content[0].marker.substring(previousList.content[0].marker.length-1)
+					const markerType = marker.substring(marker.length-1)
+					if(previousMarkerType !== markerType) { return null }
+				} else if(listType === 'bullet') {
+					if(previousList.content[0]?.marker !== marker) { return null}
+				}
+			}
+			const list = previousList ?? this.parsers.MfMList.create(listType)
 
 			const listItem = new MfMListItem(this.parsers.idGenerator.nextId(), this, list, marker)
 			list.addContent(listItem)
 
-			let i = marker.length
-			let prepend: { start: number, length: number} | null = { start: start, length: marker.length }
+			let i = marker.length + spaces.length
+			let prepend: { start: number, length: number} | null = { start: start, length: spaces.length + marker.length }
 			let optionsResult: { lineFullyParsed: boolean, parsedLength: number } | undefined
 			if(text.charAt(start+i) === '{') {
 				optionsResult = addOptionsToContainerBlock(
@@ -151,7 +176,7 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 			}
 
 			return this.parseContentAfterOptions(
-				text, start, i, length, prepend, listItem, list
+				text, start, i, length, prepend, listItem, list, spaces.length
 			)
 		}
 
@@ -161,20 +186,25 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 	private parseContentAfterOptions(
 		text: string, start: number, i: number, length: number,
 		prepend: { start: number, length: number} | null,
-		listItem: MfMListItem, list: MfMList,
+		listItem: MfMListItem, list: MfMList, spacesBefore = 0
 	) {
 		let spaces = 0
 		while(text.charAt(start + i + spaces) === ' ') { //TODO isWhitespace?
 			spaces++
 		}
 		if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
-		if(spaces < 1) { return null }
+		if(spaces < 1 && !isEmpty(text, start+i, length-i)) { return null }
 		prepend = {
 			start: prepend?.start ?? (start+i),
 			length: (prepend?.length ?? 0) + spaces,
 		}
 		i += spaces
-		listItem.indent = listItem.marker.length + spaces
+		if(isEmpty(text, start+i, length-i)) {
+			//If the list item is empty, the spaces after the list item do not count as indent (GfM Spec!)
+			listItem.indent = listItem.marker.length + 1 + spacesBefore
+		} else {
+			listItem.indent = listItem.marker.length + spaces + spacesBefore
+		}
 
 		// A task list item is a list item that also has [ ], [] or [x] after the bullet or number. There can
 		// be any number of spaces before and after the task list marker. When you need options on a task
@@ -195,8 +225,6 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 			if(spaces > 4) { spaces = 1 /* When there are more then four spaces, treat everything after the first space as content */ }
 			if(spaces < 1) { return null }
 
-			listItem.indent = listItem.indent + taskMarkerLength + spaces
-			
 			prepend = {
 				start: prepend?.start ?? (start+i-taskMarkerLength), //FIXME ugly, but works for now. "i-taskMarkerLength" is the start of the task indicator.
 				length: (prepend?.length ?? 0)+(taskMarkerLength+spaces),
@@ -219,23 +247,30 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 
 		return list
 	}
-	private findListType(text: string, start: number, length: number): { marker: string, listType: 'ordered' | 'bullet' | 'n.a.' } {
-		const currentChar = text.charAt(start)
+	private findListType(text: string, start: number, length: number): { marker: string, listType: 'ordered' | 'bullet' | 'n.a.', spaces: string } {
+		let spaces = 0
+		while(isWhitespace(text.charAt(start+spaces))) {
+			spaces++
+		}
+		if(spaces > 3) { spaces = 0 }
+		const spacesString = spaces > 0? text.substring(start, start+spaces) : ''
+
+		const currentChar = text.charAt(start+spaces)
 		switch(currentChar) {
-			case '*': case '-': case '+': return { marker: currentChar, listType: 'bullet' }
+			case '*': case '-': case '+': return { marker: currentChar, listType: 'bullet', spaces: spacesString }
 		}
 
-		let i=0
-		while(text.charAt(start+i) >= '0' && text.charAt(start+i) <= '9') {
-			i++
+		let digits=0
+		while(text.charAt(start+spaces+digits) >= '0' && text.charAt(start+spaces+digits) <= '9') {
+			digits++
 		}
-		if(i > 0) {
-			switch(text.charAt(start+i)) {
-				case '.': case ')': return { marker: text.substring(start, start+i+1 /* include . or ) */), listType: 'ordered' }
+		if(digits > 0) {
+			switch(text.charAt(start+spaces+digits)) {
+				case '.': case ')': return { marker: text.substring(start+spaces, start+spaces+digits+1 /* include . or ) */), listType: 'ordered', spaces: spacesString }
 			}
 		}
 
-		return { marker: '', listType: 'n.a.' }
+		return { marker: '', listType: 'n.a.', spaces: '' }
 	}
 	
 	override parseLineUpdate(original: MfMListItem, text: string, start: number, length: number, originalLine: LineContent<Element<unknown, unknown, unknown, unknown>>): ParsedLine<unknown, unknown> | null {
@@ -247,4 +282,16 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 	}
 
 	private get allBlocks() { return this.parsers.allBlocks ?? [] }
+
+	override shouldInterrupt(element: Element<unknown, unknown, unknown, unknown>, text: string, start: number, length: number): boolean {
+		const parsed = this.parseLine(null, text, start, length)
+		if(element.type === 'paragraph' && parsed != null) {
+			if(parsed.listType === 'ordered' && parsed.orderStart !== 1) { return false }
+			
+			const content = parsed.content[0]?.content[0]
+			return content != null && content.type !== '--empty--'
+		}
+
+		return parsed != null
+	}
 }

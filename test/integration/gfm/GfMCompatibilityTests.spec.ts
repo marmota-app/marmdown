@@ -25,11 +25,16 @@ interface ImplementedExample {
 	name: string,
 	reason: string,
 }
+interface RequiredTransformation {
+	name: string,
+	transforms: [string | RegExp, string][],
+}
 interface ImplementedSection {
 	chapter: string,
 	name: string,
 	notYetImplemented: ImplementedExample[],
 	incompatible: ImplementedExample[],
+	transform?: RequiredTransformation[],
 }
 
 const __escaping_special__ = 'Escaping special characters is not yet implemented'
@@ -37,13 +42,7 @@ const __leading__ = 'Leading spaces are not yet removed correctly'
 
 const __links_in_headings__ = 'Links in headings are not yet implemented'
 
-const __fenced__ = 'Fenced code blocks are not yet implemented'
-const __indented_code_blocks__ = 'Indented code blocks are not yet implemented'
-const __inline_code__ = 'Inline code elements are not yet implemented'
-
-const __hard_break__ = 'Hard line breaks (<br/>) are not yet implemented'
 const __paragraph_indentation__ = 'Indentation after the first line of a paragraph is not yet removed correctly'
-const __lists__ = 'Lists are not yet implemented'
 
 const __autolinks__ = 'Autolinks <in angle brackets> are not yet implemented'
 const __entity_references__ = 'Entity references are not yet fully supported'
@@ -73,17 +72,16 @@ const implementedSections: ImplementedSection[] = [
 	{ 
 		chapter: '2.2', name: 'Tabs',
 		notYetImplemented: [
-			{ name: 'Example 1', reason: __indented_code_blocks__ },
-			{ name: 'Example 2', reason: __indented_code_blocks__ },
-			{ name: 'Example 3', reason: __indented_code_blocks__ },
-			{ name: 'Example 9', reason: __lists__ },
-			{ name: 'Example 8', reason: __indented_code_blocks__ },
 		],
 		incompatible: [
+			{ name: 'Example 1', reason: __tabs_expansion_after_character__ },
+			{ name: 'Example 2', reason: __tabs_expansion_after_character__ },
 			{ name: 'Example 4', reason: __laziness__ },
 			{ name: 'Example 5', reason: __laziness__ },
 			{ name: 'Example 6', reason: __tabs_expansion_after_character__ },
 			{ name: 'Example 7', reason: __tabs_expansion_after_character__ },
+			{ name: 'Example 8', reason: __tabs_expansion_after_character__ },
+			{ name: 'Example 9', reason: __tabs_expansion_after_character__ },
 		]
 	},
 	{ chapter: '2.3', name: 'Insecure Characters - Incompatible!', notYetImplemented: [], incompatible: []},
@@ -91,16 +89,17 @@ const implementedSections: ImplementedSection[] = [
 	{
 		chapter: '4.1', name: 'Thematic breaks',
 		notYetImplemented: [
-			{ name: 'Example 18', reason: __indented_code_blocks__ },
 			{ name: 'Example 19', reason: __paragraph_indentation__ },
 			{ name: 'Example 26', reason: __paragraph_indentation__ },
-			{ name: 'Example 27', reason: __lists__ },
-			{ name: 'Example 30', reason: __lists__ },
-			{ name: 'Example 31', reason: __lists__ },
 		],
 		incompatible: [
 			{ name: 'Example 29', reason: __setext_headings__ },
+			{ name: 'Example 30', reason: 'Thematic breaks do not take precedence over list items in MfM, since there are many easy workarounds!' },
 		],
+		transform: [
+			{ name: 'Example 27', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 31', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+		]
 	},
 	{ 
 		chapter: '4.2', name: 'ATX headings',
@@ -109,8 +108,7 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 36', reason: __escaping_special__ },
 			{ name: 'Example 37', reason: 'Leading & trailing whitespace for headings is not yet removed' },
 			{ name: 'Example 38', reason: 'Indentation for headings is not yet supported' },
-			{ name: 'Example 39', reason: __fenced__ },
-			{ name: 'Example 40', reason: __leading__ },
+			{ name: 'Example 40', reason: __paragraph_indentation__ },
 			{ name: 'Example 41', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 42', reason: 'Optional closing sequences are not yet supported' },
 			{ name: 'Example 43', reason: 'Optional closing sequences are not yet supported' },
@@ -150,17 +148,18 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 74', reason: __setext_headings__ },
 			{ name: 'Example 75', reason: __setext_headings__ },
 			{ name: 'Example 76', reason: __setext_headings__ },
-		]
+		],
 	},
 	{
 		chapter: '4.4', name: 'Indented code blocks',
 		notYetImplemented: [
-			{ name: 'Example 78', reason: __lists__ },
-			{ name: 'Example 79', reason: __lists__ },
 			{ name: 'Example 83', reason: __paragraph_indentation__ },
 		],
 		incompatible: [
 			{ name: 'Example 85', reason: __setext_headings__ },
+		],
+		transform: [
+			{ name: 'Example 79', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
 		]
 	},
 	{
@@ -241,21 +240,18 @@ const implementedSections: ImplementedSection[] = [
 	{ 
 		chapter: '4.8', name: 'Paragraphs',
 		notYetImplemented: [
-			{ name: 'Example 192', reason: __leading__ },
+			{ name: 'Example 192', reason: __paragraph_indentation__ },
 			{ name: 'Example 193', reason: __paragraph_indentation__ },
-			{ name: 'Example 194', reason: __leading__ },
-			{ name: 'Example 195', reason: __fenced__ },
-			{ name: 'Example 196', reason: __hard_break__ },
 		],
-		incompatible: [],
+		incompatible: [
+			{ name: 'Example 196', reason: __line_break_end_of_block__ },
+		],
 	},
 	{ chapter: '4.9', name: 'Blank lines', notYetImplemented: [], incompatible: [] },
 	{ 
 		chapter: '5.1', name: 'Block quotes',
 		notYetImplemented: [
 			{ name: 'Example 208', reason: __leading__ },
-			{ name: 'Example 209', reason: __fenced__ },
-			{ name: 'Example 230', reason: __indented_code_blocks__ },
 		],
 		incompatible: [
 			{ name: 'Example 210', reason: __laziness__ },
@@ -268,6 +264,81 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 225', reason: __laziness__ },
 			{ name: 'Example 228', reason: __laziness__ },
 			{ name: 'Example 229', reason: __laziness__ },
+		]
+	},
+	{
+		chapter: '5.2', name: 'List items',
+		notYetImplemented: [
+			{ name: 'Example 237', reason: __leading__ },
+			{ name: 'Example 238', reason: __leading__ },
+		],
+		incompatible: [
+			{ name: 'Example 242', reason: "Empty lines in indented code blocks do not work like that in MfM" },
+			{ name: 'Example 244', reason: "GfM does not allow large numbers as start of ordered lists; MfM really does not care." },
+			{ name: 'Example 268', reason: __laziness__ },
+			{ name: 'Example 269', reason: __laziness__ },
+			{ name: 'Example 270', reason: __laziness__ },
+			{ name: 'Example 271', reason: __laziness__ },
+			{ name: 'Example 273', reason: 'Indentation is set by the first item of the list **only**; Implementing this test case, where every list item can change the requireed indentation of the following list item, would make behavior of lists extremely weired in some cases!' },
+			{ name: 'Example 278', reason: __setext_headings__ },
+		],
+		transform: [
+			{ name: 'Example 233', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 235', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 243', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 245', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 246', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 254', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 256', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 257', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 258', transforms: [ ['<li>', '<li>\n'], ] },
+			{ name: 'Example 259', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ['<li></li>', '<li>\n</li>'], ] },
+			{ name: 'Example 260', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ['<li></li>', '<li>\n</li>'], ] },
+			{ name: 'Example 261', transforms: [ ['<li></li>', '<li>\n</li>'], [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 262', transforms: [ ['<li>', '<li>\n'], ] },
+			{ name: 'Example 272', transforms: [ [/<li>([^<\r\n]*)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 274', transforms: [ ['foo', '\n<p>foo</p>\n'], ['bar', '\n<p>bar</p>\n'],] },
+			{ name: 'Example 275', transforms: [ [/<li>([^<]*)<\/li>/g, '<li>\n<p>$1</p>\n</li>'], ] },
+			{ name: 'Example 276', transforms: [ ['<li>foo</li>', '<li>\n<p>foo</p>\n</li>'], ] },
+			{ name: 'Example 277', transforms: [ ['<li>foo</li>', '<li>\n<p>foo</p>\n</li>'], ] },
+		]
+	},
+	{
+		chapter: '5.3', name: 'Task list items (extension)',
+		notYetImplemented: [
+		],
+		incompatible: [
+		],
+		transform: [
+			{ name: 'Example 279', transforms: [ [/checkbox"> ([^\r\n<]+)/g, 'checkbox">\n<p>$1</p>\n'], ]},
+			{ name: 'Example 280', transforms: [ [/checkbox"> ([^\r\n<]+)/g, 'checkbox">\n<p>$1</p>\n'], ]},
+		]
+	},
+	{
+		chapter: '5.4', name: 'Lists',
+		notYetImplemented: [
+		],
+		incompatible: [
+			{ name: 'Example 288', reason: __html_content__ },
+			{ name: 'Example 289', reason: __html_content__ },
+			{ name: 'Example 292', reason: __laziness__ },
+			{ name: 'Example 295', reason: 'Lists can end at a blank line in MfM' },
+		],
+		transform: [
+			{ name: 'Example 281', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 282', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 283', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 285', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 287', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 290', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 298', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 299', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 300', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 301', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 302', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 303', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 305', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
+			{ name: 'Example 306', transforms: [ [/<li>([^<\r\n]+)/g, '<li>\n<p>$1</p>\n'], ] },
 		]
 	},
 	{
@@ -290,8 +361,6 @@ const implementedSections: ImplementedSection[] = [
 			{ name: 'Example 449', reason: __escaping_special__ },
 			{ name: 'Example 458', reason: __escaping_special__ },
 			{ name: 'Example 461', reason: __escaping_special__ },
-			{ name: 'Example 487', reason: __inline_code__ },
-			{ name: 'Example 488', reason: __inline_code__ }
 		],
 		incompatible: [
 			{ name: 'Example 403', reason: __multiline_inline__ },
@@ -430,14 +499,14 @@ const implementedSections: ImplementedSection[] = [
 	{
 		chapter: '6.12', name: 'Hard line breaks',
 		notYetImplemented: [
-			{ name: 'Example 661', reason: __leading__ },
-			{ name: 'Example 662', reason: __leading__ },
-			{ name: 'Example 665', reason: __inline_code__ },
-			{ name: 'Example 666', reason: __inline_code__ },
+			{ name: 'Example 661', reason: __paragraph_indentation__ },
+			{ name: 'Example 662', reason: __paragraph_indentation__ },
 		],
 		incompatible: [
 			{ name: 'Example 663', reason: __multiline_inline__ },
 			{ name: 'Example 664', reason: __multiline_inline__ },
+			{ name: 'Example 665', reason: __multiline_inline__ },
+			{ name: 'Example 666', reason: __multiline_inline__ },
 			{ name: 'Example 667', reason: __html_content__ },
 			{ name: 'Example 668', reason: __html_content__ },
 			{ name: 'Example 669', reason: __line_break_end_of_block__ },
@@ -449,7 +518,7 @@ const implementedSections: ImplementedSection[] = [
 		chapter: '6.13', name: 'Soft line breaks',
 		notYetImplemented: [],
 		incompatible: [
-			{ name: 'Example 674', reason: __spaces__ + '/' + __leading__ },
+			{ name: 'Example 674', reason: __spaces__ + '/' + __paragraph_indentation__ },
 		]
 	},
 	{
@@ -518,7 +587,12 @@ describe('Github-flavored-Markdown (GfM) compatibility', () => {
 		} else {
 			it(name, () => {
 				marmdown.textContent = md
-				expect(withoutEmptyLines(html(marmdown))).toEqual(withoutEmptyLines(expected))
+
+				let expectedResult = expected
+				const currentTransform = sectionInfo?.transform?.filter(t => t.name === name)?.[0]
+				currentTransform?.transforms.forEach(t => expectedResult = expectedResult.replaceAll(t[0], t[1]))
+
+				expect(withoutEmptyLines(withoutEmptyLines(html(marmdown)))).toEqual(withoutEmptyLines(expectedResult))
 			})
 		}
 	}

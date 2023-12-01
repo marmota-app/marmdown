@@ -40,6 +40,8 @@ import { TextSpanParser } from "../element/TextSpan";
 import { MfMLinkParser } from "./inline/link/MfMLink";
 import { MfMLinkReference, MfMLinkReferenceParser } from "./block/MfMLinkReference";
 import { MfMDialectOptions } from "../MfMDialect";
+import { MfMListItemParser } from "./block/MfMListItem";
+import { MfMListParser } from "./block/MfMList";
 
 export type MfMMetaBlock =
 	MfMContainerParser |
@@ -47,7 +49,9 @@ export type MfMMetaBlock =
 
 export type MfMContainerBlock =
 	MfMGeneralPurposeBlockParser |
-	MfMAsideParser
+	MfMAsideParser |
+	MfMListItemParser |
+	MfMListParser
 
 export type MfMLeafBlock =
 	MfMHeadingParser |
@@ -111,6 +115,8 @@ export class MfMParsers implements Parsers<KnownParsers> {
 
 	get MfMGeneralPurposeBlock() { return this.getParser('MfMGeneralPurposeBlock', () => new MfMGeneralPurposeBlockParser(this)) }
 	get MfMAside() { return this.getParser('MfMAside', () => new MfMAsideParser(this)) }
+	get MfMListItem() { return this.getParser('MfMListItem', () => new MfMListItemParser(this) )}
+	get MfMList() { return this.getParser('MfMList', () => new MfMListParser(this)) }
 	
 	get MfMFirstOption() { return this.getParser('MfMFirstOption', () => new MfMFirstOptionParser(this)) }
 	get MfMOption() { return this.getParser('MfMOption', () => new MfMOptionParser(this)) }
@@ -131,27 +137,34 @@ export class MfMParsers implements Parsers<KnownParsers> {
 	
 	get TextSpan() { return this.getParser('TextSpan', () => new TextSpanParser(this)) }
 	
-	get allBlocks(): KnownParsers[] { return [ ...this.allContainerBlocks, ...this.allLeafBlocks, ] }
-	get allContainerBlocks(): KnownParsers[] { return [
-		//EmptyElement has priority over all other blocks: When a line is
-		//empty, it is never part of another element.
-		this.EmptyElement,
-		this.MfMGeneralPurposeBlock,
-		this.MfMAside,
-		//IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
-		//           not be part of this list, because they are created on-the-fly
-		//           when needed by other parsers. Parsing them explicitly would
-		//           create infiniterecursion or unnecessarily nested blocks.
-	] }
-	get allLeafBlocks(): KnownParsers[] { return [
-		//IMPORTANT: Options are not part of leaf blocks!
-		this.MfMIndentedCodeBlock,
-		this.MfMFencedCodeBlock,
-		this.MfMHeading,
-		this.MfMLinkReference,
-		this.MfMParagraph,
-		this.MfMThematicBreak,
-	] }
+	/**
+	 * All known block parsers, sorted by parsing precedence.
+	 * 
+	 * IMPORTANT: Meta blocks like this.MfMContainer or this.MfMSection must
+	 *            not be part of this list, because they are created on-the-fly
+	 *            when needed by other parsers. Parsing them explicitly would
+	 *            create infiniterecursion or unnecessarily nested blocks.
+	 * 
+	 * IMPORTANT: Options are not part of leaf blocks!
+	 */
+	get allBlocks(): KnownParsers[] {
+		return [
+			//EmptyElement has priority over all other blocks: When a line is
+			//empty, it is never part of another element.
+			this.EmptyElement,
+			this.MfMGeneralPurposeBlock,
+			this.MfMAside,
+			
+			this.MfMFencedCodeBlock,
+			this.MfMHeading,
+			this.MfMLinkReference,
+			this.MfMThematicBreak,
+
+			this.MfMListItem,
+			this.MfMIndentedCodeBlock,
+			this.MfMParagraph,
+		]
+	}
 
 	get allInlines(): KnownParsers[] { return [ ...this.allInnerInlines, ...this.allOtherInlines, ] }
 	get allInnerInlines(): KnownParsers[] { return [

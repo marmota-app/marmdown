@@ -81,6 +81,21 @@ describe('MfMParagraph parser', () => {
 			expect(first).toHaveProperty('isFullyParsed', true)
 		})
 	})
+	describe('indentation', () => {
+		[' ', '  ', '   '].forEach(spaces => it(`removes ${spaces.length} leading spaces from the first line of a paragraph`, () => {
+			const { paragraphParser } = createParagraphParser()
+
+			const text = `${spaces}hello world`
+			const result = paragraphParser.parseLine(null, text, 0, text.length)
+
+			expect(result).not.toBeNull()
+			expect(result?.lines[0]).toHaveProperty('asText', text)
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', '--content-line--')
+			expect(result?.content[0].content[0]).toHaveProperty('type', 'text')
+			expect(result?.content[0].content[0]).toHaveProperty('text', 'hello world')
+		}))
+	})
 	describe('the content of paragraphs', () => {
 		it('parses text with bold content', () => {
 			const { paragraphParser } = createParagraphParser()

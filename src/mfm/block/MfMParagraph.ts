@@ -23,6 +23,7 @@ import { isEmpty } from "../../parser/find"
 import { Parser } from "../../parser/Parser"
 import { Parsers } from "../../parser/Parsers"
 import { ContentUpdate } from "src/ContentUpdate"
+import { isWhitespace } from "../../parser/isWhitespace"
 
 export type MfMParagraphContent = MfMContentLine
 export class MfMParagraph extends MfMGenericBlock<MfMParagraph, MfMParagraphContent, 'paragraph', MfMParagraphParser> implements Paragraph<MfMParagraph, MfMParagraphContent> {
@@ -47,9 +48,21 @@ export class MfMParagraphParser extends Parser<MfMParagraph, MfMParagraph, MfMCo
 
 		if(i < length) {
 			const nextChar = text.charAt(start+i)
-			if(i > 0 && (nextChar===' ' || nextChar==='\t')) {
+			if(i > 0 && (nextChar===' ' || nextChar==='\t')) { //TODO isWhitespace!
 				paragraph.lines[paragraph.lines.length-1].content.push(new StringLineContent(nextChar, start+i, 1, paragraph))
 				i++
+			} else if(i === 0 && previous == null) {
+				//On the first line (previous === null), remove up to three
+				//whitespace characters, but only if there are no options
+				//(i === 0)
+				let spaces = 0
+				while(isWhitespace(text.charAt(start+i+spaces))) {
+					spaces++
+				}
+				if(spaces > 0 && spaces <= 3) {
+					paragraph.lines[paragraph.lines.length-1].content.push(new StringLineContent(text.substring(start+i, start+i+spaces), start+i, spaces, paragraph))
+					i+= spaces
+				}
 			}
 
 			const textContent = this.parsers.MfMContentLine.parseLine(null, text, start+i, length-i)

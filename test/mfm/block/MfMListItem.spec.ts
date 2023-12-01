@@ -95,7 +95,28 @@ describe('MfMListItem', () => {
 			expect(result?.content[0].content).toHaveLength(1)
 			expect(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
 			expect(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
+		}));
+		[ ' ', '  ', '   ' ].forEach(spaces => it(`parses list item with ${spaces.length} spaces before the marker`, () => {
+			const { parser } = createListItemParser()
+			const text = `${spaces}* list item`
+			
+			const result = parser.parseLine(null, text, 0, text.length)
+
+			expect(result).not.toBeNull()
+			expect(result).toHaveProperty('type', 'list')
+			expect(result).toHaveProperty('listType', 'bullet')
+			expect(result?.lines[0]).toHaveProperty('asText', `${spaces}* list item`)
+
+			expect(result?.content).toHaveLength(1)
+			expect(result?.content[0]).toHaveProperty('type', 'list-item')
+			expect(result?.content[0]).toHaveProperty('indent', spaces.length+2)
+			expect(result?.content[0].lines[0]).toHaveProperty('asText', `${spaces}* list item`)
+
+			expect(result?.content[0].content).toHaveLength(1)
+			expect(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
+			expect(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
 		}))
+
 		it('parses list item with 5 spaces as list item with indented code block', () => {
 			const { parser } = createListItemParser()
 			const text = `*     list item`
@@ -260,7 +281,7 @@ describe('MfMListItem', () => {
 				const { parser } = createListItemParser()
 				const contents = [
 					`* [i] list item`,
-					`      more content`,
+					`  more content`,
 				]
 				const text = contents.join('\n')
 				
@@ -274,7 +295,7 @@ describe('MfMListItem', () => {
 				expect(result).toHaveProperty('type', 'list')
 				expect(result).toHaveProperty('listType', 'bullet')
 				expect(result?.lines[0]).toHaveProperty('asText', `* [i] list item`)
-				expect(result?.lines[1]).toHaveProperty('asText', `      more content`)
+				expect(result?.lines[1]).toHaveProperty('asText', `  more content`)
 
 				expect(result?.content).toHaveLength(1)
 				expect(result?.content[0]).toHaveProperty('type', 'list-item')
@@ -315,15 +336,15 @@ describe('MfMListItem', () => {
 				expect(result?.content[0].lines[0]).toHaveProperty('asText', `* list item`)
 				expect(result?.content[0].lines[result.content[0].lines.length-1]).toHaveProperty('asText', `  more content`)
 	
-				expect(result?.content[0].content).toHaveLength(contents.length)
+				expect(result?.content[0].content).toHaveLength(3)
 				expect(result?.content[0].content[0]).toHaveProperty('type', 'paragraph')
 				expect(result?.content[0].content[0].lines[0]).toHaveProperty('asText', 'list item')
-				sep.forEach((s, i) => {
-					expect(result?.content[0].content[i+1]).toHaveProperty('type', '--empty--')
-					expect(result?.content[0].content[i+1].lines[0]).toHaveProperty('asText', s)
-				})
-				expect(result?.content[0].content[contents.length-1]).toHaveProperty('type', 'paragraph')
-				expect(result?.content[0].content[contents.length-1].lines[0]).toHaveProperty('asText', 'more content')
+
+				expect(result?.content[0].content[1]).toHaveProperty('type', '--empty--')
+				expect(result?.content[0].content[1].lines).toHaveLength(sep.length)
+
+				expect(result?.content[0].content[2]).toHaveProperty('type', 'paragraph')
+				expect(result?.content[0].content[2].lines[0]).toHaveProperty('asText', 'more content')
 			}))
 
 			it('parses a list item inside a list item', () => {
@@ -571,7 +592,7 @@ describe('MfMListItem', () => {
 			const contents = [
 				`*{ default value; key2=value2;`,
 				`    key3=value3 } [x]  list item`,
-				`       more content`,
+				`  more content`,
 			]
 			const text = contents.join('\n')
 			
@@ -590,7 +611,7 @@ describe('MfMListItem', () => {
 
 			assume(result?.content).toHaveLength(1)
 			assume(result?.content[0]).toHaveProperty('type', 'list-item')
-			expect(result?.content[0]).toHaveProperty('indent', 7)
+			expect(result?.content[0]).toHaveProperty('indent', 2)
 			expect(result?.content[0].options.get('default')).toEqual('default value')
 			expect(result?.content[0].options.get('key2')).toEqual('value2')
 			expect(result?.content[0].options.get('key3')).toEqual('value3')
@@ -696,8 +717,8 @@ describe('MfMListItem', () => {
 				const updateParser = new UpdateParser(new NumberedIdGenerator())
 				const contents = [
 					`1. [x]  list item`,
-					`        more content`,
-					`        last line`,
+					`   more content`,
+					`   last line`,
 				]
 				const text = contents.join('\n')
 				
@@ -719,7 +740,7 @@ describe('MfMListItem', () => {
 
 				expect(result?.content).toHaveLength(1)
 				expect(result?.content[0]).toHaveProperty('type', 'list-item')
-				expect(result?.content[0]).toHaveProperty('indent', 8)
+				expect(result?.content[0]).toHaveProperty('indent', 3)
 
 				assume(result?.content[0]).toHaveProperty('itemType', 'task')
 				assume(result?.content[0]).toHaveProperty('taskState', 'x')

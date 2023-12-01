@@ -40,12 +40,16 @@ import { MfMLinkText } from "./mfm/inline/link/MfMLinkText";
 import { MfMImage, MfMLink } from "./mfm/inline/link/MfMLink";
 import { MfMLinkReference } from "./mfm/block/MfMLinkReference";
 import { MfMOptions } from "./mfm/options/MfMOptions";
+import { MfMListItem } from "./mfm/block/MfMListItem";
+import { MfMList } from "./mfm/block/MfMList";
 
 export type MfMBlockElements =
 	MfMSection |
 	MfMHeading |
 	MfMGeneralPurposeBlock |
 	MfMAside |
+	MfMListItem |
+	MfMList |
 	MfMParagraph |
 	MfMThematicBreak |
 	MfMIndentedCodeBlock |

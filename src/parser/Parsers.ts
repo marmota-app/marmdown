@@ -42,14 +42,6 @@ export type Parsers<PARSER extends Parser<Element<unknown, unknown, unknown, unk
 
 	/** All known block parsers. */
 	allBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
-	/** All parsers for container blocks (blocks that can contain other
-	 * blocks). 
-	 */
-	allContainerBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
-	/** All parsers for leaf blocks (blocks that can only contain inline
-	 * elements). 
-	 */
-	allLeafBlocks?: Parser<Element<unknown, unknown, unknown, unknown>>[],
 
 	/** All known parsers for inline elements. */
 	allInlines?: Parser<Element<unknown, unknown, unknown, unknown>>[],

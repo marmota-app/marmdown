@@ -22,6 +22,8 @@ import { MfMLinkReference } from "../../src/mfm/block/MfMLinkReference";
 import { MfMImage, MfMLink } from "../../src/mfm/inline/link/MfMLink";
 import { MfMContainer } from "../../src/mfm/MfMContainer";
 import { MfMOptions } from "../../src/mfm/options/MfMOptions";
+import { MfMList } from "../../src/mfm/block/MfMList";
+import { MfMListItem } from "../../src/mfm/block/MfMListItem";
 
 export function html(document: Marmdown<MfMContainer>) {
 	return document.document? all(document.document.content, document.document.linkReferences) : ''
@@ -42,6 +44,8 @@ function all(blocks: MfMBlockElements[], linkReferences: { [key: string]: MfMLin
 			case 'indented-code-block': return `<pre><code>${inline(b.content, linkReferences, '\n', false)}</code></pre>`
 			case 'fenced-code-block': return `<pre><code${b.options.get('default')? ' class="language-'+b.options.get('default')+'"':''}>${inline(b.content, linkReferences, '\n', false)}</code></pre>`
 			case 'link-reference': return ''
+			case 'list': return list(b, linkReferences)
+			case 'list-item': return listItem(b, linkReferences)
 			case '--empty--': return ''
 			default: error(`Unsupported block element: ${(b as any).type}`, b)
 		}
@@ -50,6 +54,20 @@ function all(blocks: MfMBlockElements[], linkReferences: { [key: string]: MfMLin
 
 function heading(heading: MfMHeading, linkReferences: { [key: string]: MfMLinkReference }) {
 	return `<h${heading.level}${options(heading)}>${inline(heading.content, linkReferences)}</h${heading.level}>`
+}
+
+function list(list: MfMList, linkReferences: { [key: string]: MfMLinkReference }) {
+	const listTag = list.listType === 'bullet'? 'ul' : "ol"
+	let start = (list.listType === 'ordered' && list.orderStart !== 1)? ` start="${list.orderStart}"` : ''
+	return `<${listTag}${start}>\n${all(list.content, linkReferences)}\n</${listTag}>`
+}
+
+function listItem(listItem: MfMListItem, linkReferences: { [key: string]: MfMLinkReference }) {
+	let task = ''
+	if(listItem.itemType === 'task') {
+		task = `<input${listItem.taskState=='x'? ' checked=""' : ''} disabled="" type="checkbox">`
+	}
+	return `<li>${task}\n${all(listItem.content, linkReferences)}\n</li>`
 }
 
 function inline(inlines: MfMInlineElements[], linkReferences: { [key: string]: MfMLinkReference }, joinAfterText: string = '', escape: boolean = true): string {
