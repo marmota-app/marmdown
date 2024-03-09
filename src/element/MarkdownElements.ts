@@ -71,6 +71,16 @@ export interface ListItem<
 	CONTENT extends Block<unknown, unknown, unknown>,
 > extends ContainerBlock<THIS, CONTENT, 'list-item'> {}
 
+/**
+ * Tables are leaf blocks in GfM, but we don't want to have this limitation here,
+ * so the interface defines them as container block. A concrete implementation
+ * might treat them as leaf blocks, though.
+ */
+export interface Table<
+	THIS extends Table<THIS, CONTENT>,
+	CONTENT extends Block<unknown, unknown, unknown>,
+> extends ContainerBlock<THIS, CONTENT, 'table'> {}
+
 export interface Emphasis<
 	THIS extends Emphasis<THIS, CONTENT>, CONTENT extends Inline<any, any, any, any>
 > extends ContainerInline<THIS, CONTENT, 'emphasis'> {}

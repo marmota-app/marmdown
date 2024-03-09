@@ -248,6 +248,11 @@ const implementedSections: ImplementedSection[] = [
 		],
 	},
 	{ chapter: '4.9', name: 'Blank lines', notYetImplemented: [], incompatible: [] },
+	{
+		chapter: '__4.10', name: 'Tables (extension)',
+		notYetImplemented: [],
+		incompatible: [],
+	},
 	{ 
 		chapter: '5.1', name: 'Block quotes',
 		notYetImplemented: [

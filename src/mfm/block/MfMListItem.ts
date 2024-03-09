@@ -286,8 +286,9 @@ export class MfMListItemParser extends MfMParser<MfMListItem, MfMList, MfMOption
 	override shouldInterrupt(element: Element<unknown, unknown, unknown, unknown>, text: string, start: number, length: number): boolean {
 		const parsed = this.parseLine(null, text, start, length)
 		if(element.type === 'paragraph' && parsed != null) {
+			//Ordered lists can only interrupt a paragraph when they start at 1 (GfM Spec!)
 			if(parsed.listType === 'ordered' && parsed.orderStart !== 1) { return false }
-			
+
 			const content = parsed.content[0]?.content[0]
 			return content != null && content.type !== '--empty--'
 		}
