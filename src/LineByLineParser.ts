@@ -54,7 +54,9 @@ export class LineByLineParser<CONTAINER extends ContainerBlock<unknown, unknown,
 				(crIndex >= 0? Math.min(nlIndex, crIndex)-start : nlIndex-start):
 				(crIndex >= 0? crIndex-start : text.length-start)
 			
-			let current = this.containerParser.parseLine(result, text, start, length)
+			let current = this.containerParser.parseLine(result, text, start, length, {
+				lookahead: this.lookahead(text, start, length)
+			})
 			if(!current) {
 				throw new ParseError(
 					text.substring(start, start+length),
@@ -76,6 +78,29 @@ export class LineByLineParser<CONTAINER extends ContainerBlock<unknown, unknown,
 		}
 		return result
 	}
+	lookahead(text: string, start: number, length: number): (() => [number, number] | null) {
+		return (): [number, number] | null => {
+			let lookaheadStart = start+length
+			if(text.charAt(lookaheadStart) === '\n') {
+				lookaheadStart++
+			} else if(text.charAt(start) === '\r') {
+				lookaheadStart += (text.length > lookaheadStart+1 && text.charAt(lookaheadStart+1)==='\n')? 2 : 1
+			}
+
+			if(lookaheadStart < text.length) {
+				const crIndex = text.indexOf('\r', lookaheadStart)
+				const nlIndex = text.indexOf('\n', lookaheadStart)
+	
+				const lookaheadLength = nlIndex >= 0?
+					(crIndex >= 0? Math.min(nlIndex, crIndex)-lookaheadStart : nlIndex-lookaheadStart):
+					(crIndex >= 0? crIndex-lookaheadStart : text.length-lookaheadStart)
+	
+				return [lookaheadStart, lookaheadLength]
+			}
+			return null	
+		}
+	}
+
 }
 
 /**

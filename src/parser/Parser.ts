@@ -19,6 +19,9 @@ import { ContentUpdate } from "../ContentUpdate";
 import { jsonTransient } from "../jsonTransient";
 import { Parsers } from "./Parsers";
 
+export interface ParserUtils {
+	lookahead: () => [number, number] | null,
+}
 /**
  * Parses an element and supports line-by-line-parsing. 
  * 
@@ -64,7 +67,7 @@ export abstract class Parser<
 	 * @param start The start index of the line to parse, ignore everything before `start`
 	 * @param length The length of the line to parse, ignore everything after `start+length`
 	 */
-	abstract parseLine(previous: RESULT | null, text: string, start: number, length: number): META_RESULT | null
+	abstract parseLine(previous: RESULT | null, text: string, start: number, length: number, utils?: ParserUtils): META_RESULT | null
 
 	/**
 	 * Parse an update to an original element, returning the parsed line type if the

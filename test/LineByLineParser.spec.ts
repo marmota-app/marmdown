@@ -17,13 +17,14 @@ limitations under the License.
 import { LineByLineParser, ParseError } from "../src/LineByLineParser"
 import { MfMSectionParser } from "../src/mfm/block/MfMSection"
 import { MfMContainer, MfMContainerParser } from "../src/mfm/MfMContainer"
-import { instance, mock, verify, when } from "omnimock"
+import { anyObject, instance, mock, verify, when } from "omnimock"
+import { ParserUtils } from "../src/parser/Parser"
 
 describe('LineByLineParser', () => {
 	const sectionParserMock = mock(MfMSectionParser)
 	it('passes the complete document to the given parser when there are no lines', () => {
 		const containerParserMock = mock(MfMContainerParser)
-		when(containerParserMock.parseLine(null, 'the text', 0, 'the text'.length))
+		when(containerParserMock.parseLine(null, 'the text', 0, 'the text'.length, anyObject()))
 			.return(new MfMContainer('expected result', instance(containerParserMock), instance(sectionParserMock)))
 			.once()
 
@@ -37,10 +38,10 @@ describe('LineByLineParser', () => {
 
 		const containerParserMock = mock(MfMContainerParser)
 		const container = new MfMContainer('expected result', instance(containerParserMock), instance(sectionParserMock))
-		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
+		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length, anyObject()))
 			.return(container)
 			.once()
-		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length))
+		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length, anyObject()))
 			.return(container)
 			.once()
 
@@ -55,9 +56,9 @@ describe('LineByLineParser', () => {
 
 		const containerParserMock = mock(MfMContainerParser)
 		const container = new MfMContainer('a container', instance(containerParserMock), instance(sectionParserMock))
-		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
+		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length, anyObject()))
 			.return(container)
-		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length))
+		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length, anyObject()))
 			.return(null)
 
 		const parser = new LineByLineParser(instance(containerParserMock))
@@ -68,12 +69,56 @@ describe('LineByLineParser', () => {
 
 		const containerParserMock = mock(MfMContainerParser)
 		const container = new MfMContainer('a container', instance(containerParserMock), instance(sectionParserMock))
-		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length))
+		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length, anyObject()))
 			.return(container)
-		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length))
+		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length, anyObject()))
 			.return(new MfMContainer('different container', instance(containerParserMock), instance(sectionParserMock)))
 
 		const parser = new LineByLineParser(instance(containerParserMock))
 		expect(() => parser.parse(text)).toThrow(ParseError)
+	})
+	it('passes a working lookahead function to the container parser: lookahead returns next line', () => {
+		const text = 'Sphinx of black quartz,\njudge my vow.'
+		var lookahead: ParserUtils['lookahead'] | undefined
+
+		const containerParserMock = mock(MfMContainerParser)
+		const container = new MfMContainer('expected result', instance(containerParserMock), instance(sectionParserMock))
+		when(containerParserMock.parseLine(null, text, 0, 'Sphinx of black quartz,'.length, anyObject()))
+			.callFake((prev: any, text: string, start: number, length: number, utils?: ParserUtils) => {
+				lookahead = utils?.lookahead
+				return container
+			})
+			.once()
+		when(containerParserMock.parseLine(container, text, 'Sphinx of black quartz,\n'.length, 'judge my vow.'.length, anyObject()))
+			.return(container)
+			.once()
+
+		const parser = new LineByLineParser(instance(containerParserMock))
+		parser.parse(text)
+		
+		verify(containerParserMock)
+		expect(lookahead).not.toBeUndefined()
+		expect(lookahead?.()).toEqual([
+			'Sphinx of black quartz,\n'.length,
+			'judge my vow.'.length,
+		])
+	})
+	it('passes a working lookahead function to the container parser: lookahead returns null for last line', () => {
+		const containerParserMock = mock(MfMContainerParser)
+		var lookahead: ParserUtils['lookahead'] | undefined
+
+		when(containerParserMock.parseLine(null, 'the text', 0, 'the text'.length, anyObject()))
+			.callFake((prev: any, text: string, start: number, length: number, utils?: ParserUtils) => {
+				lookahead = utils?.lookahead
+				return new MfMContainer('expected result', instance(containerParserMock), instance(sectionParserMock))
+			})
+			.once()
+
+		const parser = new LineByLineParser(instance(containerParserMock))
+		parser.parse('the text')
+
+		verify(containerParserMock)
+		expect(lookahead).not.toBeUndefined()
+		expect(lookahead?.()).toBeNull()
 	})
 })

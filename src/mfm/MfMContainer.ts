@@ -19,6 +19,7 @@ import { Container } from "../element/MarkdownElements";
 import { MfMBlockElements } from "../MfMDialect";
 import { EmptyElementParser } from "../parser/EmptyElementParser";
 import { parseContainerBlock } from "../parser/parse";
+import { ParserUtils } from "../parser/Parser";
 import { MfMLinkReference } from "./block/MfMLinkReference";
 import { MfMSection, MfMSectionParser } from "./block/MfMSection";
 import { addOptionsToContainerBlock, MfMGenericBlock, MfMGenericContainerBlock } from "./MfMGenericElement";
@@ -84,7 +85,7 @@ export class MfMContainerParser extends MfMParser<MfMContainer, MfMContainer, Mf
 	create() {
 		return new MfMContainer(this.parsers.idGenerator.nextId(), this, this.parsers['MfMSection'])
 	}
-	parseLine(previous: MfMContainer | null, text: string, start: number, length: number): MfMContainer | null {
+	parseLine(previous: MfMContainer | null, text: string, start: number, length: number, utils?: ParserUtils): MfMContainer | null {
 		const container = previous ?? this.create()
 
 		const optionsResult = addOptionsToContainerBlock(container, text, start, length, this.parsers)
