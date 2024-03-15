@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { NumberedIdGenerator } from "../../../src/IdGenerator"
+import { IdGenerator, NumberedIdGenerator } from "../../../src/IdGenerator"
 import { MfMParagraphParser } from "../../../src/mfm/block/MfMParagraph"
 import { MfMContentLineParser } from "../../../src/mfm/inline/MfMContentLine"
 import { MfMTextParser } from "../../../src/mfm/inline/MfMText"
@@ -28,14 +28,18 @@ import { createHeadingParser } from "./createHeadingParser"
 export function createParagraphParser(emptyElementParser?: EmptyElementParser) {
 	const idGenerator = new NumberedIdGenerator()
 	emptyElementParser = emptyElementParser ?? new EmptyElementParser({ idGenerator })
-	const MfMEmphasis = createEmphasisParser(idGenerator)
-	const MfMText = new MfMTextParser({ idGenerator })
 	const parsers: Parsers<MfMContentLineParser | MfMOptionsParser> = {
 		idGenerator,
-		MfMContentLine: new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, MfMEmphasis, ], allInnerInlines:[ MfMEmphasis, ], }),
+		MfMContentLine: createContentLineParser(idGenerator),
 		MfMOptions: createOptionsParser(idGenerator),
 		allBlocks: [ emptyElementParser, createHeadingParser()['headingParser'], ],
 	}
 	const paragraphParser = new MfMParagraphParser(parsers)
 	return { paragraphParser, idGenerator }
+}
+
+export function createContentLineParser(idGenerator: IdGenerator = new NumberedIdGenerator()) {
+	const MfMEmphasis = createEmphasisParser(idGenerator)
+	const MfMText = new MfMTextParser({ idGenerator })
+	return new MfMContentLineParser({ idGenerator, MfMText, allInlines: [ MfMText, MfMEmphasis, ], allInnerInlines:[ MfMEmphasis, ], })
 }
