@@ -14,12 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+export type ValidatorFn<T> = T extends unknown[]? ((v: T[number], l: T[number]|null)=>boolean)[] : (v: T, l: T|null)=>boolean
+
 export function INCREASING<T> (v: T, l: T|null) { return l==null || v > l }
 export function CHANGING<T> (v: T, l: T|null) { return l==null || v !== l }
 
 export function finiteLoop<T extends unknown | unknown[]>(
 	variable: () => T,
-	isValid: T extends unknown[]? ((v: T[number], l: T[number]|null)=>boolean)[] : (v: T, l: T|null)=>boolean
+	isValid: ValidatorFn<T>
 ) {
 	let lastVariable: T | null = null
 	return {
